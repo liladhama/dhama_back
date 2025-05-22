@@ -28,10 +28,14 @@ const app = express();
 app.use(express.json());
 
 app.post('/webhook', (req, res) => {
-  console.log('>>> raw update:', JSON.stringify(req.body));
-  bot.handleUpdate(req.body, res).then(() => res.sendStatus(200));
+  console.log('🔥 /webhook got:', req.body);
+  bot.handleUpdate(req.body)
+    .then(() => res.sendStatus(200))
+    .catch(err => {
+      console.error('❌ bot.handleUpdate error', err);
+      res.sendStatus(500);
+    });
 });
-
 
 const FRONTEND_URL = process.env.FRONTEND_URL;
 
