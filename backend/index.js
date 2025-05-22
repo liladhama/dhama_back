@@ -36,7 +36,8 @@ app.post('/webhook', (req, res) => {
 const FRONTEND_URL = process.env.FRONTEND_URL;
 
 bot.command('start', ctx => {
-  ctx.reply('Открыть WebApp:', {
+  console.log('>>> RECEIVED /start from', ctx.from.username, ctx.from.id);
+  return ctx.reply('Привет! Открыть WebApp:', {
     reply_markup: {
       inline_keyboard: [[
         { text: 'Открыть приложение', web_app: { url: FRONTEND_URL } }
