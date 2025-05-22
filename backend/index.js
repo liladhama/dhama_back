@@ -31,11 +31,13 @@ app.post('/webhook', (req, res) => {
     .catch(() => res.sendStatus(500));
 });
 
+const FRONTEND_URL = process.env.FRONTEND_URL;
+
 bot.command('start', ctx => {
-  ctx.reply('Привет! Открыть WebApp:', {
+  ctx.reply('Открыть WebApp:', {
     reply_markup: {
       inline_keyboard: [[
-        { text: 'Открыть приложение', web_app: { url: WEBHOOK_URL } }
+        { text: 'Открыть приложение', web_app: { url: FRONTEND_URL } }
       ]]
     }
   });
