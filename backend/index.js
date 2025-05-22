@@ -26,10 +26,10 @@ const app = express();
 app.use(express.json());
 
 app.post('/webhook', (req, res) => {
-  bot.handleUpdate(req.body, res)
-    .then(() => res.sendStatus(200))
-    .catch(() => res.sendStatus(500));
+  console.log('>>> raw update:', JSON.stringify(req.body));
+  bot.handleUpdate(req.body, res).then(() => res.sendStatus(200));
 });
+
 
 const FRONTEND_URL = process.env.FRONTEND_URL;
 
