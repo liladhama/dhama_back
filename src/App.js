@@ -1,37 +1,27 @@
-import React, { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import BottomNav from './components/BottomNav';
+import Altar from './pages/Altar';
+import Japa from './pages/Japa';
+import Gyan from './pages/Gyan';
+import Shiksha from './pages/Shiksha';
+import Market from './pages/Market';
 
-function App() {
-  // Telegram WebApp API
-  const tg = window.Telegram?.WebApp;
-
-  useEffect(() => {
-    if (tg) {
-      tg.expand();                      // развернуть на весь экран
-      tg.MainButton.setText('Отправить');
-      tg.MainButton.show();
-    }
-  }, [tg]);
-
-  const onSend = () => {
-    const payload = { message: 'Привет, бот!', time: Date.now() };
-    tg.sendData(JSON.stringify(payload));
-  };
-const handleClick = () => {
-  const payload = { message: 'Привет, бот!', time: Date.now() };
-  console.log('→ отправляем в бот', payload);
-  tg.sendData(JSON.stringify(payload));
-};
+export default function App() {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-4">
-      <h1 className="text-3xl font-bold mb-6">Моё Telegram Web App</h1>
-      <button
-        onClick={onSend}
-        className="px-6 py-3 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700"
-      >
-        Отправить боту
-      </button>
-    </div>
+    <Router>
+      <div className="flex flex-col h-screen">
+        <div className="flex-1 overflow-auto">
+          <Routes>
+            <Route path="/" element={<Altar />} />
+            <Route path="/japa" element={<Japa />} />
+            <Route path="/gyan" element={<Gyan />} />
+            <Route path="/shiksha" element={<Shiksha />} />
+            <Route path="/market" element={<Market />} />
+          </Routes>
+        </div>
+        <BottomNav />
+      </div>
+    </Router>
   );
 }
 
-export default App;
