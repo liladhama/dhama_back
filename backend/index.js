@@ -12,6 +12,8 @@ if (!BOT_TOKEN || !WEBHOOK_URL) {
 
 const bot = new Telegraf(BOT_TOKEN);
 
+console.log('🚀 Bot instance created, BOT_TOKEN is set:', !!BOT_TOKEN);
+
 (async () => {
   try {
     const webhookPath = '/webhook';
