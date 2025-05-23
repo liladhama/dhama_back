@@ -41,7 +41,7 @@ const FRONTEND_URL = process.env.FRONTEND_URL;
 
 bot.command('start', ctx => {
   console.log('>>> RECEIVED /start from', ctx.from.username, ctx.from.id);
-  return ctx.reply('Привет! Открыть WebApp:', {
+  return ctx.reply('Добро пожаловать в DHAMA', {
     reply_markup: {
       inline_keyboard: [[
         { text: 'Открыть приложение', web_app: { url: FRONTEND_URL } }
