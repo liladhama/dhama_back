@@ -1,8 +1,8 @@
 // src/index.js
 import React, { useState, useEffect } from 'react';
-import { createRoot } from 'react-dom/client';
-import Loading from './components/Loading';
-import App from './App';
+import { createRoot }      from 'react-dom/client';
+import Loading             from './components/Loading';
+import App                 from './App';
 import './index.css';
 
 const container = document.getElementById('root');
@@ -12,13 +12,13 @@ function Root() {
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    // Если запущено в WebApp Telegram — вызываем ready() и expand()
     if (window.Telegram && window.Telegram.WebApp) {
       window.Telegram.WebApp.ready();
+      // Сразу разворачиваем интерфейс
       window.Telegram.WebApp.expand();
     }
-    // Показываем loading 1.5 секунды
-    const timer = setTimeout(() => setLoaded(true), 1500);
+    // Показываем Loading минимум 1.5с
+    const timer = setTimeout(() => setLoaded(true), 3000);
     return () => clearTimeout(timer);
   }, []);
 
