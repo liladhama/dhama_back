@@ -11,16 +11,22 @@ const root = createRoot(container);
 function Root() {
   const [loaded, setLoaded] = useState(false);
 
+  // Первый эффект: ready() + первичный expand()
   useEffect(() => {
-    if (window.Telegram && window.Telegram.WebApp) {
+    if (window.Telegram?.WebApp) {
       window.Telegram.WebApp.ready();
-      // Сразу разворачиваем интерфейс
       window.Telegram.WebApp.expand();
     }
-    // Показываем Loading минимум 1.5с
     const timer = setTimeout(() => setLoaded(true), 3000);
     return () => clearTimeout(timer);
   }, []);
+
+  // Второй эффект: повторный expand() уже при показе App
+  useEffect(() => {
+    if (loaded && window.Telegram?.WebApp) {
+      window.Telegram.WebApp.expand();
+    }
+  }, [loaded]);
 
   return loaded ? <App /> : <Loading />;
 }
