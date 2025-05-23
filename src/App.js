@@ -1,10 +1,12 @@
+import React from 'react';
 import { HashRouter as Router, Routes, Route } from 'react-router-dom';
+
 import BottomNav from './components/BottomNav';
 import Altar from './pages/Altar';
-import Japa from './pages/Japa';
-import Gyan from './pages/Gyan';
-import Shiksha from './pages/Shiksha';
-import Market from './pages/Market';
+import Japa  from './pages/Japa';     // <-- здесь
+import Gyan  from './pages/Gyan';
+import Shiksha  from './pages/Shiksha';
+import Market   from './pages/Market';
 
 export default function App() {
   return (
@@ -13,7 +15,7 @@ export default function App() {
         <div className="flex-1 overflow-auto">
           <Routes>
             <Route path="/" element={<Altar />} />
-            <Route path="/japa" element={<Japa />} />
+            <Route path="/japa" element={<Japa />} />        {/* <-- здесь */}
             <Route path="/gyan" element={<Gyan />} />
             <Route path="/shiksha" element={<Shiksha />} />
             <Route path="/market" element={<Market />} />
@@ -24,4 +26,3 @@ export default function App() {
     </Router>
   );
 }
-
