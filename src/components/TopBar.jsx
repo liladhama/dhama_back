@@ -1,44 +1,33 @@
 import React from 'react';
-
-import sukrityIcon from '../icons/sukriti.png';
-import lakshmiIcon from '../icons/lakshmi.png';
-import tonIcon from '../icons/toncoin.png';
+import sukritiIcon from '../assets/icons/sukriti.svg';
+import lakshmiIcon from '../assets/icons/lakshmi.svg';
+import toncoinIcon from '../assets/icons/toncoin.svg';
 
 export default function TopBar() {
-  const user = window.Telegram?.WebApp?.initDataUnsafe?.user;
-  const avatarUrl = user?.username
-    ? `https://t.me/i/userpic/320/${user.username}.jpg`
-    : null;
-
   return (
-    <div className="flex justify-between items-center h-14 bg-[#fef8ec] px-4 shadow-sm">
-      {/* Балансы */}
-      <div className="flex items-center space-x-4">
+    <div className="bg-white border-b border-gray-300 px-4 py-2 flex justify-between items-center">
+      {/* Левая часть (пусто или для логотипа) */}
+      <div className="w-10 h-10 rounded-full bg-gray-200"></div>
+
+      {/* Центр (балансы) */}
+      <div className="flex space-x-4 items-center">
         <div className="flex items-center space-x-1">
-          <img src={sukrityIcon} alt="Сукрити" className="w-5 h-5" />
-          <span className="text-sm font-medium">125</span>
+          <img src={sukritiIcon} alt="Sukriti" className="w-6 h-6" />
+          <span className="text-sm font-medium">512</span>
         </div>
         <div className="flex items-center space-x-1">
-          <img src={lakshmiIcon} alt="Лакшмикоины" className="w-5 h-5" />
-          <span className="text-sm font-medium">12</span>
+          <img src={lakshmiIcon} alt="Lakshmi" className="w-6 h-6" />
+          <span className="text-sm font-medium">39</span>
         </div>
         <div className="flex items-center space-x-1">
-          <img src={tonIcon} alt="Тонкоины" className="w-5 h-5" />
-          <span className="text-sm font-medium">3.5</span>
+          <img src={toncoinIcon} alt="Toncoin" className="w-6 h-6" />
+          <span className="text-sm font-medium">7</span>
         </div>
       </div>
 
-      {/* Аватар */}
-      <div>
-        {avatarUrl ? (
-          <img
-            src={avatarUrl}
-            alt="Профиль"
-            className="w-9 h-9 rounded-full border border-gray-300 shadow"
-          />
-        ) : (
-          <div className="w-9 h-9 rounded-full bg-gray-300" />
-        )}
+      {/* Аватарка пользователя */}
+      <div className="w-10 h-10 rounded-full bg-gray-300">
+        {/* позже: аватарка Telegram */}
       </div>
     </div>
   );
