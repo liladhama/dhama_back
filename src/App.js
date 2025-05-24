@@ -14,11 +14,8 @@ function App() {
   return (
     <Router>
       <div className="flex flex-col min-h-screen bg-gray-50">
-        
-        {/* Верхняя панель с аватаркой и балансами */}
         <TopBar />
 
-        {/* Основной контент */}
         <div className="flex-grow overflow-y-auto">
           <Routes>
             <Route path="/" element={<Altar />} />
@@ -29,7 +26,6 @@ function App() {
           </Routes>
         </div>
 
-        {/* Нижняя навигация */}
         <BottomNav />
       </div>
     </Router>
