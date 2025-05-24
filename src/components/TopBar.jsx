@@ -13,29 +13,29 @@ export default function TopBar() {
   }, []);
 
   return (
-    <div className="bg-[#e0c8b0] border-b border-gray-300 px-4 py-2 flex justify-between items-center">
+    <div className="bg-[#b08a60] border-b border-gray-400 px-4 py-2 flex justify-between items-center">
       {/* Балансы */}
       <div className="flex space-x-4 items-center">
         <div className="flex items-center space-x-1">
-          <img src={sukritiIcon} alt="Sukriti" className="w-6 h-6" />
-          <span className="text-sm font-medium text-gray-800">512</span>
+          <img src={sukritiIcon} alt="Sukriti" className="w-7 h-7" />
+          <span className="text-sm font-semibold text-white">512</span>
         </div>
         <div className="flex items-center space-x-1">
-          <img src={lakshmiIcon} alt="Lakshmi" className="w-6 h-6" />
-          <span className="text-sm font-medium text-gray-800">39</span>
+          <img src={lakshmiIcon} alt="Lakshmi" className="w-7 h-7" />
+          <span className="text-sm font-semibold text-white">39</span>
         </div>
         <div className="flex items-center space-x-1">
-          <img src={toncoinIcon} alt="Toncoin" className="w-6 h-6" />
-          <span className="text-sm font-medium text-gray-800">7</span>
+          <img src={toncoinIcon} alt="Toncoin" className="w-7 h-7" />
+          <span className="text-sm font-semibold text-white">7</span>
         </div>
       </div>
 
       {/* Аватар */}
-      <div className="w-10 h-10 rounded-full overflow-hidden border border-gray-400 shadow">
+      <div className="w-11 h-11 rounded-full overflow-hidden border-2 border-white shadow">
         {avatar ? (
           <img src={avatar} alt="User Avatar" className="w-full h-full object-cover" />
         ) : (
-          <div className="w-full h-full bg-gray-300" />
+          <div className="w-full h-full bg-gray-400" />
         )}
       </div>
     </div>
