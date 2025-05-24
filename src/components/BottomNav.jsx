@@ -18,18 +18,17 @@ export default function BottomNav() {
   ];
 
   return (
-    <nav className="flex justify-around bg-white shadow p-2">
+    <nav className="relative flex justify-around bg-white shadow px-2 pt-2 pb-3">
       {tabs.map((tab, idx) => {
-        // Центральная иконка "Алтарь" (idx 0) крупнее и в круге
-        const isCenter = idx === 0;
+        const isCenter = idx === 0; // Алтарь — по центру и больше
         return (
           <NavLink
             key={tab.to}
             to={tab.to}
             className={({ isActive }) =>
-              `flex flex-col items-center text-xs ${
-                isActive ? 'text-blue-600' : 'text-gray-500'
-              }`
+              `relative flex flex-col items-center justify-center ${
+                isCenter ? 'w-16 h-16 -translate-y-4 z-10' : 'w-full'
+              } ${isActive ? 'text-blue-600' : 'text-gray-500'}`
             }
           >
             <img
@@ -37,11 +36,11 @@ export default function BottomNav() {
               alt={tab.label}
               className={`transition-transform ${
                 isCenter
-                  ? 'w-10 h-10 -mt-1 rounded-full border-2 border-yellow-400 p-1'
+                  ? 'w-14 h-14 rounded-full border-4 border-yellow-400 bg-white p-1 shadow-lg'
                   : 'w-6 h-6'
               }`}
             />
-            <span className="mt-1">{tab.label}</span>
+            {!isCenter && <span className="text-xs mt-1">{tab.label}</span>}
           </NavLink>
         );
       })}
