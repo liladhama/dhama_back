@@ -3,11 +3,11 @@ import React from 'react';
 export default function Altar() {
   return (
     <div
-      className="w-full flex-1 bg-cover bg-center bg-no-repeat"
+      className="w-full bg-cover bg-center bg-no-repeat"
       style={{
-        backgroundImage: `url(${process.env.PUBLIC_URL}/images/altar-bg.png)`,
-        height: 'calc(100vh - 136px)',
-        overflow: 'hidden'
+        backgroundImage: "url('/images/altar-bg.png')",
+        minHeight: 'calc(100vh - 136px)', // 56 TopBar + 80 BottomNav
+        overflow: 'hidden',
       }}
     >
       {/* Доп. элементы на алтаре */}
