@@ -8,42 +8,29 @@ import shikshaIcon from '../icons/icon_shiksha.png';
 import marketIcon from '../icons/icon_market.png';
 
 export default function BottomNav() {
-  const tabs = [
-    { to: '/japa',    label: 'Джапа',   icon: japaIcon },
-    { to: '/gyan',    label: 'Гьяна',   icon: gyanIcon },
-    { to: '/',        label: 'Алтарь',  icon: altarIcon },
-    { to: '/shiksha', label: 'Шикша',   icon: shikshaIcon },
-    { to: '/market',  label: 'Рынок',   icon: marketIcon },
-  ];
-
   return (
-    <nav className="flex justify-between items-end bg-[#CD853F] px-2 pt-2 pb-4 shadow-md">
-
-      {tabs.map((tab, idx) => {
-        const isCenter = idx === 2;
-        return (
-          <NavLink
-            key={tab.to}
-            to={tab.to}
-            className={({ isActive }) =>
-              `flex flex-col items-center justify-center w-full ${
-                isCenter ? 'relative -translate-y-1.5 z-10' : '-translate-y-1.5'
-              } ${isActive ? 'text-blue-600' : 'text-gray-500'}`
-            }
-          >
-            <img
-              src={tab.icon}
-              alt={tab.label}
-              className={`transition-transform ${
-                isCenter
-                  ? 'w-14 h-14 rounded-full border-4 border-yellow-400 bg-white shadow-lg'
-                  : 'w-10 h-10'
-              }`}
-            />
-            <span className="text-xs mt-1">{tab.label}</span>
-          </NavLink>
-        );
-      })}
+    <nav className="fixed bottom-0 left-0 w-full bg-[#DCC7A0]/80 backdrop-blur-sm border-t border-[#c7b288] z-50">
+      <div className="flex justify-around items-center h-20">
+        <NavLink to="/market">
+          <img src={marketIcon} alt="Market" className="w-8 h-8" />
+        </NavLink>
+        <NavLink to="/japa">
+          <img src={japaIcon} alt="Japa" className="w-8 h-8" />
+        </NavLink>
+        <NavLink to="/altar">
+          <img
+            src={altarIcon}
+            alt="Altar"
+            className="w-14 h-14 rounded-full border-2 border-yellow-500 -mt-4 bg-white"
+          />
+        </NavLink>
+        <NavLink to="/gyan">
+          <img src={gyanIcon} alt="Gyan" className="w-8 h-8" />
+        </NavLink>
+        <NavLink to="/shiksha">
+          <img src={shikshaIcon} alt="Shiksha" className="w-8 h-8" />
+        </NavLink>
+      </div>
     </nav>
   );
 }
