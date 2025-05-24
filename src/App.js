@@ -1,28 +1,39 @@
 import React from 'react';
 import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 
+import TopBar from './components/TopBar';
 import BottomNav from './components/BottomNav';
-import Altar from './pages/Altar';
-import Japa  from './pages/Japa';     // <-- здесь
-import Gyan  from './pages/Gyan';
-import Shiksha  from './pages/Shiksha';
-import Market   from './pages/Market';
 
-export default function App() {
+import Altar from './pages/Altar';
+import Japa from './pages/Japa';
+import Gyan from './pages/Gyan';
+import Shiksha from './pages/Shiksha';
+import Market from './pages/Market';
+
+function App() {
   return (
     <Router>
-      <div className="flex flex-col h-screen">
-        <div className="flex-1 overflow-auto">
+      <div className="flex flex-col min-h-screen bg-gray-50">
+        
+        {/* Верхняя панель с аватаркой и балансами */}
+        <TopBar />
+
+        {/* Основной контент */}
+        <div className="flex-grow overflow-y-auto">
           <Routes>
             <Route path="/" element={<Altar />} />
-            <Route path="/japa" element={<Japa />} />        {/* <-- здесь */}
+            <Route path="/japa" element={<Japa />} />
             <Route path="/gyan" element={<Gyan />} />
             <Route path="/shiksha" element={<Shiksha />} />
             <Route path="/market" element={<Market />} />
           </Routes>
         </div>
+
+        {/* Нижняя навигация */}
         <BottomNav />
       </div>
     </Router>
   );
 }
+
+export default App;
