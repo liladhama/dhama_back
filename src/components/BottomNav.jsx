@@ -27,7 +27,7 @@ export default function BottomNav() {
             to={tab.to}
             className={({ isActive }) =>
               `flex flex-col items-center justify-center w-full ${
-                isCenter ? 'relative -translate-y-2 z-10' : '-translate-y-1.5'
+                isCenter ? 'relative -translate-y-1.5 z-10' : '-translate-y-1.5'
               } ${isActive ? 'text-blue-600' : 'text-gray-500'}`
             }
           >
