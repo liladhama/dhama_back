@@ -2,17 +2,19 @@ import React from 'react';
 
 export default function Altar() {
   return (
-    <div className="relative w-full h-full overflow-hidden flex-grow">
-      {/* Фоновое изображение */}
-      <img
-        src="/images/altar-bg.png"
-        alt="Altar"
-        className="w-full h-full object-cover absolute inset-0 z-0"
-      />
+    <div className="flex flex-col flex-grow min-h-screen">
+      <div className="relative flex-grow overflow-hidden">
+        {/* Фоновое изображение */}
+        <img
+          src="/images/altar-bg.png"
+          alt="Altar"
+          className="absolute inset-0 w-full h-full object-cover z-0"
+        />
 
-      {/* Контейнер для интерактивных элементов */}
-      <div className="relative z-10 flex flex-col items-center justify-end h-full pb-4">
-        {/* Здесь можно разместить кнопки подношений */}
+        {/* Под интерактивные элементы */}
+        <div className="relative z-10 h-full w-full flex items-end justify-center pb-4">
+          {/* Подношения будут здесь */}
+        </div>
       </div>
     </div>
   );
