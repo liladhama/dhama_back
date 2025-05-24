@@ -13,7 +13,7 @@ export default function TopBar() {
   }, []);
 
   return (
-    <div className="bg-[#b08a60] border-b border-gray-400 px-4 py-2 flex justify-between items-center">
+    <div className="bg-[#A46C33] border-b border-gray-500 px-4 py-2 flex justify-between items-center">
       {/* Балансы */}
       <div className="flex space-x-4 items-center">
         <div className="flex items-center space-x-1">
