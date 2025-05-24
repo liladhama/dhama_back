@@ -3,20 +3,16 @@ import React from 'react';
 export default function Altar() {
   return (
     <div
-      className="fixed top-[56px] left-0 w-full"
+      className="w-full bg-cover bg-center bg-no-repeat"
       style={{
-        height: 'calc(100vh - 136px)', // 56px TopBar + 80px BottomNav
-        overflow: 'hidden',
-        zIndex: 1,
+        backgroundImage: "url('/images/altar-bg.png')",
+        height: 'calc(100vh - 136px)',
+        overflow: 'hidden'
       }}
     >
-      <img
-        src="/images/altar-bg.png"
-        alt="Altar"
-        className="w-full h-full object-cover"
-      />
-
-      {/* Сюда можно вернуть кнопки-подношения позже */}
+      <div className="text-white text-center pt-10 text-xl drop-shadow">
+        🕉 Алтарь загружен
+      </div>
     </div>
   );
 }
