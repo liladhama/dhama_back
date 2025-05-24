@@ -17,15 +17,15 @@ export default function TopBar() {
       {/* Балансы */}
       <div className="flex space-x-4 items-center">
         <div className="flex items-center space-x-1">
-          <img src={sukritiIcon} alt="Sukriti" className="w-7 h-7" />
+          <img src={sukritiIcon} alt="Sukriti" className="w-10 h-10" />
           <span className="text-sm font-semibold text-white">512</span>
         </div>
         <div className="flex items-center space-x-1">
-          <img src={lakshmiIcon} alt="Lakshmi" className="w-7 h-7" />
+          <img src={sukritiIcon} alt="Sukriti" className="w-10 h-10" />
           <span className="text-sm font-semibold text-white">39</span>
         </div>
         <div className="flex items-center space-x-1">
-          <img src={toncoinIcon} alt="Toncoin" className="w-7 h-7" />
+          <img src={toncoinIcon} alt="Toncoin" className="w-10 h-10" />
           <span className="text-sm font-semibold text-white">7</span>
         </div>
       </div>
