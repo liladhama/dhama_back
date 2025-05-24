@@ -11,7 +11,7 @@ export default function BottomNav() {
   const tabs = [
     { to: '/japa',    label: 'Джапа',   icon: japaIcon },
     { to: '/gyan',    label: 'Гьяна',   icon: gyanIcon },
-    { to: '/',        label: 'Алтарь',  icon: altarIcon }, // <- по центру
+    { to: '/',        label: 'Алтарь',  icon: altarIcon },
     { to: '/shiksha', label: 'Шикша',   icon: shikshaIcon },
     { to: '/market',  label: 'Рынок',   icon: marketIcon },
   ];
@@ -19,14 +19,14 @@ export default function BottomNav() {
   return (
     <nav className="flex justify-between items-end bg-white px-2 pt-2 pb-3 shadow">
       {tabs.map((tab, idx) => {
-        const isCenter = idx === 2; // теперь центральный — индекс 2
+        const isCenter = idx === 2;
         return (
           <NavLink
             key={tab.to}
             to={tab.to}
             className={({ isActive }) =>
               `flex flex-col items-center justify-center w-full ${
-                isCenter ? 'relative -translate-y-2 z-10' : ''
+                isCenter ? 'relative -translate-y-2 z-10' : '-translate-y-1'
               } ${isActive ? 'text-blue-600' : 'text-gray-500'}`
             }
           >
@@ -36,7 +36,7 @@ export default function BottomNav() {
               className={`transition-transform ${
                 isCenter
                   ? 'w-14 h-14 rounded-full border-4 border-yellow-400 bg-white shadow-lg'
-                  : 'w-6 h-6'
+                  : 'w-8 h-8'
               }`}
             />
             <span className="text-xs mt-1">{tab.label}</span>
