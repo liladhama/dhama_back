@@ -5,8 +5,9 @@ export default function Altar() {
     <div
       className="w-full flex-1 bg-cover bg-center bg-no-repeat"
       style={{
-        backgroundImage: "url('/images/altar-bg.png')",
-        minHeight: '100%',
+        backgroundImage: `url(${process.env.PUBLIC_URL}/images/altar-bg.png)`,
+        height: 'calc(100vh - 136px)',
+        overflow: 'hidden'
       }}
     >
       {/* Доп. элементы на алтаре */}
