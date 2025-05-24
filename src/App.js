@@ -1,5 +1,5 @@
 import React from 'react';
-import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 
 import TopBar from './components/TopBar';
 import BottomNav from './components/BottomNav';
@@ -17,8 +17,7 @@ function App() {
         <TopBar />
         <div className="flex-grow overflow-hidden">
           <Routes>
-            <Route path="/" element={<Navigate to="/altar" replace />} />
-            <Route path="/altar" element={<Altar />} />
+            <Route path="/" element={<Altar />} />
             <Route path="/japa" element={<Japa />} />
             <Route path="/gyan" element={<Gyan />} />
             <Route path="/shiksha" element={<Shiksha />} />
