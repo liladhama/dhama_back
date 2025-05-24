@@ -13,10 +13,9 @@ import Market from './pages/Market';
 function App() {
   return (
     <Router>
-      <div className="flex flex-col min-h-screen bg-gray-50">
+      <div className="flex flex-col h-screen overflow-hidden">
         <TopBar />
-
-        <div className="flex-grow overflow-y-auto">
+        <div className="flex-grow overflow-auto">
           <Routes>
             <Route path="/" element={<Altar />} />
             <Route path="/japa" element={<Japa />} />
@@ -25,7 +24,6 @@ function App() {
             <Route path="/market" element={<Market />} />
           </Routes>
         </div>
-
         <BottomNav />
       </div>
     </Router>
