@@ -3,14 +3,12 @@ import React from 'react';
 export default function Altar() {
   return (
     <div
-      className="w-full bg-cover bg-center bg-no-repeat"
+      className="flex-grow bg-cover bg-center bg-no-repeat"
       style={{
         backgroundImage: "url('/images/altar-bg.png')",
-        minHeight: 'calc(100vh - 136px)', // 56 TopBar + 80 BottomNav
-        overflow: 'hidden',
       }}
     >
-      {/* Доп. элементы на алтаре */}
+      {/* Элементы на алтаре */}
     </div>
   );
 }
