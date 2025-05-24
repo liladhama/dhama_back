@@ -17,7 +17,8 @@ export default function BottomNav() {
   ];
 
   return (
-    <nav className="flex justify-between items-end bg-white px-2 pt-2 pb-3 shadow">
+    <nav className="flex justify-between items-end bg-[#CD853F] px-2 pt-2 pb-4 shadow-md">
+
       {tabs.map((tab, idx) => {
         const isCenter = idx === 2;
         return (
