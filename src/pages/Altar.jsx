@@ -2,14 +2,14 @@ import React from 'react';
 
 export default function Altar() {
   return (
-    <div className="w-full bg-[#f5f5f5]">
-      <div className="relative overflow-hidden" style={{ aspectRatio: '9 / 16' }}>
-        <img
-          src="/images/altar-bg.png"
-          alt="Altar"
-          className="absolute inset-0 w-full h-full object-cover"
-        />
-      </div>
+    <div
+      className="w-full"
+      style={{
+        backgroundColor: '#d4c2a4',
+        height: 'calc(100vh - 136px)',
+      }}
+    >
+      <h1 className="text-center pt-10 text-xl text-white">🕉 Алтарь загружен</h1>
     </div>
   );
 }
