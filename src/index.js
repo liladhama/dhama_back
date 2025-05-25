@@ -1,42 +1,40 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
+import Loading from './components/Loading';
 import App from './App';
 import './index.css';
 
-function showApp() {
-  const container = document.getElementById('root');
-  const root = createRoot(container);
-  root.render(<App />);
-}
+const root = createRoot(document.getElementById('root'));
 
-function playIntroAndStart() {
-  const video = document.createElement('video');
-  video.src = '/videos/hanuman-intro.mp4';
-  video.muted = true;
-  video.playsInline = true;
-  video.className = 'fixed inset-0 z-50 w-full h-full object-cover';
-  video.setAttribute('preload', 'auto');
-  video.setAttribute('webkit-playsinline', '');
-  video.setAttribute('playsinline', '');
+function Root() {
+  const [loaded, setLoaded] = useState(false);
 
-  document.body.appendChild(video);
+  useEffect(() => {
+    console.log('Root component mounted');
+    if (window.Telegram?.WebApp) {
+      window.Telegram.WebApp.ready();
+      window.Telegram.WebApp.expand();
+      console.log('Telegram Web App initialized');
+    }
+    return () => console.log('Root component unmounted');
+  }, []);
 
-  video.onended = () => {
-    video.remove();
-    showApp();
+  const handleFinish = () => {
+    if (!loaded) {
+      console.log('handleFinish called, setting loaded to true');
+      setLoaded(true);
+    } else {
+      console.log('handleFinish called, but loaded is already true');
+    }
   };
 
-  video.onerror = () => {
-    console.error('⚠️ Ошибка воспроизведения видео, fallback на App');
-    video.remove();
-    showApp();
-  };
+  if (loaded) {
+    console.log('Rendering App');
+    return <App />;
+  }
 
-  video.play().catch((err) => {
-    console.error('⚠️ Autoplay не удался:', err);
-    video.remove();
-    showApp(); // fallback
-  });
+  console.log('Rendering Loading');
+  return <Loading onFinish={handleFinish} />;
 }
 
-playIntroAndStart();
+root.render(<Root />);
