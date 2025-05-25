@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 import TopBar from './components/TopBar';
@@ -11,11 +11,28 @@ import Shiksha from './pages/Shiksha';
 import Market from './pages/Market';
 
 export default function App() {
+  const videoRef = useRef(null);
+
+  useEffect(() => {
+    const tryPlay = () => {
+      if (videoRef.current) {
+        videoRef.current.play().catch((e) => {
+          console.log('Autoplay prevented:', e);
+        });
+      }
+      window.removeEventListener('click', tryPlay);
+      window.removeEventListener('touchstart', tryPlay);
+    };
+
+    window.addEventListener('click', tryPlay);
+    window.addEventListener('touchstart', tryPlay);
+  }, []);
+
   return (
     <div className="relative flex flex-col min-h-[100dvh] overflow-hidden">
-      {/* Фоновое видео */}
+      {/* Видео фон */}
       <video
-        autoPlay
+        ref={videoRef}
         loop
         muted
         playsInline
@@ -25,7 +42,6 @@ export default function App() {
         Your browser does not support the video tag.
       </video>
 
-      {/* Интерфейс */}
       <TopBar />
       <div className="flex-grow relative z-10 overflow-y-auto">
         <BrowserRouter>
