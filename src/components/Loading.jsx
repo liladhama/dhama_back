@@ -1,10 +1,36 @@
-export default function Loading() {
+import React, { useEffect, useRef } from 'react';
+
+export default function Loading({ onFinish }) {
+  const videoRef = useRef(null);
+  const hasEnded = useRef(false); // ✅ предотвращает повторный вызов
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (video) {
+      video.play().catch((err) => {
+        console.error('Video autoplay failed:', err);
+      });
+    }
+  }, []);
+
+  const handleEnded = () => {
+    if (!hasEnded.current) {
+      hasEnded.current = true;
+      if (typeof onFinish === 'function') {
+        onFinish();
+      }
+    }
+  };
+
   return (
-    <div className="w-screen h-screen bg-white">
-      <img
-        src="/hanuman_9_16.png"
-        alt="Загрузка DHAMA"
-        className="w-full h-full object-cover animate-pulse-scale"
+    <div className="fixed inset-0 z-50 bg-black">
+      <video
+        ref={videoRef}
+        src="/videos/hanuman-intro.mp4"
+        muted
+        playsInline
+        onEnded={handleEnded}
+        className="w-full h-full object-cover"
       />
     </div>
   );
