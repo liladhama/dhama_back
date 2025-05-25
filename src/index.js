@@ -14,22 +14,28 @@ function playIntroAndStart() {
   video.src = '/videos/hanuman-intro.mp4';
   video.muted = true;
   video.playsInline = true;
-  video.autoplay = true;
   video.className = 'fixed inset-0 z-50 w-full h-full object-cover';
+  video.setAttribute('preload', 'auto');
+  video.setAttribute('webkit-playsinline', '');
+  video.setAttribute('playsinline', '');
+
   document.body.appendChild(video);
 
-  // Запуск приложения по завершению воспроизведения
-  const finish = () => {
+  video.onended = () => {
     video.remove();
     showApp();
   };
 
-  video.onended = finish;
-  video.onerror = finish;
+  video.onerror = () => {
+    console.error('⚠️ Ошибка воспроизведения видео, fallback на App');
+    video.remove();
+    showApp();
+  };
 
   video.play().catch((err) => {
-    console.warn('Autoplay failed, fallback to App:', err);
-    finish();
+    console.error('⚠️ Autoplay не удался:', err);
+    video.remove();
+    showApp(); // fallback
   });
 }
 
