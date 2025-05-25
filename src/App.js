@@ -15,9 +15,25 @@ export default function App() {
 
   return (
     <BrowserRouter>
-      <div className="flex flex-col h-screen overflow-hidden">
+      <div className="relative flex flex-col h-screen overflow-hidden">
+        {/* Фон (на всякий случай, если видео не загрузится) */}
+        <div className="absolute inset-0 bg-black -z-20" />
+
+        {/* Видео фон */}
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute top-0 left-0 w-full h-full object-cover -z-10"
+        >
+          <source src="/videos/hanuman-intro-light.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+
+        {/* Основной интерфейс */}
         <TopBar />
-        <div className="flex-grow overflow-hidden">
+        <div className="flex-grow overflow-hidden relative z-10">
           <Routes>
             <Route path="/" element={<Altar />} />
             <Route path="/japa" element={<Japa />} />
