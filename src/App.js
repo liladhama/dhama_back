@@ -15,7 +15,7 @@ export default function App() {
 
   return (
     <BrowserRouter>
-      <div className="relative flex flex-col h-screen overflow-hidden">
+      <div className="relative flex flex-col min-h-[100dvh] overflow-hidden">
         {/* Фон (на всякий случай, если видео не загрузится) */}
         <div className="absolute inset-0 bg-black -z-20" />
 
@@ -25,10 +25,9 @@ export default function App() {
           loop
           muted
           playsInline
-          className="absolute top-0 left-0 w-full h-full object-cover -z-10"
+          className="fixed top-0 left-0 w-full h-full object-cover -z-10"
         >
           <source src="/videos/hanuman-intro-light.mp4" type="video/mp4" />
-          Your browser does not support the video tag.
         </video>
 
         {/* Основной интерфейс */}
