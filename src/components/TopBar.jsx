@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import sukritiIcon from '../assets/icons/sukriti.svg';
-import lakshmiIcon from '../assets/icons/lakshmi.svg';
-import toncoinIcon from '../assets/icons/toncoin.svg';
+
+// Импорт SVG как компонента (важно!)
+import { ReactComponent as SukritiIcon } from '../assets/icons/sukriti.svg';
+import { ReactComponent as LakshmiIcon } from '../assets/icons/lakshmi.svg';
+import { ReactComponent as ToncoinIcon } from '../assets/icons/toncoin.svg';
 
 export default function TopBar() {
   const [avatar, setAvatar] = useState(null);
@@ -13,19 +15,19 @@ export default function TopBar() {
   }, []);
 
   return (
-    <div className="bg-[#a06f3f] border-b border-gray-400 px-4 py-2 flex justify-between items-center">
+    <div className="bg-[#b07a3f] border-b border-gray-400 px-4 py-2 flex justify-between items-center">
       {/* Балансы */}
       <div className="flex space-x-4 items-center">
         <div className="flex items-center space-x-1">
-          <img src={sukritiIcon} alt="Sukriti" className="w-10 h-10" />
+          <SukritiIcon className="w-8 h-8 text-white" />
           <span className="text-sm font-semibold text-white">512</span>
         </div>
         <div className="flex items-center space-x-1">
-          <img src={lakshmiIcon} alt="Lakshmi" className="w-10 h-10" />
+          <LakshmiIcon className="w-8 h-8 text-white" />
           <span className="text-sm font-semibold text-white">39</span>
         </div>
         <div className="flex items-center space-x-1">
-          <img src={toncoinIcon} alt="Toncoin" className="w-10 h-10" />
+          <ToncoinIcon className="w-8 h-8 text-white" />
           <span className="text-sm font-semibold text-white">7</span>
         </div>
       </div>
