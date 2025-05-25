@@ -13,20 +13,22 @@ export default function TopBar() {
   }, []);
 
   return (
-    <div className="flex space-x-4 items-center">
-  <div className="flex items-center space-x-1">
-    <img src={sukritiIcon} alt="Sukriti" className="w-6 h-6 sm:w-8 sm:h-8" />
-    <span className="text-sm font-semibold text-white">512</span>
-  </div>
-  <div className="flex items-center space-x-1">
-    <img src={lakshmiIcon} alt="Lakshmi" className="w-6 h-6 sm:w-8 sm:h-8" />
-    <span className="text-sm font-semibold text-white">39</span>
-  </div>
-  <div className="flex items-center space-x-1">
-    <img src={toncoinIcon} alt="Toncoin" className="w-6 h-6 sm:w-8 sm:h-8" />
-    <span className="text-sm font-semibold text-white">7</span>
-  </div>
-</div>
+    <div className="bg-[#a06f3f] border-b border-gray-400 px-4 py-2 flex justify-between items-center">
+      {/* Балансы */}
+      <div className="flex space-x-4 items-center">
+        <div className="flex items-center space-x-1">
+          <img src={sukritiIcon} alt="Sukriti" className="w-10 h-10" />
+          <span className="text-sm font-semibold text-white">512</span>
+        </div>
+        <div className="flex items-center space-x-1">
+          <img src={lakshmiIcon} alt="Lakshmi" className="w-10 h-10" />
+          <span className="text-sm font-semibold text-white">39</span>
+        </div>
+        <div className="flex items-center space-x-1">
+          <img src={toncoinIcon} alt="Toncoin" className="w-10 h-10" />
+          <span className="text-sm font-semibold text-white">7</span>
+        </div>
+      </div>
 
       {/* Аватар */}
       <div className="w-11 h-11 rounded-full overflow-hidden border-2 border-white shadow">
