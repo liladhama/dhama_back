@@ -26,11 +26,9 @@ export default function App() {
     };
   }, []);
 
-  // Сброс масштаба после окончания видео
+  // Сброс масштаба после окончания видео — УДАЛЯЕМ!
   const handleVideoEnd = () => {
-    document.body.style.zoom = '1';
-    document.body.style.transform = 'scale(1)';
-    document.body.style.transformOrigin = 'top left';
+    // Не трогаем масштаб и transform body!
     setVideoFinished(true);
   };
 
