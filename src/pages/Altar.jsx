@@ -11,7 +11,7 @@ export default function Altar() {
 
   return (
     <div
-      className="w-full h-full bg-cover bg-center bg-no-repeat relative"
+      className="w-full min-h-screen bg-cover bg-center bg-no-repeat relative"
       style={{
         backgroundImage: "url('/images/altar-bg.png')",
       }}
