@@ -13,7 +13,6 @@ import BottomNav from './components/BottomNav';
 export default function App() {
   const [videoFinished, setVideoFinished] = useState(false);
   const [ctaVisible, setCtaVisible] = useState(true);
-  const [soundPlayed, setSoundPlayed] = useState(false);
   const videoRef = useRef(null);
   const audioRef = useRef(null);
 
@@ -45,7 +44,6 @@ export default function App() {
   // Клик по призыву к действию (CTA)
   const handleCtaClick = () => {
     audioRef.current?.play().then(() => {
-      setSoundPlayed(true);
       setCtaVisible(false);
     }).catch(() => {
       setCtaVisible(false);
@@ -59,10 +57,7 @@ export default function App() {
 
   return (
     <BrowserRouter>
-      <div
-        className="flex flex-col w-screen overflow-hidden relative"
-        style={{ height: '100dvh' }}
-      >
+      <div className="flex flex-col h-screen w-screen overflow-hidden relative">
         {/* Видео-заставка */}
         {!videoFinished && (
           <>
@@ -94,7 +89,7 @@ export default function App() {
                   onClick={handleCtaClick}
                   className="pointer-events-auto px-6 py-3 rounded-full text-lg shadow-lg transition-opacity duration-300"
                   style={{
-                    background: 'rgba(0, 0, 0, 0.18)', // ещё прозрачнее
+                    background: 'rgba(0, 0, 0, 0.18)',
                     color: 'white',
                     backdropFilter: 'blur(6px)',
                     border: '1px solid rgba(255,255,255,0.13)',
