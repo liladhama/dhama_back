@@ -1,18 +1,24 @@
-/* Tailwind directives */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Занимаем всё окно WebView */
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+}
+
 html,
 body,
 #root {
+  margin: 0;
   height: 100vh;
   min-height: 100vh;
-  margin: 0;
 }
 
-/* Глобальные стили */
+/* Основной цвет/фон */
 body {
   @apply bg-gray-50 text-gray-800;
+  transform: scale(1);
+  zoom: 1;
 }
