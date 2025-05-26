@@ -75,6 +75,7 @@ export default function App() {
               ref={audioRef}
               src="/audio/hanuman-intro.mp3"
               preload="auto"
+              style={{ display: 'none' }} // <-- вот это ключ
             />
             {/* CTA для звука */}
             {ctaVisible && (
