@@ -26,6 +26,14 @@ export default function App() {
     };
   }, []);
 
+  // Сброс масштаба после окончания видео
+  const handleVideoEnd = () => {
+    document.body.style.zoom = '1';
+    document.body.style.transform = 'scale(1)';
+    document.body.style.transformOrigin = 'top left';
+    setVideoFinished(true);
+  };
+
   return (
     <BrowserRouter>
       <div className="relative w-full min-h-screen overflow-hidden">
@@ -36,7 +44,7 @@ export default function App() {
             autoPlay
             muted
             playsInline
-            onEnded={() => setVideoFinished(true)}
+            onEnded={handleVideoEnd}
             className="absolute top-0 left-0 w-full h-full object-cover z-50"
           >
             <source src="/videos/hanuman-full.mp4" type="video/mp4" />
