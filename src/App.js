@@ -16,6 +16,7 @@ export default function App() {
   const [soundPlayed, setSoundPlayed] = useState(false);
   const videoRef = useRef(null);
   const audioRef = useRef(null);
+  const appRef = useRef(null);
 
   // --- для анимации огня ---
   const [showFireAnim, setShowFireAnim] = useState(false);
@@ -29,6 +30,18 @@ export default function App() {
   const handleFireAnimEnd = () => {
     setShowFireAnim(false);
   };
+
+  // Фикс высоты для мобильных 100vh
+  useEffect(() => {
+    const setHeight = () => {
+      if (appRef.current) {
+        appRef.current.style.height = window.innerHeight + 'px';
+      }
+    };
+    setHeight();
+    window.addEventListener('resize', setHeight);
+    return () => window.removeEventListener('resize', setHeight);
+  }, []);
 
   // Автозапуск видео сразу
   useEffect(() => {
@@ -59,7 +72,11 @@ export default function App() {
 
   return (
     <BrowserRouter>
-      <div className="flex flex-col h-screen w-screen overflow-hidden relative">
+      <div
+        ref={appRef}
+        className="flex flex-col w-screen overflow-hidden relative"
+        // убрали h-screen!
+      >
         {/* Видео-заставка */}
         {!videoFinished && (
           <>
@@ -91,7 +108,7 @@ export default function App() {
                   onClick={handleCtaClick}
                   className="pointer-events-auto px-6 py-3 rounded-full text-lg shadow-lg transition-opacity duration-300"
                   style={{
-                    background: 'rgba(0, 0, 0, 0.28)', // ещё прозрачнее
+                    background: 'rgba(0, 0, 0, 0.18)', // ещё прозрачнее
                     color: 'white',
                     backdropFilter: 'blur(6px)',
                     border: '1px solid rgba(255,255,255,0.13)',
