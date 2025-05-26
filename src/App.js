@@ -1,51 +1,22 @@
-import React, { useEffect } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-
-import TopBar from './components/TopBar';
-import BottomNav from './components/BottomNav';
-
-import Altar from './pages/Altar';
-import Japa from './pages/Japa';
-import Gyan from './pages/Gyan';
-import Shiksha from './pages/Shiksha';
-import Market from './pages/Market';
+import React from 'react';
 
 export default function App() {
-  useEffect(() => {
-    // Telegram Web App API — убрать заголовок и показать готовность
-    if (window.Telegram?.WebApp) {
-      window.Telegram.WebApp.expand();
-      window.Telegram.WebApp.ready();
-    }
-  }, []);
-
   return (
-    <div className="relative flex flex-col min-h-[100dvh] overflow-hidden">
-      {/* Видео фон — autoPlay, muted, loop */}
+    <div className="relative min-h-screen bg-black">
       <video
         autoPlay
-        loop
         muted
+        loop
         playsInline
-        className="fixed top-0 left-0 w-full h-full object-cover -z-10"
+        className="fixed top-0 left-0 w-full h-full object-cover z-0"
       >
         <source src="/videos/hanuman-intro.webm" type="video/webm" />
         Your browser does not support the video tag.
       </video>
 
-      <TopBar />
-      <div className="flex-grow relative z-10 overflow-y-auto">
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Altar />} />
-            <Route path="/japa" element={<Japa />} />
-            <Route path="/gyan" element={<Gyan />} />
-            <Route path="/shiksha" element={<Shiksha />} />
-            <Route path="/market" element={<Market />} />
-          </Routes>
-        </BrowserRouter>
+      <div className="relative z-10 flex justify-center items-center h-screen text-white text-xl font-bold">
+        Видеофон должен быть виден за этим текстом
       </div>
-      <BottomNav />
     </div>
   );
 }
