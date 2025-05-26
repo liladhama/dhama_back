@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 
 export default function Altar() {
   const [showFlash, setShowFlash] = useState(false);
