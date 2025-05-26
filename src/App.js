@@ -12,8 +12,10 @@ import BottomNav from './components/BottomNav';
 
 export default function App() {
   const [videoFinished, setVideoFinished] = useState(false);
+  const [ctaVisible, setCtaVisible] = useState(true);
+  const [soundPlayed, setSoundPlayed] = useState(false);
   const videoRef = useRef(null);
-  const audioRef = useRef(null); // добавили
+  const audioRef = useRef(null);
 
   // --- для анимации огня ---
   const [showFireAnim, setShowFireAnim] = useState(false);
@@ -28,33 +30,37 @@ export default function App() {
     setShowFireAnim(false);
   };
 
+  // Автозапуск видео сразу
   useEffect(() => {
-    if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.expand) {
-      window.Telegram.WebApp.expand();
-    }
-
-    const tryPlay = () => {
-      videoRef.current?.play().catch(() => {});
-      audioRef.current?.play().catch(() => {});
-    };
-    window.addEventListener('click', tryPlay);
-    window.addEventListener('touchstart', tryPlay);
-    return () => {
-      window.removeEventListener('click', tryPlay);
-      window.removeEventListener('touchstart', tryPlay);
-    };
+    videoRef.current?.play().catch(() => {});
   }, []);
 
+  // При завершении видео
   const handleVideoEnd = () => {
     setVideoFinished(true);
     audioRef.current?.pause();
     audioRef.current && (audioRef.current.currentTime = 0);
   };
 
+  // Клик по призыву к действию (CTA)
+  const handleCtaClick = () => {
+    audioRef.current?.play().then(() => {
+      setSoundPlayed(true);
+      setCtaVisible(false);
+    }).catch(() => {
+      setCtaVisible(false);
+    });
+  };
+
+  // Если видео закончилось, CTA скрываем
+  useEffect(() => {
+    if (videoFinished) setCtaVisible(false);
+  }, [videoFinished]);
+
   return (
     <BrowserRouter>
       <div className="flex flex-col h-screen w-screen overflow-hidden relative">
-        {/* Видео-заставка поверх всего */}
+        {/* Видео-заставка */}
         {!videoFinished && (
           <>
             <video
@@ -63,16 +69,39 @@ export default function App() {
               muted
               playsInline
               onEnded={handleVideoEnd}
-              className="absolute top-0 left-0 w-full h-full object-cover z-50"
+              className="absolute top-0 left-0 w-full h-full object-cover z-40"
             >
               <source src="/videos/hanuman-full.mp4" type="video/mp4" />
             </video>
             <audio
               ref={audioRef}
               src="/audio/hanuman-intro.mp3"
-              autoPlay
               preload="auto"
             />
+            {/* Призыв к действию — внизу, еще более прозрачный, на английском */}
+            {ctaVisible && (
+              <div
+                className="fixed bottom-6 left-0 w-full flex justify-center"
+                style={{
+                  zIndex: 50,
+                  pointerEvents: 'none',
+                }}
+              >
+                <button
+                  onClick={handleCtaClick}
+                  className="pointer-events-auto px-6 py-3 rounded-full text-lg shadow-lg transition-opacity duration-300"
+                  style={{
+                    background: 'rgba(0, 0, 0, 0.28)', // ещё прозрачнее
+                    color: 'white',
+                    backdropFilter: 'blur(6px)',
+                    border: '1px solid rgba(255,255,255,0.13)',
+                    fontWeight: 500,
+                  }}
+                >
+                  🔊 Tap to enable sound
+                </button>
+              </div>
+            )}
           </>
         )}
 
