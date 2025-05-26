@@ -16,7 +16,7 @@ function LayoutWrapper() {
   const isIntro = location.pathname === '/';
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden">
+    <div className="flex flex-col min-h-screen overflow-hidden">
       {!isIntro && <TopBar />}
       <div className="flex-grow overflow-hidden">
         <Routes>
@@ -32,6 +32,7 @@ function LayoutWrapper() {
     </div>
   );
 }
+
 
 export default function App() {
   return (
