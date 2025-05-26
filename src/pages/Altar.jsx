@@ -27,8 +27,8 @@ export default function Altar() {
           onClick={handleFireClick}
           className="absolute cursor-pointer"
           style={{
-            top: '73%',
-            left: '75%',
+            top: '61%',
+            left: '90%',
             width: '60px',
             transform: 'translate(-50%, 0)',
           }}
@@ -39,8 +39,8 @@ export default function Altar() {
           <div
             className="absolute bg-yellow-300 rounded-full opacity-80 animate-ping"
             style={{
-              top: '73%',
-              left: '75%',
+              top: '61%',
+              left: '90%',
               width: '80px',
               height: '80px',
               transform: 'translate(-50%, -50%)',
