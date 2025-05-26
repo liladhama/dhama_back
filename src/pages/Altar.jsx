@@ -11,12 +11,8 @@ export default function Altar() {
 
   return (
     <div
-      className="w-full min-h-screen bg-cover bg-center bg-no-repeat relative"
-      style={{
-        backgroundImage: "url('/images/altar-bg.png')",
-      }}
+      className="w-full min-h-screen bg-[url('/images/altar-bg.png')] bg-cover bg-center bg-no-repeat relative"
     >
-      {/* 🔥 Элемент огня с точными координатами */}
       <img
         src="/images/fire.png"
         alt="Огонь"
@@ -30,7 +26,6 @@ export default function Altar() {
         }}
       />
 
-      {/* 💥 Вспышка анимации */}
       {showFlash && (
         <div
           className="absolute bg-yellow-300 rounded-full opacity-80 animate-ping"
