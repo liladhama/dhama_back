@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 import TopBar from './components/TopBar';
@@ -11,10 +11,32 @@ import Shiksha from './pages/Shiksha';
 import Market from './pages/Market';
 
 export default function App() {
+  const videoRef = useRef(null);
+
+  useEffect(() => {
+    const tryPlay = () => {
+      if (videoRef.current) {
+        const played = videoRef.current.play();
+        if (played instanceof Promise) {
+          played.catch((e) => console.log('Autoplay blocked:', e));
+        }
+      }
+    };
+
+    document.body.addEventListener('click', tryPlay, { once: true });
+    document.body.addEventListener('touchstart', tryPlay, { once: true });
+
+    return () => {
+      document.body.removeEventListener('click', tryPlay);
+      document.body.removeEventListener('touchstart', tryPlay);
+    };
+  }, []);
+
   return (
     <div className="relative flex flex-col min-h-[100dvh] overflow-hidden">
       {/* Видео фон с Firebase */}
       <video
+        ref={videoRef}
         autoPlay
         loop
         muted
@@ -25,7 +47,12 @@ export default function App() {
           src="https://dhama--video.web.app/media/hanuman-intro.webm"
           type="video/webm"
         />
-        Your browser does not support the video tag.
+        {/* Fallback если видео не работает */}
+        <img
+          src="/fallback.png"
+          alt="Background"
+          className="w-full h-full object-cover"
+        />
       </video>
 
       <TopBar />
