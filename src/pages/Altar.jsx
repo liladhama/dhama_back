@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
 
-export default function Altar() {
+export default function Altar({ onFireAnim }) {
   const [showFlash, setShowFlash] = useState(false);
 
   const handleFireClick = () => {
     setShowFlash(true);
     setTimeout(() => setShowFlash(false), 400);
+    if (onFireAnim) onFireAnim();
     console.log('🔥 Огонь предложен');
   };
 
   return (
-    <div className="relative w-full h-full overflow-hidden"> {/* h-full вместо h-[100dvh] */}
+    <div className="relative w-full h-full overflow-hidden">
       {/* Фоновое изображение */}
       <img
         src="/images/altar-bg.png"
