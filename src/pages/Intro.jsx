@@ -2,8 +2,8 @@ import React, { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 export default function Intro() {
-  const navigate = useNavigate();
   const videoRef = useRef(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (window.Telegram?.WebApp) {
@@ -46,4 +46,3 @@ export default function Intro() {
     </div>
   );
 }
- 
