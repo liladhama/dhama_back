@@ -24,7 +24,7 @@ export default function App() {
           zIndex: 0,
         }}
       >
-        <source src="/videos/hanuman-intro.webm" type="video/webm" />
+        <source src="/videos/hanuman-intro.mp4" type="video/mp4" />
         Your browser does not support the video tag.
       </video>
 
