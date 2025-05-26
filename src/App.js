@@ -83,7 +83,7 @@ export default function App() {
                   <video
                     key={fireAnimKey}
                     src="/videos/fire-animation.mp4"
-                    className="w-full h-full object-contain"
+                    className="w-full h-full object-cover"
                     autoPlay
                     playsInline
                     muted
