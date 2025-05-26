@@ -16,6 +16,7 @@ export default function App() {
   const videoRef = useRef(null);
   const audioRef = useRef(null);
 
+  // --- для анимации огня ---
   const [showFireAnim, setShowFireAnim] = useState(false);
   const [fireAnimKey, setFireAnimKey] = useState(0);
 
@@ -29,13 +30,25 @@ export default function App() {
   };
 
   useEffect(() => {
-    videoRef.current?.play().catch(() => {});
+    if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.expand) {
+      window.Telegram.WebApp.expand();
+    }
+
+    const tryPlay = () => {
+      videoRef.current?.play().catch(() => {});
+    };
+    window.addEventListener('click', tryPlay);
+    window.addEventListener('touchstart', tryPlay);
+    return () => {
+      window.removeEventListener('click', tryPlay);
+      window.removeEventListener('touchstart', tryPlay);
+    };
   }, []);
 
   const handleVideoEnd = () => {
     setVideoFinished(true);
     audioRef.current?.pause();
-    audioRef.current && (audioRef.current.currentTime = 0);
+    audioRef.current.currentTime = 0;
   };
 
   const handleCtaClick = () => {
@@ -52,7 +65,26 @@ export default function App() {
 
   return (
     <BrowserRouter>
-      <div className="relative w-screen overflow-hidden" style={{ minHeight: '100vh' }}>
+      {/* Аудио вне главного контейнера, максимально невидимо */}
+      <audio
+        ref={audioRef}
+        src="/audio/hanuman-intro.mp3"
+        preload="auto"
+        tabIndex={-1}
+        aria-hidden="true"
+        style={{
+          position: 'fixed',
+          width: 0,
+          height: 0,
+          opacity: 0,
+          pointerEvents: 'none',
+          left: 0,
+          top: 0,
+          zIndex: -9999,
+          display: 'block',
+        }}
+      />
+      <div className="flex flex-col h-screen w-screen overflow-hidden relative">
         {/* Видео-заставка поверх всего */}
         {!videoFinished && (
           <>
@@ -62,17 +94,11 @@ export default function App() {
               muted
               playsInline
               onEnded={handleVideoEnd}
-              className="fixed top-0 left-0 w-screen h-screen object-cover z-50"
-              style={{ minHeight: '100vh', minWidth: '100vw' }}
+              className="absolute top-0 left-0 w-full h-full object-cover z-50"
             >
               <source src="/videos/hanuman-full.mp4" type="video/mp4" />
             </video>
-            <audio
-              ref={audioRef}
-              src="/audio/hanuman-intro.mp3"
-              preload="auto"
-              style={{ position: 'absolute', left: '-99999px', width: 0, height: 0 }}
-            />
+            {/* CTA для звука */}
             {ctaVisible && (
               <div
                 className="fixed bottom-6 left-0 w-full flex justify-center"
@@ -103,7 +129,7 @@ export default function App() {
         {videoFinished && (
           <>
             <TopBar />
-            <div className="flex-1 overflow-auto relative" style={{ minHeight: '100vh' }}>
+            <div className="flex-1 overflow-auto relative">
               <Routes>
                 <Route path="/" element={<Altar onFireAnim={handleFireAnimStart} />} />
                 <Route path="/japa" element={<Japa />} />
@@ -111,6 +137,7 @@ export default function App() {
                 <Route path="/shiksha" element={<Shiksha />} />
                 <Route path="/market" element={<Market />} />
               </Routes>
+              {/* --- Видео-анимация огня --- */}
               {showFireAnim && (
                 <div className="absolute inset-0 z-40 bg-black/30 flex items-center justify-center">
                   <video
