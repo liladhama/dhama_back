@@ -14,25 +14,19 @@ export default function App() {
   const [videoFinished, setVideoFinished] = useState(false);
   const videoRef = useRef(null);
 
-  // --- добавлено для анимации огня ---
+  // --- для анимации огня ---
   const [showFireAnim, setShowFireAnim] = useState(false);
-  const fireAnimRef = useRef(null);
+  const [fireAnimKey, setFireAnimKey] = useState(0); // чтобы сбрасывать видео всегда
 
   const handleFireAnimStart = () => {
+    setFireAnimKey(Date.now()); // будет уникальным при каждом клике
     setShowFireAnim(true);
-    setTimeout(() => {
-      fireAnimRef.current?.play();
-    }, 20);
   };
 
   const handleFireAnimEnd = () => {
     setShowFireAnim(false);
-    if (fireAnimRef.current) {
-      fireAnimRef.current.currentTime = 0;
-      fireAnimRef.current.pause();
-    }
   };
-  // --- конец добавленного для анимации огня ---
+  // --- конец для анимации огня ---
 
   useEffect(() => {
     if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.expand) {
@@ -75,7 +69,6 @@ export default function App() {
         {videoFinished && (
           <>
             <TopBar />
-            {/* Контент скроллится только внутри, панели всегда видимы */}
             <div className="flex-1 overflow-auto relative">
               <Routes>
                 <Route path="/" element={<Altar onFireAnim={handleFireAnimStart} />} />
@@ -84,11 +77,11 @@ export default function App() {
                 <Route path="/shiksha" element={<Shiksha />} />
                 <Route path="/market" element={<Market />} />
               </Routes>
-              {/* --- Видео-анимация огня, поверх контента, но под TopBar/BottomNav --- */}
+              {/* --- Видео-анимация огня --- */}
               {showFireAnim && (
                 <div className="absolute inset-0 z-40 bg-black/30 flex items-center justify-center">
                   <video
-                    ref={fireAnimRef}
+                    key={fireAnimKey}
                     src="/videos/fire-animation.mp4"
                     className="w-full h-full object-contain"
                     autoPlay
