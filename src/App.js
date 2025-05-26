@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 import TopBar from './components/TopBar';
@@ -11,9 +11,17 @@ import Shiksha from './pages/Shiksha';
 import Market from './pages/Market';
 
 export default function App() {
+  useEffect(() => {
+    // Telegram Web App API — убрать заголовок и показать готовность
+    if (window.Telegram?.WebApp) {
+      window.Telegram.WebApp.expand();
+      window.Telegram.WebApp.ready();
+    }
+  }, []);
+
   return (
     <div className="relative flex flex-col min-h-[100dvh] overflow-hidden">
-      {/* Видео фон напрямую с Vercel */}
+      {/* Видео фон — autoPlay, muted, loop */}
       <video
         autoPlay
         loop
@@ -22,6 +30,7 @@ export default function App() {
         className="fixed top-0 left-0 w-full h-full object-cover -z-10"
       >
         <source src="/videos/hanuman-intro.webm" type="video/webm" />
+        Your browser does not support the video tag.
       </video>
 
       <TopBar />
@@ -40,4 +49,3 @@ export default function App() {
     </div>
   );
 }
- 
