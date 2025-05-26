@@ -3,13 +3,18 @@
   <head>
     <meta charset="utf-8" />
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    
+    <!-- Критически важный viewport для Telegram WebView на iOS -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+
     <title>Dhama App</title>
-    <!-- Подключаем Telegram WebApp API -->
+
+    <!-- Telegram WebApp SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
   </head>
+
   <body>
-    <noscript>Включите JavaScript для работы приложения.</noscript>
+    <noscript>Пожалуйста, включите JavaScript для запуска приложения.</noscript>
     <div id="root"></div>
   </body>
 </html>
