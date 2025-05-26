@@ -16,6 +16,18 @@ export default function App() {
   const videoRef = useRef(null);
   const audioRef = useRef(null);
 
+  // <-- вот этот хук для настоящей высоты окна
+  const [appHeight, setAppHeight] = useState(window.innerHeight);
+  useEffect(() => {
+    const handleResize = () => setAppHeight(window.innerHeight);
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('orientationchange', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('orientationchange', handleResize);
+    };
+  }, []);
+
   // --- для анимации огня ---
   const [showFireAnim, setShowFireAnim] = useState(false);
   const [fireAnimKey, setFireAnimKey] = useState(0);
@@ -29,19 +41,16 @@ export default function App() {
     setShowFireAnim(false);
   };
 
-  // Автозапуск видео сразу
   useEffect(() => {
     videoRef.current?.play().catch(() => {});
   }, []);
 
-  // При завершении видео
   const handleVideoEnd = () => {
     setVideoFinished(true);
     audioRef.current?.pause();
     audioRef.current && (audioRef.current.currentTime = 0);
   };
 
-  // Клик по призыву к действию (CTA)
   const handleCtaClick = () => {
     audioRef.current?.play().then(() => {
       setCtaVisible(false);
@@ -50,14 +59,16 @@ export default function App() {
     });
   };
 
-  // Если видео закончилось, CTA скрываем
   useEffect(() => {
     if (videoFinished) setCtaVisible(false);
   }, [videoFinished]);
 
   return (
     <BrowserRouter>
-      <div className="flex flex-col h-screen w-screen overflow-hidden relative">
+      <div
+        className="flex flex-col w-screen overflow-hidden relative"
+        style={{ height: appHeight }}
+      >
         {/* Видео-заставка поверх всего */}
         {!videoFinished && (
           <>
@@ -75,9 +86,8 @@ export default function App() {
               ref={audioRef}
               src="/audio/hanuman-intro.mp3"
               preload="auto"
-              style={{ display: 'none' }} // <-- вот это ключ
+              style={{ position: 'absolute', left: '-99999px', width: 0, height: 0 }} // <-- вне layout
             />
-            {/* CTA для звука */}
             {ctaVisible && (
               <div
                 className="fixed bottom-6 left-0 w-full flex justify-center"
@@ -104,7 +114,6 @@ export default function App() {
           </>
         )}
 
-        {/* Основной интерфейс — показываем только после видео */}
         {videoFinished && (
           <>
             <TopBar />
@@ -116,7 +125,6 @@ export default function App() {
                 <Route path="/shiksha" element={<Shiksha />} />
                 <Route path="/market" element={<Market />} />
               </Routes>
-              {/* --- Видео-анимация огня --- */}
               {showFireAnim && (
                 <div className="absolute inset-0 z-40 bg-black/30 flex items-center justify-center">
                   <video
