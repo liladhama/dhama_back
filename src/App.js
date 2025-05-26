@@ -16,19 +16,6 @@ export default function App() {
   const videoRef = useRef(null);
   const audioRef = useRef(null);
 
-  // <-- вот этот хук для настоящей высоты окна
-  const [appHeight, setAppHeight] = useState(window.innerHeight);
-  useEffect(() => {
-    const handleResize = () => setAppHeight(window.innerHeight);
-    window.addEventListener('resize', handleResize);
-    window.addEventListener('orientationchange', handleResize);
-    return () => {
-      window.removeEventListener('resize', handleResize);
-      window.removeEventListener('orientationchange', handleResize);
-    };
-  }, []);
-
-  // --- для анимации огня ---
   const [showFireAnim, setShowFireAnim] = useState(false);
   const [fireAnimKey, setFireAnimKey] = useState(0);
 
@@ -65,10 +52,7 @@ export default function App() {
 
   return (
     <BrowserRouter>
-      <div
-        className="flex flex-col w-screen overflow-hidden relative"
-        style={{ height: appHeight }}
-      >
+      <div className="relative w-screen overflow-hidden" style={{ minHeight: '100vh' }}>
         {/* Видео-заставка поверх всего */}
         {!videoFinished && (
           <>
@@ -78,7 +62,8 @@ export default function App() {
               muted
               playsInline
               onEnded={handleVideoEnd}
-              className="absolute top-0 left-0 w-full h-full object-cover z-50"
+              className="fixed top-0 left-0 w-screen h-screen object-cover z-50"
+              style={{ minHeight: '100vh', minWidth: '100vw' }}
             >
               <source src="/videos/hanuman-full.mp4" type="video/mp4" />
             </video>
@@ -86,7 +71,7 @@ export default function App() {
               ref={audioRef}
               src="/audio/hanuman-intro.mp3"
               preload="auto"
-              style={{ position: 'absolute', left: '-99999px', width: 0, height: 0 }} // <-- вне layout
+              style={{ position: 'absolute', left: '-99999px', width: 0, height: 0 }}
             />
             {ctaVisible && (
               <div
@@ -114,10 +99,11 @@ export default function App() {
           </>
         )}
 
+        {/* Основной интерфейс — показываем только после видео */}
         {videoFinished && (
           <>
             <TopBar />
-            <div className="flex-1 overflow-auto relative">
+            <div className="flex-1 overflow-auto relative" style={{ minHeight: '100vh' }}>
               <Routes>
                 <Route path="/" element={<Altar onFireAnim={handleFireAnimStart} />} />
                 <Route path="/japa" element={<Japa />} />
