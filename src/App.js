@@ -15,6 +15,11 @@ export default function App() {
   const videoRef = useRef(null);
 
   useEffect(() => {
+    // Вызов Telegram.WebApp.expand() для максимизации окна в Telegram WebView
+    if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.expand) {
+      window.Telegram.WebApp.expand();
+    }
+
     const tryPlay = () => {
       videoRef.current?.play().catch(() => {});
     };
@@ -26,15 +31,13 @@ export default function App() {
     };
   }, []);
 
-  // Сброс масштаба после окончания видео — УДАЛЯЕМ!
   const handleVideoEnd = () => {
-    // Не трогаем масштаб и transform body!
     setVideoFinished(true);
   };
 
   return (
     <BrowserRouter>
-      <div className="relative w-full min-h-screen overflow-hidden">
+      <div className="relative w-screen min-h-screen overflow-hidden">
         {/* Видео-заставка поверх всего */}
         {!videoFinished && (
           <video
@@ -51,7 +54,7 @@ export default function App() {
 
         {/* Основной интерфейс — показываем только после видео */}
         {videoFinished && (
-          <div className="flex flex-col min-h-screen overflow-hidden relative z-10">
+          <div className="flex flex-col min-h-screen w-screen overflow-hidden relative z-10">
             <TopBar />
             <div className="flex-grow overflow-hidden">
               <Routes>
