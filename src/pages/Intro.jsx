@@ -1,7 +1,9 @@
 import React, { useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export default function Intro() {
   const videoRef = useRef(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (window.Telegram?.WebApp) {
@@ -25,8 +27,13 @@ export default function Intro() {
   }, []);
 
   const handleEnded = () => {
-    // ❗ Жёсткий редирект (решает проблему масштаба Telegram WebView)
-    window.location.href = '/altar';
+    // 📏 Сброс принудительного зума через style
+    document.body.style.zoom = '1';
+    document.body.style.transform = 'scale(1)';
+    document.body.style.transformOrigin = 'top left';
+
+    // 🚀 Плавный переход без перезагрузки
+    navigate('/altar');
   };
 
   return (
