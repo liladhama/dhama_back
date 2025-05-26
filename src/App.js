@@ -1,6 +1,13 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 export default function App() {
+  useEffect(() => {
+    if (window.Telegram?.WebApp) {
+      window.Telegram.WebApp.ready();
+      window.Telegram.WebApp.expand();
+    }
+  }, []);
+
   return (
     <div style={{
       position: 'relative',
@@ -9,11 +16,9 @@ export default function App() {
       overflow: 'hidden',
       backgroundColor: 'black',
     }}>
-      <video
-        autoPlay
-        loop
-        muted
-        playsInline
+      <img
+        src="/videos/hanuman-intro.gif"
+        alt="Заставка"
         style={{
           position: 'absolute',
           top: 0,
@@ -23,10 +28,7 @@ export default function App() {
           objectFit: 'cover',
           zIndex: 0,
         }}
-      >
-        <source src="/videos/hanuman-intro.mp4" type="video/mp4" />
-        Your browser does not support the video tag.
-      </video>
+      />
 
       <div style={{
         position: 'relative',
@@ -36,7 +38,7 @@ export default function App() {
         textAlign: 'center',
         paddingTop: '40vh',
       }}>
-        <p>Тест: Видеофон должен быть на фоне</p>
+        <p>Добро пожаловать в Dhama</p>
       </div>
     </div>
   );
