@@ -10,9 +10,15 @@ export default function Altar() {
   };
 
   return (
-    <div
-      className="w-full min-h-screen bg-[url('/images/altar-bg.png')] bg-cover bg-center bg-no-repeat relative"
-    >
+    <div className="relative w-full min-h-screen overflow-hidden">
+      {/* 🖼️ Фоновое изображение */}
+      <img
+        src="/images/altar-bg.png"
+        alt="Фон"
+        className="absolute top-0 left-0 w-full h-full object-cover -z-10"
+      />
+
+      {/* 🔥 Элемент огня */}
       <img
         src="/images/fire.png"
         alt="Огонь"
@@ -26,6 +32,7 @@ export default function Altar() {
         }}
       />
 
+      {/* 💥 Вспышка */}
       {showFlash && (
         <div
           className="absolute bg-yellow-300 rounded-full opacity-80 animate-ping"
