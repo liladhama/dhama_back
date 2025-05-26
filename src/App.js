@@ -15,7 +15,6 @@ export default function App() {
   const videoRef = useRef(null);
 
   useEffect(() => {
-    // Вызов Telegram.WebApp.expand() для максимизации окна в Telegram WebView
     if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.expand) {
       window.Telegram.WebApp.expand();
     }
@@ -37,7 +36,7 @@ export default function App() {
 
   return (
     <BrowserRouter>
-      <div className="relative w-screen min-h-screen overflow-hidden">
+      <div className="flex flex-col h-screen w-screen overflow-hidden relative">
         {/* Видео-заставка поверх всего */}
         {!videoFinished && (
           <video
@@ -54,9 +53,10 @@ export default function App() {
 
         {/* Основной интерфейс — показываем только после видео */}
         {videoFinished && (
-          <div className="flex flex-col min-h-screen w-screen overflow-hidden relative z-10">
+          <>
             <TopBar />
-            <div className="flex-grow overflow-hidden">
+            {/* Контент скроллится только внутри, панели всегда видимы */}
+            <div className="flex-1 overflow-auto">
               <Routes>
                 <Route path="/" element={<Altar />} />
                 <Route path="/japa" element={<Japa />} />
@@ -66,7 +66,7 @@ export default function App() {
               </Routes>
             </div>
             <BottomNav />
-          </div>
+          </>
         )}
       </div>
     </BrowserRouter>

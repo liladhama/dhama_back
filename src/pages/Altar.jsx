@@ -10,7 +10,7 @@ export default function Altar() {
   };
 
   return (
-    <div className="relative w-full h-[100dvh] overflow-hidden">
+    <div className="relative w-full h-full overflow-hidden"> {/* h-full вместо h-[100dvh] */}
       {/* Фоновое изображение */}
       <img
         src="/images/altar-bg.png"
@@ -18,9 +18,9 @@ export default function Altar() {
         className="absolute top-0 left-0 w-full h-full object-cover -z-10"
       />
 
-      {/* Контент: помещён в адаптивную обёртку */}
+      {/* Контент */}
       <div className="relative w-full h-full max-w-[480px] mx-auto">
-        {/* 🔥 Кнопка огня */}
+        {/* Кнопка огня */}
         <img
           src="/images/fire.png"
           alt="Огонь"
@@ -34,7 +34,7 @@ export default function Altar() {
           }}
         />
 
-        {/* 💥 Вспышка */}
+        {/* Вспышка */}
         {showFlash && (
           <div
             className="absolute bg-yellow-300 rounded-full opacity-80 animate-ping"
