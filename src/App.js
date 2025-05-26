@@ -1,10 +1,16 @@
-import React, { useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+
+import TopBar from './components/TopBar';
+import BottomNav from './components/BottomNav';
+
+import Altar from './pages/Altar';
+import Japa from './pages/Japa';
+import Gyan from './pages/Gyan';
+import Shiksha from './pages/Shiksha';
+import Market from './pages/Market';
 
 export default function App() {
-  const videoRef = useRef(null);
-  const navigate = useNavigate();
-
   useEffect(() => {
     if (window.Telegram?.WebApp) {
       window.Telegram.WebApp.ready();
@@ -12,48 +18,21 @@ export default function App() {
     }
   }, []);
 
-  const handleEnded = () => {
-    navigate('/altar');
-  };
-
   return (
-    <div style={{
-      position: 'relative',
-      width: '100%',
-      height: '100vh',
-      overflow: 'hidden',
-      backgroundColor: 'black',
-    }}>
-      <video
-        ref={videoRef}
-        autoPlay
-        muted
-        playsInline
-        onEnded={handleEnded}
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '100%',
-          objectFit: 'cover',
-          zIndex: 0,
-        }}
-      >
-        <source src="/videos/hanuman-full.mp4" type="video/mp4" />
-        Your browser does not support the video tag.
-      </video>
-
-      <div style={{
-        position: 'relative',
-        zIndex: 1,
-        color: 'white',
-        fontSize: '24px',
-        textAlign: 'center',
-        paddingTop: '40vh',
-      }}>
-        <p>Добро пожаловать...</p>
+    <div className="relative flex flex-col min-h-[100dvh] overflow-hidden">
+      <TopBar />
+      <div className="flex-grow relative z-10 overflow-y-auto">
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Altar />} />
+            <Route path="/japa" element={<Japa />} />
+            <Route path="/gyan" element={<Gyan />} />
+            <Route path="/shiksha" element={<Shiksha />} />
+            <Route path="/market" element={<Market />} />
+          </Routes>
+        </BrowserRouter>
       </div>
+      <BottomNav />
     </div>
   );
 }
