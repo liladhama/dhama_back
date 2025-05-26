@@ -13,20 +13,20 @@ import BottomNav from './components/BottomNav';
 export default function App() {
   const [videoFinished, setVideoFinished] = useState(false);
   const videoRef = useRef(null);
+  const audioRef = useRef(null); // добавили
 
   // --- для анимации огня ---
   const [showFireAnim, setShowFireAnim] = useState(false);
-  const [fireAnimKey, setFireAnimKey] = useState(0); // чтобы сбрасывать видео всегда
+  const [fireAnimKey, setFireAnimKey] = useState(0);
 
   const handleFireAnimStart = () => {
-    setFireAnimKey(Date.now()); // будет уникальным при каждом клике
+    setFireAnimKey(Date.now());
     setShowFireAnim(true);
   };
 
   const handleFireAnimEnd = () => {
     setShowFireAnim(false);
   };
-  // --- конец для анимации огня ---
 
   useEffect(() => {
     if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.expand) {
@@ -35,6 +35,7 @@ export default function App() {
 
     const tryPlay = () => {
       videoRef.current?.play().catch(() => {});
+      audioRef.current?.play().catch(() => {});
     };
     window.addEventListener('click', tryPlay);
     window.addEventListener('touchstart', tryPlay);
@@ -46,6 +47,8 @@ export default function App() {
 
   const handleVideoEnd = () => {
     setVideoFinished(true);
+    audioRef.current?.pause();
+    audioRef.current && (audioRef.current.currentTime = 0);
   };
 
   return (
@@ -53,16 +56,24 @@ export default function App() {
       <div className="flex flex-col h-screen w-screen overflow-hidden relative">
         {/* Видео-заставка поверх всего */}
         {!videoFinished && (
-          <video
-            ref={videoRef}
-            autoPlay
-            muted
-            playsInline
-            onEnded={handleVideoEnd}
-            className="absolute top-0 left-0 w-full h-full object-cover z-50"
-          >
-            <source src="/videos/hanuman-full.mp4" type="video/mp4" />
-          </video>
+          <>
+            <video
+              ref={videoRef}
+              autoPlay
+              muted
+              playsInline
+              onEnded={handleVideoEnd}
+              className="absolute top-0 left-0 w-full h-full object-cover z-50"
+            >
+              <source src="/videos/hanuman-full.mp4" type="video/mp4" />
+            </video>
+            <audio
+              ref={audioRef}
+              src="/audio/hanuman-intro.mp3"
+              autoPlay
+              preload="auto"
+            />
+          </>
         )}
 
         {/* Основной интерфейс — показываем только после видео */}
