@@ -13,12 +13,20 @@ import Market from './pages/Market';
 export default function App() {
   return (
     <div className="relative flex flex-col min-h-[100dvh] overflow-hidden">
-      {/* Фон в виде GIF */}
-      <img
-        src="/videos/hanuman-intro.gif"
-        alt="Background"
+      {/* Видео фон с Firebase */}
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
         className="fixed top-0 left-0 w-full h-full object-cover -z-10"
-      />
+      >
+        <source
+          src="https://dhama--video.web.app/media/hanuman-intro.webm"
+          type="video/webm"
+        />
+        Your browser does not support the video tag.
+      </video>
 
       <TopBar />
       <div className="flex-grow relative z-10 overflow-y-auto">
