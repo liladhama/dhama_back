@@ -10,12 +10,7 @@ export default function App() {
       window.Telegram.WebApp.ready();
       window.Telegram.WebApp.expand();
     }
-
-    // fallback: перейти через 8 секунд даже если событие onEnded не сработает
-    const timeout = setTimeout(() => navigate('/altar'), 8000);
-
-    return () => clearTimeout(timeout);
-  }, [navigate]);
+  }, []);
 
   const handleEnded = () => {
     navigate('/altar');
