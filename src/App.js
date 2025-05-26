@@ -58,7 +58,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <div className="flex flex-col h-screen w-screen overflow-hidden relative">
-        {/* Видео-заставка */}
+        {/* Видео-заставка поверх всего */}
         {!videoFinished && (
           <>
             <video
@@ -67,7 +67,7 @@ export default function App() {
               muted
               playsInline
               onEnded={handleVideoEnd}
-              className="absolute top-0 left-0 w-full h-full object-cover z-40"
+              className="absolute top-0 left-0 w-full h-full object-cover z-50"
             >
               <source src="/videos/hanuman-full.mp4" type="video/mp4" />
             </video>
@@ -76,12 +76,12 @@ export default function App() {
               src="/audio/hanuman-intro.mp3"
               preload="auto"
             />
-            {/* Призыв к действию — внизу, еще более прозрачный, на английском */}
+            {/* CTA для звука */}
             {ctaVisible && (
               <div
                 className="fixed bottom-6 left-0 w-full flex justify-center"
                 style={{
-                  zIndex: 50,
+                  zIndex: 100,
                   pointerEvents: 'none',
                 }}
               >
