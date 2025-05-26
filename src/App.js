@@ -16,7 +16,6 @@ export default function App() {
   const [soundPlayed, setSoundPlayed] = useState(false);
   const videoRef = useRef(null);
   const audioRef = useRef(null);
-  const appRef = useRef(null);
 
   // --- для анимации огня ---
   const [showFireAnim, setShowFireAnim] = useState(false);
@@ -30,18 +29,6 @@ export default function App() {
   const handleFireAnimEnd = () => {
     setShowFireAnim(false);
   };
-
-  // Фикс высоты для мобильных 100vh
-  useEffect(() => {
-    const setHeight = () => {
-      if (appRef.current) {
-        appRef.current.style.height = window.innerHeight + 'px';
-      }
-    };
-    setHeight();
-    window.addEventListener('resize', setHeight);
-    return () => window.removeEventListener('resize', setHeight);
-  }, []);
 
   // Автозапуск видео сразу
   useEffect(() => {
@@ -73,9 +60,8 @@ export default function App() {
   return (
     <BrowserRouter>
       <div
-        ref={appRef}
         className="flex flex-col w-screen overflow-hidden relative"
-        // убрали h-screen!
+        style={{ height: '100dvh' }}
       >
         {/* Видео-заставка */}
         {!videoFinished && (
