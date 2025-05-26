@@ -1,12 +1,25 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export default function App() {
+  const videoRef = useRef(null);
+  const navigate = useNavigate();
+
   useEffect(() => {
     if (window.Telegram?.WebApp) {
       window.Telegram.WebApp.ready();
       window.Telegram.WebApp.expand();
     }
-  }, []);
+
+    // fallback: перейти через 8 секунд даже если событие onEnded не сработает
+    const timeout = setTimeout(() => navigate('/altar'), 8000);
+
+    return () => clearTimeout(timeout);
+  }, [navigate]);
+
+  const handleEnded = () => {
+    navigate('/altar');
+  };
 
   return (
     <div style={{
@@ -16,9 +29,12 @@ export default function App() {
       overflow: 'hidden',
       backgroundColor: 'black',
     }}>
-      <img
-        src="/videos/hanuman-intro.gif"
-        alt="Заставка"
+      <video
+        ref={videoRef}
+        autoPlay
+        muted
+        playsInline
+        onEnded={handleEnded}
         style={{
           position: 'absolute',
           top: 0,
@@ -28,7 +44,10 @@ export default function App() {
           objectFit: 'cover',
           zIndex: 0,
         }}
-      />
+      >
+        <source src="/videos/hanuman-full.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
 
       <div style={{
         position: 'relative',
@@ -38,7 +57,7 @@ export default function App() {
         textAlign: 'center',
         paddingTop: '40vh',
       }}>
-        <p>Добро пожаловать в Dhama</p>
+        <p>Добро пожаловать...</p>
       </div>
     </div>
   );
