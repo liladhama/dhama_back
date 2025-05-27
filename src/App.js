@@ -47,8 +47,9 @@ export default function App() {
 
   const handleVideoEnd = () => {
     setVideoFinished(true);
-    audioRef.current?.pause();
-    audioRef.current.currentTime = 0;
+    // УБРАНО: audioRef.current?.pause();
+    // УБРАНО: audioRef.current.currentTime = 0;
+    // Теперь звук не обрывается при окончании заставки!
   };
 
   const handleCtaClick = () => {
