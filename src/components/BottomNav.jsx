@@ -28,7 +28,7 @@ export default function BottomNav() {
             className={({ isActive }) =>
               `flex flex-col items-center justify-center w-full ${
                 isCenter ? 'relative -translate-y-1.5 z-10' : '-translate-y-1.5'
-              } ${isActive ? 'text-blue-600' : 'text-gray-500'}`
+              }`
             }
           >
             <img
@@ -37,10 +37,10 @@ export default function BottomNav() {
               className={`transition-transform ${
                 isCenter
                   ? 'w-14 h-14 rounded-full border-4 border-yellow-400 bg-white shadow-lg'
-                  : 'w-10 h-10'
+                  : 'w-12 h-12'
               }`}
             />
-            <span className="text-xs mt-1">{tab.label}</span>
+            <span className="text-sm mt-1 font-soyuz text-white">{tab.label}</span>
           </NavLink>
         );
       })}

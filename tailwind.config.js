@@ -6,6 +6,9 @@ module.exports = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        soyuz: ['"Soyuz Grotesk"', 'sans-serif'],
+      },
       keyframes: {
         'pulse-scale': {
           '0%, 100%': { transform: 'scale(1)' },

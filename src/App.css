@@ -37,3 +37,12 @@
     transform: rotate(360deg);
   }
 }
+
+/* === Soyuz Grotesk Font-face === */
+@font-face {
+  font-family: 'Soyuz Grotesk';
+  src: url('./assets/fonts/Soyuz Grotesk Bold.woff') format('woff'),
+       url('./assets/fonts/Soyuz Grotesk Bold.otf') format('opentype');
+  font-weight: bold;
+  font-style: normal;
+}
