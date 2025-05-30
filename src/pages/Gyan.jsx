@@ -44,8 +44,8 @@ const sectionTitleStyle = (menuOpen) => ({
   lineHeight: 1.2,
 });
 
-// Новый адрес API (замени на свой, если IP другой)
-const NATAL_API_URL = "const NATAL_API_URL = "/api/natal";
+// API endpoint для натальной карты через Vercel proxy
+const NATAL_API_URL = "/api/natal";
 
 function NatalCardForm({ onSave, onCancel }) {
   const [name, setName] = useState("");
