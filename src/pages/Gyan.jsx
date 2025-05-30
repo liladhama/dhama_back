@@ -42,7 +42,7 @@ const sectionTitleStyle = (menuOpen) => ({
 });
 
 // Новый адрес Render API
-const NATAL_API_URL = "https://dhama-natal-api.onrender.com/api/natal";
+const NATAL_API_URL = "http://16.171.225.225:3000/api/natal";
 
 function NatalCardForm({ onSave, onCancel }) {
   const [name, setName] = useState("");
