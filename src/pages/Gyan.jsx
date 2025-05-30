@@ -255,7 +255,8 @@ function NatalCardForm({ onSave, onCancel }) {
           <ul>
             {Object.entries(planets).map(([planet, pos]) => (
               <li key={planet}>
-                {planet}: {pos.sign} {pos.deg}°
+                {/* заменено: теперь выводим градус от начала знака */}
+                {planet}: {pos.sign} {pos.deg_in_sign_str || (Math.round(pos.deg_in_sign * 1000) / 1000) + "°"}
               </li>
             ))}
           </ul>
@@ -281,7 +282,8 @@ function NatalCardDetails({ card }) {
           <ul>
             {Object.entries(card.planets).map(([planet, pos]) => (
               <li key={planet}>
-                {planet}: {pos.sign} {pos.deg}°
+                {/* заменено: теперь выводим градус от начала знака */}
+                {planet}: {pos.sign} {pos.deg_in_sign_str || (Math.round(pos.deg_in_sign * 1000) / 1000) + "°"}
               </li>
             ))}
           </ul>
