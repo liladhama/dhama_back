@@ -45,7 +45,7 @@ const sectionTitleStyle = (menuOpen) => ({
 });
 
 // Новый адрес API (замени на свой, если IP другой)
-const NATAL_API_URL = "https://16.171.225.225/api/natal";
+const NATAL_API_URL = "const NATAL_API_URL = "/api/natal";
 
 function NatalCardForm({ onSave, onCancel }) {
   const [name, setName] = useState("");
