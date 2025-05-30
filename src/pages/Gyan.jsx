@@ -41,7 +41,8 @@ const sectionTitleStyle = (menuOpen) => ({
   lineHeight: 1.2,
 });
 
-const NATAL_API_URL = "https://dhama-natal-api.vercel.app/api/natal"; // <<--- Внешний API
+// Новый адрес Render API
+const NATAL_API_URL = "https://dhama-natal-api.onrender.com/api/natal";
 
 function NatalCardForm({ onSave, onCancel }) {
   const [name, setName] = useState("");
