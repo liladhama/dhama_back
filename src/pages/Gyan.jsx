@@ -18,12 +18,15 @@ async function fetchCoordinates(city) {
   return null;
 }
 
-// Получение часового пояса и offset через GeoNames
+// Получение часового пояса и offset через GeoNames + информативная ошибка
 async function fetchTimezone(lat, lon, date) {
-  const username = "pastoohkorov";
+  const username = "pastoohkorov"; // <-- замените на свой username, если лимит исчерпан
   const url = `https://secure.geonames.org/timezoneJSON?lat=${lat}&lng=${lon}&date=${date}&username=${username}`;
   const res = await fetch(url);
   const data = await res.json();
+  if (data.status && data.status.message) {
+    throw new Error(`GeoNames: ${data.status.message}`);
+  }
   if (data && data.timezoneId) {
     return data;
   }
@@ -41,8 +44,8 @@ const sectionTitleStyle = (menuOpen) => ({
   lineHeight: 1.2,
 });
 
-// Новый адрес Render API
-const NATAL_API_URL = "http://16.171.225.225:3000/api/natal";
+// Новый адрес API (замени на свой, если IP другой)
+const NATAL_API_URL = "https://16.171.225.225/api/natal";
 
 function NatalCardForm({ onSave, onCancel }) {
   const [name, setName] = useState("");
@@ -256,7 +259,6 @@ function NatalCardForm({ onSave, onCancel }) {
           <ul>
             {Object.entries(planets).map(([planet, pos]) => (
               <li key={planet}>
-                {/* заменено: теперь выводим градус от начала знака */}
                 {planet}: {pos.sign} {pos.deg_in_sign_str || (Math.round(pos.deg_in_sign * 1000) / 1000) + "°"}
               </li>
             ))}
@@ -283,7 +285,6 @@ function NatalCardDetails({ card }) {
           <ul>
             {Object.entries(card.planets).map(([planet, pos]) => (
               <li key={planet}>
-                {/* заменено: теперь выводим градус от начала знака */}
                 {planet}: {pos.sign} {pos.deg_in_sign_str || (Math.round(pos.deg_in_sign * 1000) / 1000) + "°"}
               </li>
             ))}
