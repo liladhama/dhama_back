@@ -44,8 +44,8 @@ const sectionTitleStyle = (menuOpen) => ({
   lineHeight: 1.2,
 });
 
-// Только относительный путь! Через Vercel proxy:
-const NATAL_API_URL = "/api/natal";
+// Абсолютный путь к API с HTTPS и валидным доменом:
+const NATAL_API_URL = "https://astrogyan.duckdns.org/api/natal";
 
 function NatalCardForm({ onSave, onCancel }) {
   const [name, setName] = useState("");
