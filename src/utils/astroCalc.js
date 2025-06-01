@@ -36,6 +36,7 @@ function moonLongitude(jd) {
 // Истинный восходящий лунный узел (Rahu), Ketu = Rahu + 180°
 function trueRahuKetu(jd) {
   // node.true(jd): {lon, lat, dist}
+  console.log("NODE TRUE TYPE:", typeof node.true); // <-- логирование типа функции
   const rahuLon = ((node.true(jd).lon * 180) / Math.PI + 360) % 360;
   const ketuLon = (rahuLon + 180) % 360;
   return { rahu: rahuLon, ketu: ketuLon };
