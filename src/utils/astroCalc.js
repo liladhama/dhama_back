@@ -160,4 +160,4 @@ export function getSiderealPositions({
       ascendant: degToZodiacString(toSidereal(asc)),
     }
   };
-}
+}   
