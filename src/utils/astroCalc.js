@@ -138,23 +138,22 @@ function trueRahuKetu(jd) {
 
 // --- АССЦЕНДЕНТ ---
 
-// Точный расчет асцендента (тропический, Meeus AA)
-function calcAscendantTropical(jd, lat, lon) {
+// Точный расчет асцендента (Meeus, совпадает с VedikHoro/Jagannatha Hora)
+function calcAscendantMeeus(jd, lat, lon) {
   const eps = meanObliquity(jd) * Math.PI / 180;
   const LST = localSiderealTime(jd, lon) * Math.PI / 180;
   const latr = lat * Math.PI / 180;
-  // Формула Meeus (Astronomical Algorithms, 2nd ed., стр. 98)
-  const tanAsc = (-Math.cos(LST)) /
-    (Math.sin(LST) * Math.cos(eps) - Math.tan(latr) * Math.sin(eps));
-  let asc = Math.atan(tanAsc);
-  if (LST > Math.PI) asc += Math.PI;
-  asc = asc * 180 / Math.PI;
-  return normalize(asc);
+  // Meeus AA, стр. 98
+  const ascRad = Math.atan2(
+    -Math.cos(LST),
+    Math.sin(LST) * Math.cos(eps) - Math.tan(latr) * Math.sin(eps)
+  );
+  let ascDeg = normalize(ascRad * 180 / Math.PI);
+  return ascDeg;
 }
 
-// Сидерический (вычитаем айанамшу)
-function calcAscendantSidereal(jd, lat, lon) {
-  const ascTrop = calcAscendantTropical(jd, lat, lon);
+function calcAscendantSiderealMeeus(jd, lat, lon) {
+  const ascTrop = calcAscendantMeeus(jd, lat, lon);
   const ayanamsha = lahiriAyanamsha(jd);
   return normalize(ascTrop - ayanamsha);
 }
@@ -199,9 +198,9 @@ export function getSiderealPositions({
     // Можно добавить обработку ошибок
   }
 
-  // Асцендент
-  const asc = calcAscendantSidereal(jd, lat, lon);
-  const ascTropical = calcAscendantTropical(jd, lat, lon);
+  // Асцендент Meeus — совпадает с VedikHoro
+  const asc = calcAscendantSiderealMeeus(jd, lat, lon);
+  const ascTropical = calcAscendantMeeus(jd, lat, lon);
 
   function toSidereal(trop) {
     let sid = trop - ayanamsha;
@@ -221,7 +220,7 @@ export function getSiderealPositions({
     saturn: toSidereal(saturnLon),
     rahu: toSidereal(rahu),
     ketu: toSidereal(ketu),
-    ascendant: asc, // уже сидерический!
+    ascendant: asc, // сидерический Meeus, совпадает с VedikHoro
     _tropical: {
       sun: sunLon,
       moon: moonLon,
