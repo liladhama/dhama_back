@@ -9,7 +9,7 @@ import vsop87Bsaturn from "../astrodata/vsop87Bsaturn.js";
 // Логируем все импорты astronomia для отладки
 console.log("[astroCalc] typeof node:", typeof node);
 console.log("[astroCalc] node keys:", node && Object.keys(node));
-console.log("[astroCalc] typeof node.true:", typeof node?.true);
+console.log("[astroCalc] typeof node.trueNode:", typeof node?.trueNode);
 console.log("[astroCalc] typeof julian:", typeof julian);
 console.log("[astroCalc] typeof planetposition:", typeof planetposition);
 
@@ -48,16 +48,19 @@ function moonLongitude(jd) {
 
 // Истинный восходящий лунный узел (Rahu), Ketu = Rahu + 180°
 function trueRahuKetu(jd) {
-  console.log("[astroCalc] NODE TRUE TYPE:", typeof node?.true, node?.true);
-  if (typeof node?.true !== "function") {
-    console.error("[astroCalc] ОШИБКА: node.true не является функцией!", node);
-    throw new Error("node.true is not a function! Проверьте версию библиотеки astronomia и правильность импорта.");
+  if (typeof node.trueNode === "function") {
+    const rahuObj = node.trueNode(jd);
+    console.log("[astroCalc] node.trueNode(", jd, ") =", rahuObj);
+    if (!rahuObj || typeof rahuObj.lon !== "number") {
+      console.error("[astroCalc] ОШИБКА: node.trueNode(jd) вернул невалидный объект!", rahuObj);
+      return { rahu: NaN, ketu: NaN };
+    }
+    const rahuLon = ((rahuObj.lon * 180) / Math.PI + 360) % 360;
+    const ketuLon = (rahuLon + 180) % 360;
+    return { rahu: rahuLon, ketu: ketuLon };
   }
-  const rahuObj = node.true(jd);
-  console.log("[astroCalc] node.true(", jd, ") =", rahuObj);
-  const rahuLon = ((rahuObj.lon * 180) / Math.PI + 360) % 360;
-  const ketuLon = (rahuLon + 180) % 360;
-  return { rahu: rahuLon, ketu: ketuLon };
+  console.error("[astroCalc] Нет метода node.trueNode в astronomia@4.x. node keys:", Object.keys(node));
+  return { rahu: NaN, ketu: NaN };
 }
 
 function calcAscendant({ jd, lat, lon, tzOffset }) {
