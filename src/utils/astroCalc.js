@@ -1,10 +1,10 @@
-import { julian, planetposition, solar, moonposition } from "astronomia";
-import vsop87Bearth from "astronomia/data/vsop87Bearth.json";
-import vsop87Bmercury from "astronomia/data/vsop87Bmercury.json";
-import vsop87Bvenus from "astronomia/data/vsop87Bvenus.json";
-import vsop87Bmars from "astronomia/data/vsop87Bmars.json";
-import vsop87Bjupiter from "astronomia/data/vsop87Bjupiter.json";
-import vsop87Bsaturn from "astronomia/data/vsop87Bsaturn.json";
+import { julian, planetposition, solar, moonposition } from "astrodata";
+import vsop87Bearth from "astrodata/vsop87Bearth.json";
+import vsop87Bmercury from "astrodata/vsop87Bmercury.json";
+import vsop87Bvenus from "astrodata/vsop87Bvenus.json";
+import vsop87Bmars from "astrodata/vsop87Bmars.json";
+import vsop87Bjupiter from "astrodata/vsop87Bjupiter.json";
+import vsop87Bsaturn from "astrodata/vsop87Bsaturn.json";
 
 // Лахири айанамша (Chitrapaksha)
 function lahiriAyanamsha(jd) {
