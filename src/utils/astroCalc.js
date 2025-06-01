@@ -1,4 +1,4 @@
-import { julian, planetposition, solar, moonposition } from "astrodata";
+import { julian, planetposition, solar, moonposition } from "astronomia";
 import vsop87Bearth from "../astrodata/vsop87Bearth.js";
 import vsop87Bmercury from "../astrodata/vsop87Bmercury.js";
 import vsop87Bvenus from "../astrodata/vsop87Bvenus.js";
