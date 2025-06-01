@@ -139,7 +139,7 @@ function trueRahuKetu(jd) {
 // --- АССЦЕНДЕНТ ---
 // Астрономический расчет асцендента Meeus + возможность подкорректировать результат
 
-const ASC_CORRECTION_DEG = 0; // ← сюда можно подставить опытный сдвиг, например +2.5
+const ASC_CORRECTION_DEG = -124.03; // ← сюда можно подставить опытный сдвиг, например +2.5
 
 function calcAscendantAstronomia(jd, lat, lon) {
   // Meeus AA, стр. 98
