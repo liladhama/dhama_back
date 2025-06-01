@@ -1,4 +1,4 @@
-import { julian, planetposition, solar, moonposition, node, sidereal } from "astronomia";
+import { julian, vsop87, solar, moonposition, node, sidereal } from "astronomia";
 import vsop87Bearth from "../astrodata/vsop87Bearth.js";
 import vsop87Bmercury from "../astrodata/vsop87Bmercury.js";
 import vsop87Bvenus from "../astrodata/vsop87Bvenus.js";
@@ -15,18 +15,49 @@ function lahiriAyanamsha(jd) {
   return baseAyanamsha + years * rate;
 }
 
-// Геоцентрическая долгота планеты
-function planetGeoLongitude(planetData, earthData, jd) {
-  const earth = new planetposition.Planet(earthData);
-  const planet = new planetposition.Planet(planetData);
-  const { lon } = planet.position2000(earth, jd);
-  return ((lon * 180) / Math.PI + 360) % 360;
+// Перевод сферических в декартовы координаты
+function sph2cart(lon, lat, r) {
+  return [
+    r * Math.cos(lat) * Math.cos(lon),
+    r * Math.cos(lat) * Math.sin(lon),
+    r * Math.sin(lat)
+  ];
+}
+// Перевод декартовых в сферические координаты
+function cart2sph(x, y, z) {
+  const r = Math.sqrt(x * x + y * y + z * z);
+  const lon = Math.atan2(y, x);
+  const lat = Math.asin(z / r);
+  return { lon, lat, range: r };
 }
 
-// Солнце
-function sunLongitude(earth, jd) {
-  const lon = solar.apparentVSOP87(earth, jd).lon;
-  return ((lon * 180) / Math.PI + 360) % 360;
+// Геоцентрическая долгота планеты (новый способ)
+function planetGeoLongitude(planetData, earthData, jd) {
+  const planet = new vsop87.VSOP87B(planetData);
+  const earth = new vsop87.VSOP87B(earthData);
+  const planetPos = planet.position(jd);
+  const earthPos = earth.position(jd);
+
+  const planetCart = sph2cart(planetPos.lon, planetPos.lat, planetPos.range);
+  const earthCart = sph2cart(earthPos.lon, earthPos.lat, earthPos.range);
+
+  const geoCart = [
+    planetCart[0] - earthCart[0],
+    planetCart[1] - earthCart[1],
+    planetCart[2] - earthCart[2]
+  ];
+  const geo = cart2sph(...geoCart);
+
+  return ((geo.lon * 180) / Math.PI + 360) % 360;
+}
+
+// Солнце (VSOP87B, всегда Земля)
+function sunLongitude(earthData, jd) {
+  // Солнце — это геоцентрическая долгота Земли + 180°
+  const earth = new vsop87.VSOP87B(earthData);
+  const epos = earth.position(jd);
+  let sunLon = ((epos.lon * 180) / Math.PI + 180) % 360;
+  return sunLon;
 }
 
 // Луна
@@ -89,8 +120,7 @@ export function getSiderealPositions({
   const jupiterLon = planetGeoLongitude(vsop87Bjupiter, vsop87Bearth, jd);
   const saturnLon  = planetGeoLongitude(vsop87Bsaturn, vsop87Bearth, jd);
 
-  const earthObj = new planetposition.Planet(vsop87Bearth);
-  const sunLon = sunLongitude(earthObj, jd);
+  const sunLon = sunLongitude(vsop87Bearth, jd);
   const moonLon = moonLongitude(jd);
 
   let rahu = NaN, ketu = NaN;
