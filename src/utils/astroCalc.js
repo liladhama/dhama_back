@@ -137,13 +137,15 @@ function trueRahuKetu(jd) {
 }
 
 // --- АССЦЕНДЕНТ ---
+// Астрономический расчет асцендента Meeus + возможность подкорректировать результат
 
-// Точный расчет асцендента (Meeus, совпадает с VedikHoro/Jagannatha Hora)
-function calcAscendantMeeus(jd, lat, lon) {
+const ASC_CORRECTION_DEG = 0; // ← сюда можно подставить опытный сдвиг, например +2.5
+
+function calcAscendantAstronomia(jd, lat, lon) {
+  // Meeus AA, стр. 98
   const eps = meanObliquity(jd) * Math.PI / 180;
   const LST = localSiderealTime(jd, lon) * Math.PI / 180;
   const latr = lat * Math.PI / 180;
-  // Meeus AA, стр. 98
   const ascRad = Math.atan2(
     -Math.cos(LST),
     Math.sin(LST) * Math.cos(eps) - Math.tan(latr) * Math.sin(eps)
@@ -152,10 +154,12 @@ function calcAscendantMeeus(jd, lat, lon) {
   return ascDeg;
 }
 
-function calcAscendantSiderealMeeus(jd, lat, lon) {
-  const ascTrop = calcAscendantMeeus(jd, lat, lon);
+function calcAscendantSiderealAstronomia(jd, lat, lon) {
+  const ascTrop = calcAscendantAstronomia(jd, lat, lon);
   const ayanamsha = lahiriAyanamsha(jd);
-  return normalize(ascTrop - ayanamsha);
+  // Вот здесь можно вводить любые поправки, если надо подогнать под vedic-horo.ru
+  let sidAsc = normalize(ascTrop - ayanamsha + ASC_CORRECTION_DEG);
+  return sidAsc;
 }
 
 // Перевод градусов в астрологическую строку
@@ -198,9 +202,9 @@ export function getSiderealPositions({
     // Можно добавить обработку ошибок
   }
 
-  // Асцендент Meeus — совпадает с VedikHoro
-  const asc = calcAscendantSiderealMeeus(jd, lat, lon);
-  const ascTropical = calcAscendantMeeus(jd, lat, lon);
+  // Новый асцендент с astronomia + коррекция
+  const asc = calcAscendantSiderealAstronomia(jd, lat, lon);
+  const ascTropical = calcAscendantAstronomia(jd, lat, lon);
 
   function toSidereal(trop) {
     let sid = trop - ayanamsha;
@@ -220,7 +224,7 @@ export function getSiderealPositions({
     saturn: toSidereal(saturnLon),
     rahu: toSidereal(rahu),
     ketu: toSidereal(ketu),
-    ascendant: asc, // сидерический Meeus, совпадает с VedikHoro
+    ascendant: asc, // сидерический астрономический асцендент с коррекцией!
     _tropical: {
       sun: sunLon,
       moon: moonLon,
