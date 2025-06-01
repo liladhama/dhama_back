@@ -3524,7 +3524,5 @@ const m = {
       [1.033e-8, 4.50671820436, 529.6909650946]
     ]
   },
-  name: "jupiter",
-  type: "D"
 };
-module.exports = m;
+module.exports = { L: m.L, B: m.B, R: m.R };

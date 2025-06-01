@@ -7164,7 +7164,5 @@ const m = {
       [0, 4.00511196914, 234791.12827416777]
     ]
   },
-  name: "mercury",
-  type: "B"
 };
-module.exports = m;
+module.exports = { L: m.L, B: m.B, R: m.R };

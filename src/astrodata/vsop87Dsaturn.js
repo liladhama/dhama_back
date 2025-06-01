@@ -5800,7 +5800,5 @@ const m = {
       [8.37e-9, 5.04769794123, 124.433415221]
     ]
   },
-  name: "saturn",
-  type: "D"
 };
-module.exports = m;
+module.exports = { L: m.L, B: m.B, R: m.R };

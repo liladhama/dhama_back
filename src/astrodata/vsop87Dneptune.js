@@ -1965,7 +1965,5 @@ const m = {
       [2.295e-8, 5.67776133184, 168.0525127994]
     ]
   },
-  name: "neptune",
-  type: "D"
 };
-module.exports = m;
+module.exports = { L: m.L, B: m.B, R: m.R };

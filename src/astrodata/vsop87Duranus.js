@@ -4025,7 +4025,5 @@ const m = {
       [3.093e-8, 3.14159265359, 0]
     ]
   },
-  name: "uranus",
-  type: "D"
 };
-module.exports = m;
+module.exports = { L: m.L, B: m.B, R: m.R };

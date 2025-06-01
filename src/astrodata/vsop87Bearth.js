@@ -2605,7 +2605,5 @@ const m = {
       [1.2e-10, 0.65572878044, 12566.1516999828]
     ]
   },
-  name: "earth",
-  type: "B"
 };
-module.exports = m;
+module.exports = { L: m.L, B: m.B, R: m.R };

@@ -6868,7 +6868,5 @@ const m = {
       [0, 4.0026706421, 234791.12827416777]
     ]
   },
-  name: "mercury",
-  type: "D"
 };
-module.exports = m;
+module.exports = { L: m.L, B: m.B, R: m.R };

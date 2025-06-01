@@ -2464,7 +2464,5 @@ const m = {
       [1e-11, 0.38068797142, 18849.2275499742]
     ]
   },
-  name: "earth",
-  type: "D"
 };
-module.exports = m;
+module.exports = { L: m.L, B: m.B, R: m.R };

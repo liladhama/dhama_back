@@ -6406,7 +6406,5 @@ const m = {
       [7.06e-9, 2.65805151133, 110.2063212194]
     ]
   },
-  name: "saturn",
-  type: "B"
 };
-module.exports = m;
+module.exports = { L: m.L, B: m.B, R: m.R };

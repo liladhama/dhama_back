@@ -1723,7 +1723,5 @@ const m = {
       [2e-11, 5.29627718483, 20426.571092422]
     ]
   },
-  name: "venus",
-  type: "D"
 };
-module.exports = m;
+module.exports = { L: m.L, B: m.B, R: m.R };
