@@ -58,6 +58,34 @@ async function fetchNatalWithProxy({ date, time, latitude, longitude, tzOffset }
   return res.json();
 }
 
+// ---- Прямой запрос к AstroAPI ----
+
+async function fetchNatalDirect({ date, time, latitude, longitude, tzOffset }) {
+  const isoDateTime = `${date}T${time}:00`;
+  const body = {
+    birth_date: isoDateTime,
+    latitude: parseFloat(latitude),
+    longitude: parseFloat(longitude),
+    timezone: tzOffset !== "" ? Number(tzOffset) : 0,
+  };
+  const res = await fetch("https://api.astroapi.dev/vedic/v0/gochar", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer 455ff2c4ab095b7552215dfcad7a3569c3026741",
+    },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    let errText = "";
+    try {
+      errText = (await res.json())?.error || (await res.text());
+    } catch {}
+    throw new Error(errText || "Ошибка ответа внешнего AstroAPI");
+  }
+  return res.json();
+}
+
 // ---- Компоненты ----
 
 const sectionTitleStyle = (menuOpen) => ({
@@ -133,13 +161,34 @@ function NatalCardForm({ onSave, onCancel }) {
       return;
     }
     try {
-      const response = await fetchNatalWithProxy({
-        date,
-        time,
-        latitude,
-        longitude,
-        tzOffset,
-      });
+      // Сначала пробуем через proxy
+      let response;
+      try {
+        response = await fetchNatalWithProxy({
+          date,
+          time,
+          latitude,
+          longitude,
+          tzOffset,
+        });
+      } catch (proxyErr) {
+        // Если proxy упал — пробуем напрямую к AstroAPI
+        console.warn("Proxy /api/chart не отвечает, пробую напрямую к AstroAPI:", proxyErr);
+        try {
+          response = await fetchNatalDirect({
+            date,
+            time,
+            latitude,
+            longitude,
+            tzOffset,
+          });
+          setError("(Внимание: данные получены напрямую из внешнего AstroAPI, лимиты публичного ключа могут быть исчерпаны)");
+        } catch (astroapiErr) {
+          setError("Ошибка расчёта планет: " + (astroapiErr.message || astroapiErr));
+          setLoading(false);
+          return;
+        }
+      }
       let astroPlanets = response.planets || (response.data && response.data.planets) || [];
       if (!Array.isArray(astroPlanets)) astroPlanets = [];
       if (!astroPlanets.length) throw new Error("Планеты не найдены в ответе AstroAPI");
