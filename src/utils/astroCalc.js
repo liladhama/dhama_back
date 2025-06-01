@@ -6,12 +6,10 @@ import vsop87Bmars from "../astrodata/vsop87Bmars.js";
 import vsop87Bjupiter from "../astrodata/vsop87Bjupiter.js";
 import vsop87Bsaturn from "../astrodata/vsop87Bsaturn.js";
 
-// Логируем все импорты astronomia для отладки
+// Логируем ключи node для отладки
 console.log("[astroCalc] typeof node:", typeof node);
 console.log("[astroCalc] node keys:", node && Object.keys(node));
-console.log("[astroCalc] typeof node.trueNode:", typeof node?.trueNode);
-console.log("[astroCalc] typeof julian:", typeof julian);
-console.log("[astroCalc] typeof planetposition:", typeof planetposition);
+console.log("[astroCalc] typeof node.ellipticAscending:", typeof node?.ellipticAscending);
 
 function lahiriAyanamsha(jd) {
   const baseAyanamsha = 23.8572986;
@@ -48,18 +46,18 @@ function moonLongitude(jd) {
 
 // Истинный восходящий лунный узел (Rahu), Ketu = Rahu + 180°
 function trueRahuKetu(jd) {
-  if (typeof node.trueNode === "function") {
-    const rahuObj = node.trueNode(jd);
-    console.log("[astroCalc] node.trueNode(", jd, ") =", rahuObj);
+  if (typeof node.ellipticAscending === "function") {
+    const rahuObj = node.ellipticAscending(jd, 0);
+    console.log("[astroCalc] node.ellipticAscending(", jd, ", 0 ) =", rahuObj);
     if (!rahuObj || typeof rahuObj.lon !== "number") {
-      console.error("[astroCalc] ОШИБКА: node.trueNode(jd) вернул невалидный объект!", rahuObj);
+      console.error("[astroCalc] ОШИБКА: node.ellipticAscending(jd,0) вернул невалидный объект!", rahuObj);
       return { rahu: NaN, ketu: NaN };
     }
     const rahuLon = ((rahuObj.lon * 180) / Math.PI + 360) % 360;
     const ketuLon = (rahuLon + 180) % 360;
     return { rahu: rahuLon, ketu: ketuLon };
   }
-  console.error("[astroCalc] Нет метода node.trueNode в astronomia@4.x. node keys:", Object.keys(node));
+  console.error("[astroCalc] Нет метода node.ellipticAscending в astronomia. node keys:", Object.keys(node));
   return { rahu: NaN, ketu: NaN };
 }
 
