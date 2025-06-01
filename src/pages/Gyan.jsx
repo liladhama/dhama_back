@@ -56,6 +56,15 @@ const PLANET_LABELS = {
   ascendant: "Асцендент"
 };
 
+// Определение знака по градусам
+function getSign(deg) {
+  const signs = [
+    "Овен", "Телец", "Близнецы", "Рак", "Лев", "Дева",
+    "Весы", "Скорпион", "Стрелец", "Козерог", "Водолей", "Рыбы"
+  ];
+  return signs[Math.floor(deg / 30) % 12];
+}
+
 function NatalCardForm({ onSave, onCancel }) {
   const [name, setName] = useState("");
   const [date, setDate] = useState("");
@@ -147,7 +156,8 @@ function NatalCardForm({ onSave, onCancel }) {
         planetsObj[p] = {
           sign: getSign(positions[p]),
           deg_in_sign: positions[p] % 30,
-          deg_in_sign_str: `${Math.floor(positions[p] % 30)}°${Math.round(((positions[p] % 30) % 1) * 60)}'`
+          deg_in_sign_str: `${Math.floor(positions[p] % 30)}°${Math.round(((positions[p] % 30) % 1) * 60)}'`,
+          zodiac_str: positions.zodiac ? positions.zodiac[p] : undefined
         };
       }
       setPlanets(planetsObj);
@@ -281,7 +291,7 @@ function NatalCardForm({ onSave, onCancel }) {
           <ul>
             {Object.entries(planets).map(([planet, pos]) => (
               <li key={planet}>
-                {PLANET_LABELS[planet] || planet}: {pos.sign} {pos.deg_in_sign_str || (Math.round(pos.deg_in_sign * 1000) / 1000) + "°"}
+                {PLANET_LABELS[planet] || planet}: {pos.zodiac_str || (pos.sign + " " + pos.deg_in_sign_str)}
               </li>
             ))}
           </ul>
@@ -289,15 +299,6 @@ function NatalCardForm({ onSave, onCancel }) {
       )}
     </form>
   );
-}
-
-// Определение знака по градусам
-function getSign(deg) {
-  const signs = [
-    "Овен", "Телец", "Близнецы", "Рак", "Лев", "Дева",
-    "Весы", "Скорпион", "Стрелец", "Козерог", "Водолей", "Рыбы"
-  ];
-  return signs[Math.floor(deg / 30) % 12];
 }
 
 function NatalCardDetails({ card }) {
@@ -319,7 +320,7 @@ function NatalCardDetails({ card }) {
           <ul>
             {Object.entries(card.planets).map(([planet, pos]) => (
               <li key={planet}>
-                {PLANET_LABELS[planet] || planet}: {pos.sign} {pos.deg_in_sign_str || (Math.round(pos.deg_in_sign * 1000) / 1000) + "°"}
+                {PLANET_LABELS[planet] || planet}: {pos.zodiac_str || (pos.sign + " " + pos.deg_in_sign_str)}
               </li>
             ))}
           </ul>

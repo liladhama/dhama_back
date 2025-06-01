@@ -1,4 +1,4 @@
-import { julian, planetposition, solar, moonposition, node, sidereal, sexagesimal as sexa } from "astronomia";
+import { julian, planetposition, solar, moonposition, node, sidereal } from "astronomia";
 import vsop87Bearth from "../astrodata/vsop87Bearth.js";
 import vsop87Bmercury from "../astrodata/vsop87Bmercury.js";
 import vsop87Bvenus from "../astrodata/vsop87Bvenus.js";
@@ -6,47 +6,37 @@ import vsop87Bmars from "../astrodata/vsop87Bmars.js";
 import vsop87Bjupiter from "../astrodata/vsop87Bjupiter.js";
 import vsop87Bsaturn from "../astrodata/vsop87Bsaturn.js";
 
-// Логируем ключи node для отладки
-console.log("[astroCalc] typeof node:", typeof node);
-console.log("[astroCalc] node keys:", node && Object.keys(node));
-console.log("[astroCalc] typeof node.ellipticAscending:", typeof node?.ellipticAscending);
-
+// Лахири айанамша
 function lahiriAyanamsha(jd) {
   const baseAyanamsha = 23.8572986;
   const baseJD = 2451545.0;
   const rate = 50.290966 / 3600;
   const years = (jd - baseJD) / 365.242198781;
-  const result = baseAyanamsha + years * rate;
-  console.log("[astroCalc] lahiriAyanamsha(", jd, ") =", result);
-  return result;
+  return baseAyanamsha + years * rate;
 }
 
+// Геоцентрическая долгота планеты
 function planetGeoLongitude(planetData, earthData, jd) {
   const earth = new planetposition.Planet(earthData);
   const planet = new planetposition.Planet(planetData);
   const { lon } = planet.position2000(earth, jd);
-  const result = ((lon * 180) / Math.PI + 360) % 360;
-  console.log("[astroCalc] planetGeoLongitude(", planetData, jd, ") =", result);
-  return result;
+  return ((lon * 180) / Math.PI + 360) % 360;
 }
 
+// Солнце
 function sunLongitude(earth, jd) {
   const lon = solar.apparentVSOP87(earth, jd).lon;
-  const result = ((lon * 180) / Math.PI + 360) % 360;
-  console.log("[astroCalc] sunLongitude(", jd, ") =", result);
-  return result;
+  return ((lon * 180) / Math.PI + 360) % 360;
 }
 
+// Луна
 function moonLongitude(jd) {
   const lon = moonposition.position(jd).lon;
-  const result = ((lon * 180) / Math.PI + 360) % 360;
-  console.log("[astroCalc] moonLongitude(", jd, ") =", result);
-  return result;
+  return ((lon * 180) / Math.PI + 360) % 360;
 }
 
-// Узлы Луны по формуле Meeus (Astronomical Algorithms, Ch. 47)
+// Узлы (Раху и Кету)
 function trueRahuKetu(jd) {
-  // Meeus, AA, Ch. 47
   const T = (jd - 2451545.0) / 36525;
   let omega = 125.04452 - 1934.136261 * T + 0.0020708 * T * T + (T * T * T) / 450000;
   omega = ((omega % 360) + 360) % 360;
@@ -55,6 +45,7 @@ function trueRahuKetu(jd) {
   return { rahu, ketu };
 }
 
+// Асцендент
 function calcAscendant({ jd, lat, lon, tzOffset }) {
   const gst = sidereal.apparent(jd);
   const lst = ((gst * 180) / Math.PI + lon + 360) % 360;
@@ -68,10 +59,10 @@ function calcAscendant({ jd, lat, lon, tzOffset }) {
   );
   let ascDeg = (ascRad * 180) / Math.PI;
   ascDeg = (ascDeg + 360) % 360;
-  console.log("[astroCalc] calcAscendant(", jd, lat, lon, tzOffset, ") =", ascDeg);
   return ascDeg;
 }
 
+// Перевод градусов в астрологическую строку
 function degToZodiacString(deg) {
   const signs = [
     "Овен", "Телец", "Близнецы", "Рак", "Лев", "Дева",
@@ -90,8 +81,6 @@ export function getSiderealPositions({
 }) {
   const jd = julian.CalendarGregorianToJD(year, month, day)
     + ((hour - tzOffset) + minute / 60) / 24;
-  console.log("[astroCalc] JD =", jd);
-
   const ayanamsha = lahiriAyanamsha(jd);
 
   const mercuryLon = planetGeoLongitude(vsop87Bmercury, vsop87Bearth, jd);
@@ -102,7 +91,6 @@ export function getSiderealPositions({
 
   const earthObj = new planetposition.Planet(vsop87Bearth);
   const sunLon = sunLongitude(earthObj, jd);
-
   const moonLon = moonLongitude(jd);
 
   let rahu = NaN, ketu = NaN;
@@ -111,7 +99,7 @@ export function getSiderealPositions({
     rahu = nodes.rahu;
     ketu = nodes.ketu;
   } catch (err) {
-    console.error("[astroCalc] Ошибка при расчёте Rahu/Ketu:", err);
+    // Можно добавить обработку ошибок
   }
 
   const asc = calcAscendant({ jd, lat, lon, tzOffset });
@@ -123,7 +111,7 @@ export function getSiderealPositions({
     return sid;
   }
 
-  const result = {
+  return {
     ayanamsha,
     sun: toSidereal(sunLon),
     moon: toSidereal(moonLon),
@@ -160,6 +148,4 @@ export function getSiderealPositions({
       ascendant: degToZodiacString(toSidereal(asc)),
     }
   };
-  console.log("[astroCalc] getSiderealPositions result:", result);
-  return result;
 }
