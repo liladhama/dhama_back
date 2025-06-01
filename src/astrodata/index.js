@@ -18,7 +18,7 @@ import vsop87Dvenus from './vsop87Dvenus.js'
 import elpMppDe from './elpMppDe.js'
 import elpMppDeFull from './elpMppDeFull.js'
 
-export default {
+module.exports = {
   deltat: deltat,
   earth: earth,
   jupiter: jupiter,

@@ -5527,4 +5527,4 @@ const m = {
   name: "mars",
   type: "D"
 };
-export default m;
+module.exports = m;

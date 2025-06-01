@@ -23,4 +23,4 @@ const m = {
     last: 2032
   }
 };
-export default m;
+module.exports = m;

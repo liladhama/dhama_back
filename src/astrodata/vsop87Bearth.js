@@ -2608,4 +2608,4 @@ const m = {
   name: "earth",
   type: "B"
 };
-export default m;
+module.exports = m;

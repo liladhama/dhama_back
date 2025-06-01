@@ -5305,4 +5305,4 @@ const m = {
   name: "uranus",
   type: "B"
 };
-export default m;
+module.exports = m;

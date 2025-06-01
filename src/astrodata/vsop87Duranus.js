@@ -4028,4 +4028,4 @@ const m = {
   name: "uranus",
   type: "D"
 };
-export default m;
+module.exports = m;

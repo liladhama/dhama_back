@@ -2058,4 +2058,4 @@ const m = {
   name: "neptune",
   type: "B"
 };
-export default m;
+module.exports = m;

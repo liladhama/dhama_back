@@ -6444,4 +6444,4 @@ const m = {
   name: "mars",
   type: "B"
 };
-export default m;
+module.exports = m;

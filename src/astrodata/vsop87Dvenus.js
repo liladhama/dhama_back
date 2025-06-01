@@ -1726,4 +1726,4 @@ const m = {
   name: "venus",
   type: "D"
 };
-export default m;
+module.exports = m;

@@ -3669,4 +3669,4 @@ const m = {
   name: "jupiter",
   type: "B"
 };
-export default m;
+module.exports = m;

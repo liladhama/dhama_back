@@ -6871,4 +6871,4 @@ const m = {
   name: "mercury",
   type: "D"
 };
-export default m;
+module.exports = m;

@@ -2467,4 +2467,4 @@ const m = {
   name: "earth",
   type: "D"
 };
-export default m;
+module.exports = m;

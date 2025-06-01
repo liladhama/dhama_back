@@ -4893,4 +4893,4 @@ const m = {
     ]
   }
 };
-export default m;
+module.exports = m;
