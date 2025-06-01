@@ -1,8 +1,8 @@
 import React, { useState, useRef } from "react";
+import { getSiderealPositions } from "../utils/astroCalc";
 
 // ---- Геокодирование и часовой пояс ----
 
-// Геокодирование города через Geoapify (CORS-friendly)
 async function fetchCoordinates(city) {
   const apiKey = "b89b0e6fc3b949ebba403db8c42c0d09";
   const url = `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(city)}&limit=1&format=json&apiKey=${apiKey}`;
@@ -18,9 +18,8 @@ async function fetchCoordinates(city) {
   return null;
 }
 
-// Получение часового пояса и offset через GeoNames + информативная ошибка
 async function fetchTimezone(lat, lon, date) {
-  const username = "pastoohkorov"; // <-- замените на свой username, если лимит исчерпан
+  const username = "pastoohkorov";
   const url = `https://secure.geonames.org/timezoneJSON?lat=${lat}&lng=${lon}&date=${date}&username=${username}`;
   const res = await fetch(url);
   const data = await res.json();
@@ -31,60 +30,6 @@ async function fetchTimezone(lat, lon, date) {
     return data;
   }
   return null;
-}
-
-// ---- Получение натальной карты через серверный обработчик ----
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://dhama-api.vercel.app";
-
-async function fetchNatalWithProxy({ date, time, latitude, longitude, tzOffset }) {
-  const isoDateTime = `${date}T${time}:00`;
-  const body = {
-    birth_date: isoDateTime,
-    latitude: parseFloat(latitude),
-    longitude: parseFloat(longitude),
-    timezone: tzOffset !== "" ? Number(tzOffset) : 0,
-  };
-  const res = await fetch(`${API_URL}/api/chart`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
-  if (!res.ok) {
-    let errText = "";
-    try {
-      errText = (await res.json())?.error || (await res.text());
-    } catch { }
-    throw new Error(errText || "Ошибка ответа сервера /api/chart");
-  }
-  return res.json();
-}
-
-// ---- Прямой запрос к AstroAPI ----
-
-async function fetchNatalDirect({ date, time, latitude, longitude, tzOffset }) {
-  const isoDateTime = `${date}T${time}:00`;
-  const body = {
-    birth_date: isoDateTime,
-    latitude: parseFloat(latitude),
-    longitude: parseFloat(longitude),
-    timezone: tzOffset !== "" ? Number(tzOffset) : 0,
-  };
-  const res = await fetch("https://api.astroapi.dev/vedic/v0/gochar", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": "Bearer 455ff2c4ab095b7552215dfcad7a3569c3026741",
-    },
-    body: JSON.stringify(body),
-  });
-  if (!res.ok) {
-    let errText = "";
-    try {
-      errText = (await res.json())?.error || (await res.text());
-    } catch {}
-    throw new Error(errText || "Ошибка ответа внешнего AstroAPI");
-  }
-  return res.json();
 }
 
 // ---- Компоненты ----
@@ -110,6 +55,7 @@ function NatalCardForm({ onSave, onCancel }) {
   const [loading, setLoading] = useState(false);
   const [geoLoading, setGeoLoading] = useState(false);
   const [planets, setPlanets] = useState(null);
+  const [ayanamsha, setAyanamsha] = useState(null);
   const [error, setError] = useState("");
   const [geoError, setGeoError] = useState("");
   const latInput = useRef();
@@ -156,51 +102,34 @@ function NatalCardForm({ onSave, onCancel }) {
     setLoading(true);
     setError("");
     setPlanets(null);
-    if (!date || !time || !latitude || !longitude) {
-      setError("Пожалуйста, заполните дату, время и координаты.");
+    setAyanamsha(null);
+
+    if (!date || !time) {
+      setError("Пожалуйста, заполните дату и время.");
       setLoading(false);
       return;
     }
+
     try {
-      // Сначала пробуем через proxy
-      let response;
-      try {
-        response = await fetchNatalWithProxy({
-          date,
-          time,
-          latitude,
-          longitude,
-          tzOffset,
-        });
-      } catch (proxyErr) {
-        // Если proxy упал — пробуем напрямую к AstroAPI
-        console.warn("Proxy /api/chart не отвечает, пробую напрямую к AstroAPI:", proxyErr);
-        try {
-          response = await fetchNatalDirect({
-            date,
-            time,
-            latitude,
-            longitude,
-            tzOffset,
-          });
-          setError("(Внимание: данные получены напрямую из внешнего AstroAPI, лимиты публичного ключа могут быть исчерпаны)");
-        } catch (astroapiErr) {
-          setError("Ошибка расчёта планет: " + (astroapiErr.message || astroapiErr));
-          setLoading(false);
-          return;
-        }
-      }
-      let astroPlanets = response.planets || (response.data && response.data.planets) || [];
-      if (!Array.isArray(astroPlanets)) astroPlanets = [];
-      if (!astroPlanets.length) throw new Error("Планеты не найдены в ответе AstroAPI");
+      const [year, month, day] = date.split("-").map(Number);
+      const [hour, minute] = time.split(":").map(Number);
+
+      // расчитываем сидерические координаты локально
+      const positions = getSiderealPositions({
+        year, month, day,
+        hour: hour || 0,
+        minute: minute || 0,
+      });
+
+      setAyanamsha(positions.ayanamsha);
+
+      // Формируем объект для отображения
       const planetsObj = {};
-      for (const p of astroPlanets) {
-        planetsObj[p.name || p.planet] = {
-          sign: p.sign || p.rashi || "",
-          deg_in_sign: p.degree ? (p.degree % 30) : 0,
-          deg_in_sign_str: p.degree
-            ? `${Math.floor(p.degree % 30)}°${Math.round((p.degree % 1) * 60)}'`
-            : "",
+      for (const p of ["sun", "moon", "mercury", "venus", "mars", "jupiter", "saturn"]) {
+        planetsObj[p] = {
+          sign: getSign(positions[p]),
+          deg_in_sign: positions[p] % 30,
+          deg_in_sign_str: `${Math.floor(positions[p] % 30)}°${Math.round(((positions[p] % 30) % 1) * 60)}'`
         };
       }
       setPlanets(planetsObj);
@@ -226,6 +155,7 @@ function NatalCardForm({ onSave, onCancel }) {
       timezone,
       tzOffset,
       planets,
+      ayanamsha,
     });
   };
 
@@ -313,7 +243,7 @@ function NatalCardForm({ onSave, onCancel }) {
         </label>
       </div>
       <div style={{ marginTop: 12 }}>
-        <button type="button" onClick={handleCalc} disabled={loading || !date || !time || !latitude || !longitude}>
+        <button type="button" onClick={handleCalc} disabled={loading || !date || !time}>
           {loading ? "Рассчитываем..." : "Рассчитать планеты"}
         </button>
         <button type="submit" style={{ marginLeft: 10 }} disabled={!planets}>
@@ -322,9 +252,14 @@ function NatalCardForm({ onSave, onCancel }) {
         <button type="button" onClick={onCancel} style={{ marginLeft: 10 }}>Отмена</button>
       </div>
       {error && <div style={{ color: "red", marginTop: 8 }}>{error}</div>}
+      {ayanamsha !== null && (
+        <div style={{ marginTop: 10, color: "#555" }}>
+          <b>Аянамша Лахири:</b> {ayanamsha.toFixed(6)}°
+        </div>
+      )}
       {planets && (
         <div style={{ marginTop: 16, fontSize: 14, background: "#eef", padding: 10, borderRadius: 8 }}>
-          <b>Планеты:</b>
+          <b>Планеты (сидерический зодиак):</b>
           <ul>
             {Object.entries(planets).map(([planet, pos]) => (
               <li key={planet}>
@@ -338,6 +273,15 @@ function NatalCardForm({ onSave, onCancel }) {
   );
 }
 
+// Определение знака по градусам
+function getSign(deg) {
+  const signs = [
+    "Овен", "Телец", "Близнецы", "Рак", "Лев", "Дева",
+    "Весы", "Скорпион", "Стрелец", "Козерог", "Водолей", "Рыбы"
+  ];
+  return signs[Math.floor(deg / 30) % 12];
+}
+
 function NatalCardDetails({ card }) {
   if (!card) return null;
   return (
@@ -348,6 +292,9 @@ function NatalCardDetails({ card }) {
       <div>Место: {card.place || "—"}</div>
       <div>Широта: {card.latitude}, Долгота: {card.longitude}</div>
       <div>Временная зона: {card.timezone || "—"}, UTC-offset: {card.tzOffset !== undefined ? card.tzOffset : "—"}</div>
+      {card.ayanamsha !== undefined &&
+        <div>Аянамша Лахири: {card.ayanamsha?.toFixed(6)}°</div>
+      }
       <div style={{ marginTop: 8 }}>
         <b>Планеты:</b>
         {card.planets ? (
