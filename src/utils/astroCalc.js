@@ -1,4 +1,10 @@
-import { julian, planetposition, solar, moonposition, data } from "astronomia";
+import { julian, planetposition, solar, moonposition } from "astronomia";
+import vsop87Bearth from "astronomia/data/vsop87Bearth.json";
+import vsop87Bmercury from "astronomia/data/vsop87Bmercury.json";
+import vsop87Bvenus from "astronomia/data/vsop87Bvenus.json";
+import vsop87Bmars from "astronomia/data/vsop87Bmars.json";
+import vsop87Bjupiter from "astronomia/data/vsop87Bjupiter.json";
+import vsop87Bsaturn from "astronomia/data/vsop87Bsaturn.json";
 
 // Лахири айанамша (Chitrapaksha)
 function lahiriAyanamsha(jd) {
@@ -22,12 +28,12 @@ export function getSiderealPositions({ year, month, day, hour, minute }) {
   const jd = julian.CalendarGregorianToJD(year, month, day) + ((hour + minute / 60) / 24);
   const ayanamsha = lahiriAyanamsha(jd);
 
-  const earth = new planetposition.Planet(data.vsop87Bearth);
-  const mercury = new planetposition.Planet(data.vsop87Bmercury);
-  const venus = new planetposition.Planet(data.vsop87Bvenus);
-  const mars = new planetposition.Planet(data.vsop87Bmars);
-  const jupiter = new planetposition.Planet(data.vsop87Bjupiter);
-  const saturn = new planetposition.Planet(data.vsop87Bsaturn);
+  const earth = new planetposition.Planet(vsop87Bearth);
+  const mercury = new planetposition.Planet(vsop87Bmercury);
+  const venus = new planetposition.Planet(vsop87Bvenus);
+  const mars = new planetposition.Planet(vsop87Bmars);
+  const jupiter = new planetposition.Planet(vsop87Bjupiter);
+  const saturn = new planetposition.Planet(vsop87Bsaturn);
 
   // Солнце
   const sunLon = (solar.apparentVSOP87(earth, jd).lon * 180) / Math.PI;
@@ -58,7 +64,6 @@ export function getSiderealPositions({ year, month, day, hour, minute }) {
     mars: toSidereal(marsLon),
     jupiter: toSidereal(jupiterLon),
     saturn: toSidereal(saturnLon),
-    // Если нужны еще планеты — добавим!
     _tropical: { sun: sunLon, moon: moonLon, mercury: mercuryLon, venus: venusLon, mars: marsLon, jupiter: jupiterLon, saturn: saturnLon },
   };
 }
