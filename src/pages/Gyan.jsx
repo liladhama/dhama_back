@@ -20,7 +20,7 @@ async function fetchCoordinates(city) {
 
 // Получение часового пояса и offset через GeoNames + информативная ошибка
 async function fetchTimezone(lat, lon, date) {
-  const username = "pastoohkorov";
+  const username = "pastoohkorov"; // <-- замените на свой username, если лимит исчерпан
   const url = `https://secure.geonames.org/timezoneJSON?lat=${lat}&lng=${lon}&date=${date}&username=${username}`;
   const res = await fetch(url);
   const data = await res.json();
@@ -33,16 +33,9 @@ async function fetchTimezone(lat, lon, date) {
   return null;
 }
 
-// ---- Интеграция с AstroAPI ----
+// ---- Получение натальной карты через серверный обработчик ----
 
-// Новый эндпоинт для расчёта натальной карты через Vedic AstroAPI
-const ASTROAPI_VEDIC_ENDPOINT = "https://api.astroapi.dev/vedic/v0/gochar/";
-
-// Пример использования AstroAPI для натальной карты (Gochar)
-async function fetchNatalWithAstroApi({ date, time, latitude, longitude, tzOffset }) {
-  // ВАШ КЛЮЧ (замените на свой!)
-  const apiKey = "455ff2c4ab095b7552215dfcad7a3569c3026741";
-  // Формат даты и времени - ISO 8601
+async function fetchNatalWithProxy({ date, time, latitude, longitude, tzOffset }) {
   const isoDateTime = `${date}T${time}:00`;
   const body = {
     birth_date: isoDateTime,
@@ -50,12 +43,9 @@ async function fetchNatalWithAstroApi({ date, time, latitude, longitude, tzOffse
     longitude: parseFloat(longitude),
     timezone: tzOffset !== "" ? Number(tzOffset) : 0,
   };
-  const res = await fetch(ASTROAPI_VEDIC_ENDPOINT, {
+  const res = await fetch("/api/chart", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${apiKey}`,
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
   if (!res.ok) {
@@ -63,7 +53,7 @@ async function fetchNatalWithAstroApi({ date, time, latitude, longitude, tzOffse
     try {
       errText = (await res.json())?.error || (await res.text());
     } catch { }
-    throw new Error(errText || "Ошибка ответа AstroAPI");
+    throw new Error(errText || "Ошибка ответа сервера /api/chart");
   }
   return res.json();
 }
@@ -132,7 +122,6 @@ function NatalCardForm({ onSave, onCancel }) {
     setGeoLoading(false);
   }
 
-  // Новый обработчик для расчёта через AstroAPI и преобразования результата к ожидаемому виду planets
   const handleCalc = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -144,25 +133,16 @@ function NatalCardForm({ onSave, onCancel }) {
       return;
     }
     try {
-      const response = await fetchNatalWithAstroApi({
+      const response = await fetchNatalWithProxy({
         date,
         time,
         latitude,
         longitude,
         tzOffset,
       });
-
-      // --- Преобразование ответа AstroAPI Gochar под ожидания старого интерфейса ---
-      // Обычно ответ содержит response.planets или response.data.planets,
-      // но точное поле для gochar может отличаться (см. документацию AstroAPI/dev).
-      // Для примера возьмём planets из response.data.planets или response.planets
-
       let astroPlanets = response.planets || (response.data && response.data.planets) || [];
       if (!Array.isArray(astroPlanets)) astroPlanets = [];
-
       if (!astroPlanets.length) throw new Error("Планеты не найдены в ответе AstroAPI");
-
-      // Приводим planets к объекту вида { Sun: { sign, deg_in_sign, deg_in_sign_str } ... }
       const planetsObj = {};
       for (const p of astroPlanets) {
         planetsObj[p.name || p.planet] = {
