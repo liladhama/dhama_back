@@ -6,6 +6,38 @@ import vsop87Bmars from "../astrodata/vsop87Bmars.js";
 import vsop87Bjupiter from "../astrodata/vsop87Bjupiter.js";
 import vsop87Bsaturn from "../astrodata/vsop87Bsaturn.js";
 
+// --- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ---
+
+function normalize(deg) {
+  return ((deg % 360) + 360) % 360;
+}
+
+// Эклиптический наклон (градусы)
+function meanObliquity(jd) {
+  const T = (jd - 2451545.0) / 36525;
+  return 23.43929111
+    - 0.0130041667 * T
+    - 0.0000001639 * T * T
+    + 0.0000005036 * T * T * T;
+}
+
+// Перевод времени в JD
+function toJD({ year, month, day, hour, minute, second = 0, tzOffset = 0 }) {
+  return julian.CalendarGregorianToJD(year, month, day)
+    + ((hour - tzOffset) + minute / 60 + second / 3600) / 24;
+}
+
+// Местное сидерическое время (LST) в градусах
+function localSiderealTime(jd, lon) {
+  const T = (jd - 2451545.0) / 36525;
+  let GMST = 280.46061837
+    + 360.98564736629 * (jd - 2451545.0)
+    + 0.000387933 * T * T
+    - T * T * T / 38710000;
+  let LST = GMST + lon;
+  return normalize(LST);
+}
+
 // Лахири айанамша
 function lahiriAyanamsha(jd) {
   const baseAyanamsha = 23.8572986;
@@ -14,6 +46,8 @@ function lahiriAyanamsha(jd) {
   const years = (jd - baseJD) / 365.242198781;
   return baseAyanamsha + years * rate;
 }
+
+// --- КООРДИНАТЫ ПЛАНЕТ ---
 
 // Перевод сферических в декартовы координаты
 function sph2cart(lon, lat, r) {
@@ -75,67 +109,54 @@ function planetGeoLongitude(planetData, earthData, jd) {
   const geo = cart2sph(...geoCart);
 
   // Нормализация в диапазон 0-2π и перевод в градусы
-  return ((geo.lon * 180) / Math.PI + 360) % 360;
+  return normalize(geo.lon * 180 / Math.PI);
 }
 
 // Солнце (геоцентрически!)
 // Солнце — это положение Земли + 180°
 function sunLongitude(earthData, jd) {
   const earthPos = vsop87Heliocentric(earthData, jd);
-  let sunLon = ((earthPos.lon * 180) / Math.PI + 180) % 360;
+  let sunLon = normalize((earthPos.lon * 180) / Math.PI + 180);
   return sunLon;
 }
 
 // Луна
 function moonLongitude(jd) {
   const lon = moonposition.position(jd).lon;
-  return ((lon * 180) / Math.PI + 360) % 360;
+  return normalize((lon * 180) / Math.PI);
 }
 
 // Узлы (Раху и Кету)
 function trueRahuKetu(jd) {
   const T = (jd - 2451545.0) / 36525;
   let omega = 125.04452 - 1934.136261 * T + 0.0020708 * T * T + (T * T * T) / 450000;
-  omega = ((omega % 360) + 360) % 360;
+  omega = normalize(omega);
   const rahu = omega;
-  const ketu = (omega + 180) % 360;
+  const ketu = normalize(omega + 180);
   return { rahu, ketu };
 }
 
-// --- Ручной асцендент (тропический) ---
-function calcTropicalAscendant(jd, lat, lon) {
-  // jd — юлианская дата (UT), lat/lon — в градусах
-  // Формула: https://astronexus.com/node/34, https://github.com/andrmoel/astro
-  const d = jd - 2451545.0;
-  // Гринвичское звёздное время (GMST), в градусах
-  let GMST = (280.46061837 + 360.98564736629 * d) % 360;
-  if (GMST < 0) GMST += 360;
-  // Местное звёздное время (LST)
-  let LST = (GMST + lon) % 360;
-  if (LST < 0) LST += 360;
-  // Эклиптический наклон
-  const obliquity = 23.439291 - 0.0130042 * ((jd - 2451545.0) / 36525); // градусы
-  // Все в радианах
-  const LSTr = LST * Math.PI / 180;
+// --- АССЦЕНДЕНТ ---
+
+// Точный расчет асцендента (тропический, Meeus AA)
+function calcAscendantTropical(jd, lat, lon) {
+  const eps = meanObliquity(jd) * Math.PI / 180;
+  const LST = localSiderealTime(jd, lon) * Math.PI / 180;
   const latr = lat * Math.PI / 180;
-  const oblr = obliquity * Math.PI / 180;
-  // Формула асцендента по эклиптике
-  let tanAsc = (Math.cos(LSTr) / (Math.sin(LSTr) * Math.cos(oblr) - Math.tan(latr) * Math.sin(oblr)));
-  let ascRad = Math.atan(tanAsc);
-  if (LST > 180) ascRad += Math.PI;
-  let ascDeg = (ascRad * 180 / Math.PI) % 360;
-  if (ascDeg < 0) ascDeg += 360;
-  return ascDeg;
+  // Формула Meeus (Astronomical Algorithms, 2nd ed., стр. 98)
+  const tanAsc = (-Math.cos(LST)) /
+    (Math.sin(LST) * Math.cos(eps) - Math.tan(latr) * Math.sin(eps));
+  let asc = Math.atan(tanAsc);
+  if (LST > Math.PI) asc += Math.PI;
+  asc = asc * 180 / Math.PI;
+  return normalize(asc);
 }
 
-// Сидерический асцендент
-function calcAscendant({ jd, lat, lon }) {
-  const tropAsc = calcTropicalAscendant(jd, lat, lon);
+// Сидерический (вычитаем айанамшу)
+function calcAscendantSidereal(jd, lat, lon) {
+  const ascTrop = calcAscendantTropical(jd, lat, lon);
   const ayanamsha = lahiriAyanamsha(jd);
-  let sidAsc = tropAsc - ayanamsha;
-  if (sidAsc < 0) sidAsc += 360;
-  if (sidAsc >= 360) sidAsc -= 360;
-  return sidAsc;
+  return normalize(ascTrop - ayanamsha);
 }
 
 // Перевод градусов в астрологическую строку
@@ -151,12 +172,13 @@ function degToZodiacString(deg) {
   return `${signs[sign]} ${d}°${m.toString().padStart(2, "0")}'`;
 }
 
+// --- ГЛАВНАЯ ФУНКЦИЯ ---
+
 export function getSiderealPositions({
   year, month, day, hour, minute,
   lat = 55.75, lon = 37.6167, tzOffset = 3
 }) {
-  const jd = julian.CalendarGregorianToJD(year, month, day)
-    + ((hour - tzOffset) + minute / 60) / 24;
+  const jd = toJD({ year, month, day, hour, minute, tzOffset });
   const ayanamsha = lahiriAyanamsha(jd);
 
   const mercuryLon = planetGeoLongitude(vsop87Bmercury, vsop87Bearth, jd);
@@ -177,8 +199,9 @@ export function getSiderealPositions({
     // Можно добавить обработку ошибок
   }
 
-  // Асцендент (сидерический)
-  const asc = calcAscendant({ jd, lat, lon });
+  // Асцендент
+  const asc = calcAscendantSidereal(jd, lat, lon);
+  const ascTropical = calcAscendantTropical(jd, lat, lon);
 
   function toSidereal(trop) {
     let sid = trop - ayanamsha;
@@ -186,9 +209,6 @@ export function getSiderealPositions({
     if (sid >= 360) sid -= 360;
     return sid;
   }
-
-  // Для отладки: вернуть тропический асцендент
-  const ascTropical = calcTropicalAscendant(jd, lat, lon);
 
   return {
     ayanamsha,
