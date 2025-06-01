@@ -1,4 +1,4 @@
-import { julian, moonposition, sidereal, coord } from "astronomia";
+import { julian, moonposition } from "astronomia";
 import vsop87Bearth from "../astrodata/vsop87Bearth.js";
 import vsop87Bmercury from "../astrodata/vsop87Bmercury.js";
 import vsop87Bvenus from "../astrodata/vsop87Bvenus.js";
@@ -102,12 +102,35 @@ function trueRahuKetu(jd) {
   return { rahu, ketu };
 }
 
-// Асцендент через astronomia.coord.ascendant — максимально корректно (сидерический)
+// --- Ручной асцендент (тропический) ---
+function calcTropicalAscendant(jd, lat, lon) {
+  // jd — юлианская дата (UT), lat/lon — в градусах
+  // Формула: https://astronexus.com/node/34, https://github.com/andrmoel/astro
+  const d = jd - 2451545.0;
+  // Гринвичское звёздное время (GMST), в градусах
+  let GMST = (280.46061837 + 360.98564736629 * d) % 360;
+  if (GMST < 0) GMST += 360;
+  // Местное звёздное время (LST)
+  let LST = (GMST + lon) % 360;
+  if (LST < 0) LST += 360;
+  // Эклиптический наклон
+  const obliquity = 23.439291 - 0.0130042 * ((jd - 2451545.0) / 36525); // градусы
+  // Все в радианах
+  const LSTr = LST * Math.PI / 180;
+  const latr = lat * Math.PI / 180;
+  const oblr = obliquity * Math.PI / 180;
+  // Формула асцендента по эклиптике
+  let tanAsc = (Math.cos(LSTr) / (Math.sin(LSTr) * Math.cos(oblr) - Math.tan(latr) * Math.sin(oblr)));
+  let ascRad = Math.atan(tanAsc);
+  if (LST > 180) ascRad += Math.PI;
+  let ascDeg = (ascRad * 180 / Math.PI) % 360;
+  if (ascDeg < 0) ascDeg += 360;
+  return ascDeg;
+}
+
+// Сидерический асцендент
 function calcAscendant({ jd, lat, lon }) {
-  // jd — юлианская дата, lat/long — в градусах
-  // coord.ascendant возвращает эклиптическую долготу асцендента в градусах (тропическую)
-  // Для сидерического: вычитаем айанамшу
-  const tropAsc = coord.ascendant(lon, lat, jd);
+  const tropAsc = calcTropicalAscendant(jd, lat, lon);
   const ayanamsha = lahiriAyanamsha(jd);
   let sidAsc = tropAsc - ayanamsha;
   if (sidAsc < 0) sidAsc += 360;
@@ -164,6 +187,9 @@ export function getSiderealPositions({
     return sid;
   }
 
+  // Для отладки: вернуть тропический асцендент
+  const ascTropical = calcTropicalAscendant(jd, lat, lon);
+
   return {
     ayanamsha,
     sun: toSidereal(sunLon),
@@ -186,7 +212,7 @@ export function getSiderealPositions({
       saturn: saturnLon,
       rahu,
       ketu,
-      ascendant: asc + ayanamsha >= 360 ? asc + ayanamsha - 360 : asc + ayanamsha, // тропический
+      ascendant: ascTropical, // тропический асцендент
     },
     zodiac: {
       sun: degToZodiacString(toSidereal(sunLon)),
