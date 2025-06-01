@@ -44,21 +44,15 @@ function moonLongitude(jd) {
   return result;
 }
 
-// Истинный восходящий лунный узел (Rahu), Ketu = Rahu + 180°
+// Узлы Луны по формуле Meeus (Astronomical Algorithms, Ch. 47)
 function trueRahuKetu(jd) {
-  if (typeof node.ellipticAscending === "function") {
-    const rahuObj = node.ellipticAscending(jd, 0);
-    console.log("[astroCalc] node.ellipticAscending(", jd, ", 0 ) =", rahuObj);
-    if (!rahuObj || typeof rahuObj.lon !== "number") {
-      console.error("[astroCalc] ОШИБКА: node.ellipticAscending(jd,0) вернул невалидный объект!", rahuObj);
-      return { rahu: NaN, ketu: NaN };
-    }
-    const rahuLon = ((rahuObj.lon * 180) / Math.PI + 360) % 360;
-    const ketuLon = (rahuLon + 180) % 360;
-    return { rahu: rahuLon, ketu: ketuLon };
-  }
-  console.error("[astroCalc] Нет метода node.ellipticAscending в astronomia. node keys:", Object.keys(node));
-  return { rahu: NaN, ketu: NaN };
+  // Meeus, AA, Ch. 47
+  const T = (jd - 2451545.0) / 36525;
+  let omega = 125.04452 - 1934.136261 * T + 0.0020708 * T * T + (T * T * T) / 450000;
+  omega = ((omega % 360) + 360) % 360;
+  const rahu = omega;
+  const ketu = (omega + 180) % 360;
+  return { rahu, ketu };
 }
 
 function calcAscendant({ jd, lat, lon, tzOffset }) {
