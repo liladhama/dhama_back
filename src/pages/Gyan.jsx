@@ -34,6 +34,7 @@ async function fetchTimezone(lat, lon, date) {
 }
 
 // ---- Получение натальной карты через серверный обработчик ----
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://dhama-api.vercel.app";
 
 async function fetchNatalWithProxy({ date, time, latitude, longitude, tzOffset }) {
   const isoDateTime = `${date}T${time}:00`;
@@ -43,7 +44,7 @@ async function fetchNatalWithProxy({ date, time, latitude, longitude, tzOffset }
     longitude: parseFloat(longitude),
     timezone: tzOffset !== "" ? Number(tzOffset) : 0,
   };
-  const res = await fetch("/api/chart", {
+  const res = await fetch(`${API_URL}/api/chart`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
