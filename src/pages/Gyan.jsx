@@ -1,5 +1,4 @@
 import React, { useState, useRef } from "react";
-import { getSiderealPositions } from "../utils/astroCalc";
 
 // ---- Геокодирование и часовой пояс ----
 
@@ -30,6 +29,45 @@ async function fetchTimezone(lat, lon, date) {
     return data;
   }
   return null;
+}
+
+// ---- Новый fetch: получить данные планет с FastAPI ----
+
+async function fetchPlanetsFromServer({ date, time, lat, lon, tzOffset }) {
+  // date - "YYYY-MM-DD", time - "HH:MM" (локальное), tzOffset - смещение по UTC в часах
+
+  // Переводим локальное время + tzOffset в UTC
+  const [year, month, day] = date.split("-").map(Number);
+  const [hour, minute] = time.split(":").map(Number);
+
+  // Время в минутах с учётом смещения
+  const localMinutes = (hour || 0) * 60 + (minute || 0);
+  const utcMinutes = localMinutes - Math.round((tzOffset || 0) * 60);
+  // Получаем UTC-дату и время (может перейти на другой день!)
+  const utcDateObj = new Date(Date.UTC(year, month - 1, day, 0, 0));
+  utcDateObj.setUTCMinutes(utcMinutes);
+
+  // Формируем строку для API: "YYYY-MM-DDTHH:MM"
+  const yyyy = utcDateObj.getUTCFullYear();
+  const mm = String(utcDateObj.getUTCMonth() + 1).padStart(2, "0");
+  const dd = String(utcDateObj.getUTCDate()).padStart(2, "0");
+  const hh = String(utcDateObj.getUTCHours()).padStart(2, "0");
+  const min = String(utcDateObj.getUTCMinutes()).padStart(2, "0");
+  const apiDate = `${yyyy}-${mm}-${dd}T${hh}:${min}`;
+
+  // Собираем URL
+  const params = new URLSearchParams({
+    date: apiDate,
+    lat: lat,
+    lon: lon,
+  });
+  const url = `http://13.48.133.27:8000/api/planets?${params.toString()}`;
+
+  const res = await fetch(url);
+  if (!res.ok) {
+    throw new Error("Ошибка сервера: " + res.status);
+  }
+  return await res.json();
 }
 
 // ---- Компоненты ----
@@ -133,34 +171,28 @@ function NatalCardForm({ onSave, onCancel }) {
     }
 
     try {
-      const [year, month, day] = date.split("-").map(Number);
-      const [hour, minute] = time.split(":").map(Number);
-
-      // расчитываем сидерические координаты локально
-      const positions = getSiderealPositions({
-        year, month, day,
-        hour: hour || 0,
-        minute: minute || 0,
+      // Запрос к серверу!
+      const planetsData = await fetchPlanetsFromServer({
+        date,
+        time,
         lat: latitude ? Number(latitude) : 55.75,
         lon: longitude ? Number(longitude) : 37.6167,
         tzOffset: tzOffset !== "" ? Number(tzOffset) : 3,
       });
 
-      console.log("SIDEREAL POSITIONS:", positions); // <--- отладка
-
-      setAyanamsha(positions.ayanamsha);
-
+      // Сервер отдаёт планеты в абсолютных градусах (0-360)
       // Формируем объект для отображения
       const planetsObj = {};
       for (const p of ["sun", "moon", "mercury", "venus", "mars", "jupiter", "saturn", "rahu", "ketu", "ascendant"]) {
         planetsObj[p] = {
-          sign: getSign(positions[p]),
-          deg_in_sign: positions[p] % 30,
-          deg_in_sign_str: `${Math.floor(positions[p] % 30)}°${Math.round(((positions[p] % 30) % 1) * 60)}'`,
-          zodiac_str: positions.zodiac ? positions.zodiac[p] : undefined
+          sign: getSign(planetsData[p]),
+          deg_in_sign: planetsData[p] % 30,
+          deg_in_sign_str: `${Math.floor(planetsData[p] % 30)}°${Math.round(((planetsData[p] % 30) % 1) * 60)}'`,
         };
       }
       setPlanets(planetsObj);
+      // Аянамшу сервер отдаёт только если ты добавишь поле, сейчас просто null
+      setAyanamsha(null);
     } catch (err) {
       setError("Ошибка расчёта планет: " + (err.message || err));
     }
@@ -291,7 +323,7 @@ function NatalCardForm({ onSave, onCancel }) {
           <ul>
             {Object.entries(planets).map(([planet, pos]) => (
               <li key={planet}>
-                {PLANET_LABELS[planet] || planet}: {pos.zodiac_str || (pos.sign + " " + pos.deg_in_sign_str)}
+                {PLANET_LABELS[planet] || planet}: {pos.sign + " " + pos.deg_in_sign_str}
               </li>
             ))}
           </ul>
@@ -320,7 +352,7 @@ function NatalCardDetails({ card }) {
           <ul>
             {Object.entries(card.planets).map(([planet, pos]) => (
               <li key={planet}>
-                {PLANET_LABELS[planet] || planet}: {pos.zodiac_str || (pos.sign + " " + pos.deg_in_sign_str)}
+                {PLANET_LABELS[planet] || planet}: {pos.sign + " " + pos.deg_in_sign_str}
               </li>
             ))}
           </ul>
