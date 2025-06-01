@@ -2,7 +2,6 @@ import React, { useState, useRef } from "react";
 
 // ---- Геокодирование и часовой пояс ----
 
-// Геокодирование города через Geoapify (CORS-friendly)
 async function fetchCoordinates(city) {
   const apiKey = "b89b0e6fc3b949ebba403db8c42c0d09";
   const url = `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(city)}&limit=1&format=json&apiKey=${apiKey}`;
@@ -18,9 +17,8 @@ async function fetchCoordinates(city) {
   return null;
 }
 
-// Получение часового пояса и offset через GeoNames + информативная ошибка
 async function fetchTimezone(lat, lon, date) {
-  const username = "pastoohkorov"; // <-- замените на свой username, если лимит исчерпан
+  const username = "pastoohkorov";
   const url = `https://secure.geonames.org/timezoneJSON?lat=${lat}&lng=${lon}&date=${date}&username=${username}`;
   const res = await fetch(url);
   const data = await res.json();
@@ -33,19 +31,8 @@ async function fetchTimezone(lat, lon, date) {
   return null;
 }
 
-// ---- Компоненты ----
-
-const sectionTitleStyle = (menuOpen) => ({
-  marginTop: 0,
-  marginLeft: !menuOpen ? 80 : 0,
-  transition: "margin-left 0.3s",
-  fontSize: 32,
-  fontWeight: 700,
-  lineHeight: 1.2,
-});
-
-// Абсолютный путь к API с HTTPS и валидным доменом:
-const NATAL_API_URL = "https://astrogyan.duckdns.org/api/natal";
+const ASTRO_API_URL = "https://astroapi.dev/api/vedic/v0/kundali/";
+const ASTRO_API_TOKEN = "455ff2c4ab095b7552215dfcad7a3569c3026741";
 
 function NatalCardForm({ onSave, onCancel }) {
   const [name, setName] = useState("");
@@ -58,18 +45,11 @@ function NatalCardForm({ onSave, onCancel }) {
   const [tzOffset, setTzOffset] = useState("");
   const [loading, setLoading] = useState(false);
   const [geoLoading, setGeoLoading] = useState(false);
-  const [planets, setPlanets] = useState(null);
+  const [natalData, setNatalData] = useState(null);
   const [error, setError] = useState("");
   const [geoError, setGeoError] = useState("");
   const latInput = useRef();
   const lonInput = useRef();
-
-  function handleLatChange(e) {
-    setLatitude(e.target.value);
-  }
-  function handleLonChange(e) {
-    setLongitude(e.target.value);
-  }
 
   async function autoFillGeo() {
     setGeoError("");
@@ -100,51 +80,59 @@ function NatalCardForm({ onSave, onCancel }) {
     setGeoLoading(false);
   }
 
-  const handleCalc = async (e) => {
+  async function handleCalc(e) {
     e.preventDefault();
     setLoading(true);
     setError("");
-    setPlanets(null);
-    if (!date || !time || !latitude || !longitude) {
-      setError("Пожалуйста, заполните дату, время и координаты.");
+    setNatalData(null);
+
+    if (!date || !time || !latitude || !longitude || !timezone) {
+      setError("Пожалуйста, заполните дату, время, координаты и временную зону.");
       setLoading(false);
       return;
     }
     const [year, month, day] = date.split("-").map(Number);
     const [hour, minute] = time.split(":").map(Number);
+
     try {
-      const body = {
-        year,
-        month,
-        day,
-        hour,
-        minute,
-        latitude: parseFloat(latitude),
-        longitude: parseFloat(longitude),
-        tzOffset: tzOffset !== "" ? Number(tzOffset) : undefined,
-      };
-      const res = await fetch(NATAL_API_URL, {
+      const res = await fetch(ASTRO_API_URL, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${ASTRO_API_TOKEN}`,
+        },
+        body: JSON.stringify({
+          year,
+          month,
+          day,
+          hour,
+          minute,
+          second: 0,
+          timezone,
+          dst: false,
+          name,
+          lat: parseFloat(latitude),
+          lon: parseFloat(longitude),
+        }),
       });
+
       if (!res.ok) {
         const err = await res.json();
-        throw new Error(err?.error || "Ошибка ответа астрологического API");
+        throw new Error(err?.error || "Ошибка ответа от AstroAPI");
       }
       const data = await res.json();
-      if (!data.planets) throw new Error("Планеты не найдены в ответе");
-      setPlanets(data.planets);
+      if (!data.planets || !data.houses || !data.charts) throw new Error("Данные не получены");
+      setNatalData(data);
     } catch (err) {
-      setError("Ошибка расчёта планет: " + (err.message || err));
+      setError("Ошибка: " + (err.message || err));
     }
     setLoading(false);
-  };
+  }
 
-  const handleSubmit = (e) => {
+  function handleSubmit(e) {
     e.preventDefault();
-    if (!planets) {
-      setError("Сначала рассчитайте положение планет");
+    if (!natalData) {
+      setError("Сначала рассчитайте данные");
       return;
     }
     onSave({
@@ -156,111 +144,31 @@ function NatalCardForm({ onSave, onCancel }) {
       longitude,
       timezone,
       tzOffset,
-      planets,
+      ...natalData,
     });
-  };
+  }
 
   return (
     <form onSubmit={handleSubmit} style={{ marginBottom: 24, background: "#f9f9fb", padding: 16, borderRadius: 10 }}>
-      <h3 style={{ marginLeft: 0, marginTop: 0 }}>Создать натальную карту</h3>
-      <div>
-        <label>
-          Имя/метка:
-          <input value={name} onChange={e => setName(e.target.value)} required style={{ marginLeft: 8 }} />
-        </label>
-      </div>
-      <div>
-        <label>
-          Дата рождения:
-          <input type="date" value={date} onChange={e => setDate(e.target.value)} required style={{ marginLeft: 8 }} />
-        </label>
-      </div>
-      <div>
-        <label>
-          Время рождения:
-          <input type="time" value={time} onChange={e => setTime(e.target.value)} required style={{ marginLeft: 8 }} />
-        </label>
-      </div>
-      <div>
-        <label>
-          Город/место рождения:
-          <input
-            value={place}
-            onChange={e => setPlace(e.target.value)}
-            required
-            style={{ marginLeft: 8, width: 220 }}
-            placeholder="Москва"
-          />
-        </label>
-        <button
-          type="button"
-          onClick={autoFillGeo}
-          disabled={!place || !date || geoLoading}
-          style={{ marginLeft: 8 }}
-          title="Определить координаты и часовой пояс"
-        >
-          {geoLoading ? "Поиск..." : "Авто"}
-        </button>
-        {geoError && (
-          <span style={{ color: "red", marginLeft: 10 }}>{geoError}</span>
-        )}
-      </div>
-      <div>
-        <label>
-          Широта:
-          <input
-            ref={latInput}
-            type="number"
-            step="any"
-            value={latitude}
-            onChange={handleLatChange}
-            placeholder="55.75"
-            required
-            style={{ marginLeft: 8, width: 100 }}
-          />
-        </label>
-        <label style={{ marginLeft: 16 }}>
-          Долгота:
-          <input
-            ref={lonInput}
-            type="number"
-            step="any"
-            value={longitude}
-            onChange={handleLonChange}
-            placeholder="37.6166"
-            required
-            style={{ marginLeft: 8, width: 100 }}
-          />
-        </label>
-      </div>
-      <div>
-        <label>
-          Временная зона:
-          <input value={timezone} readOnly style={{ marginLeft: 8, width: 180, background: "#eee" }} />
-        </label>
-        <label style={{ marginLeft: 16 }}>
-          UTC-offset:
-          <input value={tzOffset} readOnly style={{ marginLeft: 8, width: 60, background: "#eee" }} />
-        </label>
-      </div>
-      <div style={{ marginTop: 12 }}>
-        <button type="button" onClick={handleCalc} disabled={loading || !date || !time || !latitude || !longitude}>
-          {loading ? "Рассчитываем..." : "Рассчитать планеты"}
-        </button>
-        <button type="submit" style={{ marginLeft: 10 }} disabled={!planets}>
-          Сохранить
-        </button>
-        <button type="button" onClick={onCancel} style={{ marginLeft: 10 }}>Отмена</button>
-      </div>
-      {error && <div style={{ color: "red", marginTop: 8 }}>{error}</div>}
-      {planets && (
-        <div style={{ marginTop: 16, fontSize: 14, background: "#eef", padding: 10, borderRadius: 8 }}>
-          <b>Планеты:</b>
+      <h3 style={{ marginTop: 0 }}>Создать натальную карту</h3>
+      <input placeholder="Имя" value={name} onChange={e => setName(e.target.value)} required />
+      <input type="date" value={date} onChange={e => setDate(e.target.value)} required />
+      <input type="time" value={time} onChange={e => setTime(e.target.value)} required />
+      <input placeholder="Город" value={place} onChange={e => setPlace(e.target.value)} required />
+      <button type="button" onClick={autoFillGeo} disabled={geoLoading}>{geoLoading ? "Поиск..." : "Авто"}</button>
+      <input type="number" placeholder="Широта" value={latitude} onChange={e => setLatitude(e.target.value)} required />
+      <input type="number" placeholder="Долгота" value={longitude} onChange={e => setLongitude(e.target.value)} required />
+      <input value={timezone} readOnly placeholder="Временная зона" />
+      <button type="button" onClick={handleCalc} disabled={loading}>{loading ? "Рассчитываем..." : "Рассчитать"}</button>
+      <button type="submit" disabled={!natalData}>Сохранить</button>
+      <button type="button" onClick={onCancel}>Отмена</button>
+      {error && <div style={{ color: "red" }}>{error}</div>}
+      {natalData?.planets && (
+        <div style={{ background: "#eef", padding: 10, borderRadius: 6, marginTop: 10 }}>
+          <h4>Планеты:</h4>
           <ul>
-            {Object.entries(planets).map(([planet, pos]) => (
-              <li key={planet}>
-                {planet}: {pos.sign} {pos.deg_in_sign_str || (Math.round(pos.deg_in_sign * 1000) / 1000) + "°"}
-              </li>
+            {Object.entries(natalData.planets).map(([planet, p]) => (
+              <li key={planet}>{planet}: {p.position}, Накшатра: {p.nakshatra?.join(".")}</li>
             ))}
           </ul>
         </div>
@@ -269,251 +177,10 @@ function NatalCardForm({ onSave, onCancel }) {
   );
 }
 
-function NatalCardDetails({ card }) {
-  if (!card) return null;
-  return (
-    <div style={{ marginTop: 18, background: "#fffbe6", borderRadius: 10, padding: 16 }}>
-      <b>Подробности карты:</b>
-      <div>Имя: <b>{card.name}</b></div>
-      <div>Дата: {card.date} {card.time}</div>
-      <div>Место: {card.place || "—"}</div>
-      <div>Широта: {card.latitude}, Долгота: {card.longitude}</div>
-      <div>Временная зона: {card.timezone || "—"}, UTC-offset: {card.tzOffset !== undefined ? card.tzOffset : "—"}</div>
-      <div style={{ marginTop: 8 }}>
-        <b>Планеты:</b>
-        {card.planets ? (
-          <ul>
-            {Object.entries(card.planets).map(([planet, pos]) => (
-              <li key={planet}>
-                {planet}: {pos.sign} {pos.deg_in_sign_str || (Math.round(pos.deg_in_sign * 1000) / 1000) + "°"}
-              </li>
-            ))}
-          </ul>
-        ) : <span>Нет данных о планетах</span>}
-      </div>
-    </div>
-  );
-}
-
-function NatalCardsSection({
-  cards, onSelectCard, selectedCardId, limit,
-  menuOpen, onAddCard, showForm, setShowForm
-}) {
-  return (
-    <div>
-      <h2 style={sectionTitleStyle(menuOpen)}>Мои натальные карты</h2>
-      {showForm && (
-        <NatalCardForm
-          onSave={card => {
-            onAddCard(card);
-            setShowForm(false);
-          }}
-          onCancel={() => setShowForm(false)}
-        />
-      )}
-      <ul style={{ marginTop: 0 }}>
-        {cards.map((card, idx) => (
-          <li
-            key={card.id}
-            style={{
-              fontWeight: selectedCardId === card.id ? "bold" : "normal",
-              cursor: "pointer",
-              marginBottom: 6,
-              background: "#f3f3fa",
-              borderRadius: 6,
-              padding: "4px 10px"
-            }}
-            onClick={() => onSelectCard(card.id)}
-          >
-            <b>{card.name}</b> — {card.date} {card.time} ({card.place || "—"})
-          </li>
-        ))}
-      </ul>
-      {!showForm && cards.length < limit && (
-        <button onClick={() => setShowForm(true)}>Создать новую карту</button>
-      )}
-      {cards.length >= limit && (
-        <p>Достигнут лимит бесплатных карт ({limit})</p>
-      )}
-      {selectedCardId && (
-        <NatalCardDetails card={cards.find(c => c.id === selectedCardId)} />
-      )}
-    </div>
-  );
-}
-
-function InterpretationsSection({ depth, onBuyLevel, menuOpen }) {
-  return (
-    <div>
-      <h2 style={sectionTitleStyle(menuOpen)}>Трактовки положений планет</h2>
-      <p>Глубина: {depth}</p>
-      <button onClick={() => onBuyLevel(depth + 1)}>
-        Открыть следующий уровень за Lakshmicoin
-      </button>
-      <p style={{ color: "#aaa" }}>Здесь будут трактовки по выбранной карте</p>
-    </div>
-  );
-}
-
-function ForecastsSection({ menuOpen }) {
-  return (
-    <div>
-      <h2 style={sectionTitleStyle(menuOpen)}>Прогнозы</h2>
-      <p>Общие прогнозы доступны бесплатно.</p>
-      <button>Оформить подписку на индивидуальные прогнозы (Toncoin)</button>
-    </div>
-  );
-}
-
-const SECTIONS = [
-  { id: "natal", label: "Мои натальные карты" },
-  { id: "interpret", label: "Трактовки положений планет" },
-  { id: "forecast", label: "Прогнозы" },
-];
-
 export default function GyanPage() {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [selectedSection, setSelectedSection] = useState("natal");
-  const [natalCards, setNatalCards] = useState([]);
-  const [selectedCardId, setSelectedCardId] = useState(null);
-  const [interpretDepth, setInterpretDepth] = useState(1);
-  const [showForm, setShowForm] = useState(false);
-
-  const NATAL_LIMIT = 5;
-
-  const handleAddCard = (card) => {
-    if (natalCards.length < NATAL_LIMIT) {
-      const id = Date.now().toString();
-      setNatalCards([
-        ...natalCards,
-        { ...card, id }
-      ]);
-      setSelectedCardId(id);
-    }
-  };
-
-  const handleSelectCard = (id) => setSelectedCardId(id);
-
-  const sectionBg = {
-    natal: "#f3e6d7",
-    interpret: "#e6f7fa",
-    forecast: "#e6e6fa",
-  }[selectedSection] || "#fff";
-
-  const TOP_BAR_HEIGHT = 64;
-
   return (
-    <div style={{ height: "100vh", background: sectionBg, transition: "background 0.3s", position: "relative" }}>
-      {!menuOpen && (
-        <button
-          onClick={() => setMenuOpen(true)}
-          aria-label="Открыть меню"
-          style={{
-            position: "fixed",
-            top: TOP_BAR_HEIGHT + 12,
-            left: 20,
-            zIndex: 1201,
-            width: 48,
-            height: 48,
-            borderRadius: "50%",
-            background: "#7b3ff2",
-            color: "#fff",
-            border: "none",
-            boxShadow: "0 2px 8px #0002",
-            fontSize: 28,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            cursor: "pointer",
-            transition: "background 0.2s",
-          }}
-        >
-          ☰
-        </button>
-      )}
-      <div
-        style={{
-          position: "fixed",
-          left: menuOpen ? 0 : "-40vw",
-          top: 0,
-          width: "40vw",
-          maxWidth: 320,
-          height: "100vh",
-          background: "#fff",
-          boxShadow: menuOpen ? "2px 0 8px #0002" : "none",
-          zIndex: 1200,
-          transition: "left 0.3s",
-          padding: 24,
-          display: "flex",
-          flexDirection: "column",
-        }}
-      >
-        <button
-          onClick={() => setMenuOpen(false)}
-          style={{
-            alignSelf: "flex-end",
-            marginBottom: 16,
-            background: "none",
-            border: "none",
-            fontSize: 28,
-            cursor: "pointer",
-          }}
-          aria-label="Закрыть меню"
-        >
-          ×
-        </button>
-        {SECTIONS.map((sec) => (
-          <button
-            key={sec.id}
-            onClick={() => {
-              setSelectedSection(sec.id);
-              setMenuOpen(false);
-            }}
-            style={{
-              background: selectedSection === sec.id ? "#e7dbff" : "transparent",
-              fontWeight: selectedSection === sec.id ? 600 : 400,
-              padding: "12px 0",
-              textAlign: "left",
-              border: "none",
-              width: "100%",
-              cursor: "pointer",
-              fontSize: 18,
-            }}
-          >
-            {sec.label}
-          </button>
-        ))}
-      </div>
-      <div
-        style={{
-          marginLeft: menuOpen ? "40vw" : 0,
-          transition: "margin-left 0.3s",
-          padding: 32,
-        }}
-      >
-        {selectedSection === "natal" && (
-          <NatalCardsSection
-            cards={natalCards}
-            onSelectCard={handleSelectCard}
-            selectedCardId={selectedCardId}
-            limit={NATAL_LIMIT}
-            menuOpen={menuOpen}
-            onAddCard={handleAddCard}
-            showForm={showForm}
-            setShowForm={setShowForm}
-          />
-        )}
-        {selectedSection === "interpret" && (
-          <InterpretationsSection
-            depth={interpretDepth}
-            onBuyLevel={(newDepth) => setInterpretDepth(newDepth)}
-            menuOpen={menuOpen}
-          />
-        )}
-        {selectedSection === "forecast" && (
-          <ForecastsSection menuOpen={menuOpen} />
-        )}
-      </div>
+    <div>
+      <NatalCardForm onSave={console.log} onCancel={() => {}} />
     </div>
   );
 }
