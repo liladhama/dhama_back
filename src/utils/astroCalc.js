@@ -1,4 +1,5 @@
-import { julian, vsop87, solar, moonposition, node, sidereal } from "astronomia";
+// astroCalc.js — работает с astronomia@4.x.x и твоими VSOP87 файлами
+import { julian, moonposition, sidereal } from "astronomia";
 import vsop87Bearth from "../astrodata/vsop87Bearth.js";
 import vsop87Bmercury from "../astrodata/vsop87Bmercury.js";
 import vsop87Bvenus from "../astrodata/vsop87Bvenus.js";
@@ -31,12 +32,38 @@ function cart2sph(x, y, z) {
   return { lon, lat, range: r };
 }
 
-// Геоцентрическая долгота планеты (новый способ)
+// Универсальная функция: вычисляет гелиоцентрические координаты по твоим VSOP87 данным
+function vsop87Heliocentric(planetData, jd) {
+  // planetData должен быть объектом с ключами L, B, R, где каждый — объект с "0", "1" и т.д.
+  function sumSeries(series, t) {
+    let sum = 0;
+    for (const [A, B, C] of series) {
+      sum += A * Math.cos(B + C * t);
+    }
+    return sum;
+  }
+  function calc(coord, t) {
+    let res = 0;
+    for (let i = 0; i < 6; i++) {
+      const key = String(i);
+      if (coord[key]) {
+        res += sumSeries(coord[key], t) * Math.pow(t, i);
+      }
+    }
+    return res;
+  }
+  // JD → столетия от J2000
+  const T = (jd - 2451545.0) / 365250;
+  const lon = calc(planetData.L, T);
+  const lat = calc(planetData.B, T);
+  const range = calc(planetData.R, T);
+  return { lon, lat, range };
+}
+
+// Геоцентрическая долгота планеты
 function planetGeoLongitude(planetData, earthData, jd) {
-  const planet = new vsop87.VSOP87B(planetData);
-  const earth = new vsop87.VSOP87B(earthData);
-  const planetPos = planet.position(jd);
-  const earthPos = earth.position(jd);
+  const planetPos = vsop87Heliocentric(planetData, jd);
+  const earthPos = vsop87Heliocentric(earthData, jd);
 
   const planetCart = sph2cart(planetPos.lon, planetPos.lat, planetPos.range);
   const earthCart = sph2cart(earthPos.lon, earthPos.lat, earthPos.range);
@@ -48,15 +75,15 @@ function planetGeoLongitude(planetData, earthData, jd) {
   ];
   const geo = cart2sph(...geoCart);
 
+  // Нормализация в диапазон 0-2π и перевод в градусы
   return ((geo.lon * 180) / Math.PI + 360) % 360;
 }
 
-// Солнце (VSOP87B, всегда Земля)
+// Солнце (геоцентрически!)
+// Солнце — это положение Земли + 180°
 function sunLongitude(earthData, jd) {
-  // Солнце — это геоцентрическая долгота Земли + 180°
-  const earth = new vsop87.VSOP87B(earthData);
-  const epos = earth.position(jd);
-  let sunLon = ((epos.lon * 180) / Math.PI + 180) % 360;
+  const earthPos = vsop87Heliocentric(earthData, jd);
+  let sunLon = ((earthPos.lon * 180) / Math.PI + 180) % 360;
   return sunLon;
 }
 
@@ -76,7 +103,7 @@ function trueRahuKetu(jd) {
   return { rahu, ketu };
 }
 
-// Асцендент
+// Асцендент (тропический)
 function calcAscendant({ jd, lat, lon, tzOffset }) {
   const gst = sidereal.apparent(jd);
   const lst = ((gst * 180) / Math.PI + lon + 360) % 360;
