@@ -1,4 +1,4 @@
-import { julian, moonposition, sidereal } from "astronomia";
+import { julian, moonposition, sidereal, coord } from "astronomia";
 import vsop87Bearth from "../astrodata/vsop87Bearth.js";
 import vsop87Bmercury from "../astrodata/vsop87Bmercury.js";
 import vsop87Bvenus from "../astrodata/vsop87Bvenus.js";
@@ -23,6 +23,7 @@ function sph2cart(lon, lat, r) {
     r * Math.sin(lat)
   ];
 }
+
 // Перевод декартовых в сферические координаты
 function cart2sph(x, y, z) {
   const r = Math.sqrt(x * x + y * y + z * z);
@@ -101,21 +102,17 @@ function trueRahuKetu(jd) {
   return { rahu, ketu };
 }
 
-// Асцендент (исправленный — максимально близкий к астропрограммам)
-function calcAscendant({ jd, lat, lon, tzOffset }) {
-  const gst = sidereal.apparent(jd); // радианы
-  const lst = ((gst * 180) / Math.PI + lon + 360) % 360;
-  const lstRad = lst * Math.PI / 180;
-  const latRad = lat * Math.PI / 180;
-  const e = 23.439291111 * Math.PI / 180;
-  // Внимание: формула tanLA = (sin(LST)*cos(e) - tan(lat)*sin(e)) / cos(LST)
-  const tanLA = (Math.sin(lstRad) * Math.cos(e) - Math.tan(latRad) * Math.sin(e)) / Math.cos(lstRad);
-  let ascRad = Math.atan(1 / tanLA);
-  if (ascRad < 0) ascRad += Math.PI;
-  if (lst > 180) ascRad += Math.PI;
-  let ascDeg = (ascRad * 180) / Math.PI;
-  ascDeg = (ascDeg + 360) % 360;
-  return ascDeg;
+// Асцендент через astronomia.coord.ascendant — максимально корректно (сидерический)
+function calcAscendant({ jd, lat, lon }) {
+  // jd — юлианская дата, lat/long — в градусах
+  // coord.ascendant возвращает эклиптическую долготу асцендента в градусах (тропическую)
+  // Для сидерического: вычитаем айанамшу
+  const tropAsc = coord.ascendant(lon, lat, jd);
+  const ayanamsha = lahiriAyanamsha(jd);
+  let sidAsc = tropAsc - ayanamsha;
+  if (sidAsc < 0) sidAsc += 360;
+  if (sidAsc >= 360) sidAsc -= 360;
+  return sidAsc;
 }
 
 // Перевод градусов в астрологическую строку
@@ -157,7 +154,8 @@ export function getSiderealPositions({
     // Можно добавить обработку ошибок
   }
 
-  const asc = calcAscendant({ jd, lat, lon, tzOffset });
+  // Асцендент (сидерический)
+  const asc = calcAscendant({ jd, lat, lon });
 
   function toSidereal(trop) {
     let sid = trop - ayanamsha;
@@ -177,7 +175,7 @@ export function getSiderealPositions({
     saturn: toSidereal(saturnLon),
     rahu: toSidereal(rahu),
     ketu: toSidereal(ketu),
-    ascendant: toSidereal(asc),
+    ascendant: asc, // уже сидерический!
     _tropical: {
       sun: sunLon,
       moon: moonLon,
@@ -188,7 +186,7 @@ export function getSiderealPositions({
       saturn: saturnLon,
       rahu,
       ketu,
-      ascendant: asc,
+      ascendant: asc + ayanamsha >= 360 ? asc + ayanamsha - 360 : asc + ayanamsha, // тропический
     },
     zodiac: {
       sun: degToZodiacString(toSidereal(sunLon)),
@@ -200,7 +198,7 @@ export function getSiderealPositions({
       saturn: degToZodiacString(toSidereal(saturnLon)),
       rahu: degToZodiacString(toSidereal(rahu)),
       ketu: degToZodiacString(toSidereal(ketu)),
-      ascendant: degToZodiacString(toSidereal(asc)),
+      ascendant: degToZodiacString(asc),
     }
   };
 }
