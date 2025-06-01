@@ -43,6 +43,19 @@ const sectionTitleStyle = (menuOpen) => ({
   lineHeight: 1.2,
 });
 
+const PLANET_LABELS = {
+  sun: "Солнце",
+  moon: "Луна",
+  mercury: "Меркурий",
+  venus: "Венера",
+  mars: "Марс",
+  jupiter: "Юпитер",
+  saturn: "Сатурн",
+  rahu: "Раху (Северный узел)",
+  ketu: "Кету (Южный узел)",
+  ascendant: "Асцендент"
+};
+
 function NatalCardForm({ onSave, onCancel }) {
   const [name, setName] = useState("");
   const [date, setDate] = useState("");
@@ -119,13 +132,18 @@ function NatalCardForm({ onSave, onCancel }) {
         year, month, day,
         hour: hour || 0,
         minute: minute || 0,
+        lat: latitude ? Number(latitude) : 55.75,
+        lon: longitude ? Number(longitude) : 37.6167,
+        tzOffset: tzOffset !== "" ? Number(tzOffset) : 3,
       });
+
+      console.log("SIDEREAL POSITIONS:", positions); // <--- отладка
 
       setAyanamsha(positions.ayanamsha);
 
       // Формируем объект для отображения
       const planetsObj = {};
-      for (const p of ["sun", "moon", "mercury", "venus", "mars", "jupiter", "saturn"]) {
+      for (const p of ["sun", "moon", "mercury", "venus", "mars", "jupiter", "saturn", "rahu", "ketu", "ascendant"]) {
         planetsObj[p] = {
           sign: getSign(positions[p]),
           deg_in_sign: positions[p] % 30,
@@ -263,7 +281,7 @@ function NatalCardForm({ onSave, onCancel }) {
           <ul>
             {Object.entries(planets).map(([planet, pos]) => (
               <li key={planet}>
-                {planet}: {pos.sign} {pos.deg_in_sign_str || (Math.round(pos.deg_in_sign * 1000) / 1000) + "°"}
+                {PLANET_LABELS[planet] || planet}: {pos.sign} {pos.deg_in_sign_str || (Math.round(pos.deg_in_sign * 1000) / 1000) + "°"}
               </li>
             ))}
           </ul>
@@ -301,7 +319,7 @@ function NatalCardDetails({ card }) {
           <ul>
             {Object.entries(card.planets).map(([planet, pos]) => (
               <li key={planet}>
-                {planet}: {pos.sign} {pos.deg_in_sign_str || (Math.round(pos.deg_in_sign * 1000) / 1000) + "°"}
+                {PLANET_LABELS[planet] || planet}: {pos.sign} {pos.deg_in_sign_str || (Math.round(pos.deg_in_sign * 1000) / 1000) + "°"}
               </li>
             ))}
           </ul>
