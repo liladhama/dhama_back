@@ -19,15 +19,20 @@ function lahiriAyanamsha(jd) {
 
 // Геоцентрическая долгота планеты
 function planetGeoLongitude(planet, earth, jd) {
-  const { lon } = planetposition.geocentricPosition(planet, earth, jd);
+  // Для astronomia 2.x: используем метод position2000, т.к. эфемериды VSOP87B
+  // возвращают {lon, lat, range} в радианах, долгота эклиптическая
+  const { lon } = planet.position2000(earth, jd);
   return ((lon * 180) / Math.PI + 360) % 360;
 }
 
 // Получить сидерические координаты планет
 export function getSiderealPositions({ year, month, day, hour, minute }) {
-  const jd = julian.CalendarGregorianToJD(year, month, day) + ((hour + minute / 60) / 24);
+  const jd =
+    julian.CalendarGregorianToJD(year, month, day) +
+    (hour + minute / 60) / 24;
   const ayanamsha = lahiriAyanamsha(jd);
 
+  // планеты VSOP87: создаём экземпляры (astronomia 2.x)
   const earth = new planetposition.Planet(vsop87Bearth);
   const mercury = new planetposition.Planet(vsop87Bmercury);
   const venus = new planetposition.Planet(vsop87Bvenus);
@@ -35,9 +40,9 @@ export function getSiderealPositions({ year, month, day, hour, minute }) {
   const jupiter = new planetposition.Planet(vsop87Bjupiter);
   const saturn = new planetposition.Planet(vsop87Bsaturn);
 
-  // Солнце
+  // Солнце: используем solar.apparentVSOP87 (вернёт {lon, lat, range} в радианах)
   const sunLon = (solar.apparentVSOP87(earth, jd).lon * 180) / Math.PI;
-  // Луна
+  // Луна: moonposition.position(jd) вернёт {lon, lat, range} в радианах
   const moonLon = (moonposition.position(jd).lon * 180) / Math.PI;
 
   // Основные планеты
@@ -47,7 +52,7 @@ export function getSiderealPositions({ year, month, day, hour, minute }) {
   const jupiterLon = planetGeoLongitude(jupiter, earth, jd);
   const saturnLon = planetGeoLongitude(saturn, earth, jd);
 
-  // Сидерические долготы
+  // Переводим в сидерические (звёздные) координаты
   function toSidereal(trop) {
     let sid = trop - ayanamsha;
     if (sid < 0) sid += 360;
@@ -64,6 +69,14 @@ export function getSiderealPositions({ year, month, day, hour, minute }) {
     mars: toSidereal(marsLon),
     jupiter: toSidereal(jupiterLon),
     saturn: toSidereal(saturnLon),
-    _tropical: { sun: sunLon, moon: moonLon, mercury: mercuryLon, venus: venusLon, mars: marsLon, jupiter: jupiterLon, saturn: saturnLon },
+    _tropical: {
+      sun: sunLon,
+      moon: moonLon,
+      mercury: mercuryLon,
+      venus: venusLon,
+      mars: marsLon,
+      jupiter: jupiterLon,
+      saturn: saturnLon,
+    },
   };
 }
