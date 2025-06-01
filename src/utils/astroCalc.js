@@ -1,4 +1,3 @@
-// astroCalc.js — работает с astronomia@4.x.x и твоими VSOP87 файлами
 import { julian, moonposition, sidereal } from "astronomia";
 import vsop87Bearth from "../astrodata/vsop87Bearth.js";
 import vsop87Bmercury from "../astrodata/vsop87Bmercury.js";
@@ -34,7 +33,6 @@ function cart2sph(x, y, z) {
 
 // Универсальная функция: вычисляет гелиоцентрические координаты по твоим VSOP87 данным
 function vsop87Heliocentric(planetData, jd) {
-  // planetData должен быть объектом с ключами L, B, R, где каждый — объект с "0", "1" и т.д.
   function sumSeries(series, t) {
     let sum = 0;
     for (const [A, B, C] of series) {
@@ -103,18 +101,18 @@ function trueRahuKetu(jd) {
   return { rahu, ketu };
 }
 
-// Асцендент (тропический)
+// Асцендент (исправленный — максимально близкий к астропрограммам)
 function calcAscendant({ jd, lat, lon, tzOffset }) {
-  const gst = sidereal.apparent(jd);
+  const gst = sidereal.apparent(jd); // радианы
   const lst = ((gst * 180) / Math.PI + lon + 360) % 360;
-  const latRad = (lat * Math.PI) / 180;
-  const e = 23.439291111;
-  const eRad = (e * Math.PI) / 180;
-  const lstRad = (lst * Math.PI) / 180;
-  const ascRad = Math.atan2(
-    -Math.cos(lstRad),
-    Math.sin(eRad) * Math.tan(latRad) + Math.cos(eRad) * Math.sin(lstRad)
-  );
+  const lstRad = lst * Math.PI / 180;
+  const latRad = lat * Math.PI / 180;
+  const e = 23.439291111 * Math.PI / 180;
+  // Внимание: формула tanLA = (sin(LST)*cos(e) - tan(lat)*sin(e)) / cos(LST)
+  const tanLA = (Math.sin(lstRad) * Math.cos(e) - Math.tan(latRad) * Math.sin(e)) / Math.cos(lstRad);
+  let ascRad = Math.atan(1 / tanLA);
+  if (ascRad < 0) ascRad += Math.PI;
+  if (lst > 180) ascRad += Math.PI;
   let ascDeg = (ascRad * 180) / Math.PI;
   ascDeg = (ascDeg + 360) % 360;
   return ascDeg;
