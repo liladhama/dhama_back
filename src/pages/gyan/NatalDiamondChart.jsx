@@ -1,5 +1,11 @@
 import React from "react";
-import { SIGNS, SIGN_SHORT, PLANET_LABELS_DIAMOND, calcNakshatraPada, getPlanetHouseMap } from "./astroUtils";
+import {
+  SIGNS,
+  SIGN_SHORT,
+  PLANET_LABELS_DIAMOND,
+  calcNakshatraPada,
+  getPlanetHouseMap,
+} from "./astroUtils";
 
 // Размер SVG и отступы
 const SIZE = 320;
@@ -7,59 +13,71 @@ const PADDING = 24;
 const CENTER = SIZE / 2;
 const SQ = SIZE - 2 * PADDING;
 
-// Углы квадрата: A — левый верхний, B — правый верхний, D — правый нижний, C — левый нижний
-const A = [PADDING, PADDING];
-const B = [SIZE - PADDING, PADDING];
-const C = [PADDING, SIZE - PADDING];
-const D = [SIZE - PADDING, SIZE - PADDING];
+// Углы и середины
+const A = [PADDING, PADDING]; // левый верх
+const B = [SIZE - PADDING, PADDING]; // правый верх
+const C = [SIZE - PADDING, SIZE - PADDING]; // правый низ
+const D = [PADDING, SIZE - PADDING]; // левый низ
 
-// Середины сторон
-const S1 = [(A[0] + B[0]) / 2, (A[1] + B[1]) / 2];
-const S2 = [(B[0] + D[0]) / 2, (B[1] + D[1]) / 2];
-const S3 = [(D[0] + C[0]) / 2, (D[1] + C[1]) / 2];
-const S4 = [(C[0] + A[0]) / 2, (C[1] + A[1]) / 2];
+const S1 = [(A[0] + B[0]) / 2, (A[1] + B[1]) / 2]; // верх
+const S2 = [(B[0] + C[0]) / 2, (B[1] + C[1]) / 2]; // право
+const S3 = [(C[0] + D[0]) / 2, (C[1] + D[1]) / 2]; // низ
+const S4 = [(D[0] + A[0]) / 2, (D[1] + A[1]) / 2]; // лево
 
-// Центр
 const X = [CENTER, CENTER];
 
-// Точки между углом и центром
-const M1 = [(A[0] + X[0]) / 2, (A[1] + X[1]) / 2];
-const M2 = [(B[0] + X[0]) / 2, (B[1] + X[1]) / 2];
-const M3 = [(D[0] + X[0]) / 2, (D[1] + X[1]) / 2];
-const M4 = [(C[0] + X[0]) / 2, (C[1] + X[1]) / 2];
+// 1, 4, 7, 10 дома — это ромбы между серединами сторон
+// Остальные дома — треугольники между углом, двумя ближайшими серединами и центром
 
-// Хранилище всех точек для удобства ссылок
-const pointsMap = {
-  A, B, C, D, S1, S2, S3, S4, X, M1, M2, M3, M4,
-};
-// Пронумерованные полигоны домов против часовой стрелки
-const housePolygons = [
-  [S1, S2, S3, S4],           // 1 центр ромб
-  [A, S1, M1],                // 2 верх
-  [S4, A, M1],                // 3 верх-лево
-  [C, S4, M4],                // 4 лево
-  [S3, C, M4],                // 5 низ-лево
-  [D, S3, M3],                // 6 низ
-  [S2, D, M3],                // 7 низ-право
-  [B, S2, M2],                // 8 право
-  [S1, B, M2],                // 9 верх-право
-  [M1, S1, M2, X],            // 10 верхний внутренний ромб
-  [M2, S2, M3, X],            // 11 правый внутренний ромб
-  [M3, S3, M4, X],            // 12 нижний внутренний ромб
+// Индексы для ромбов (основные дома)
+const mainRombs = [
+  [S1, X, S3, S4], // 1 дом (верхний ромб)
+  [S4, X, S2, S1], // 4 дом (левый ромб)
+  [S3, X, S1, S2], // 7 дом (нижний ромб)
+  [S2, X, S4, S3], // 10 дом (правый ромб)
 ];
 
-// Для каждого дома определяем углы для номеров/знаков
-function getHouseLabelPositions(points) {
-  // Первый угол полигона (points[0]) — для номера дома (верхний/левый по обходу)
-  // Второй угол (points[1]) — для знака (он часто правый/верхний)
-  // Центр — для планет
-  const [hx, hy] = points[0];
-  const [sx, sy] = points[1];
-  const { cx, cy } = getPolygonCenter(points);
+// Индексы для треугольников (доп. дома)
+const triangles = [
+  [A, S1, X], // 12 дом (лево-верх)
+  [S1, B, X], // 2 дом (право-верх)
+  [B, S2, X], // 3 дом (право)
+  [S2, C, X], // 5 дом (право-низ)
+  [C, S3, X], // 6 дом (низ)
+  [S3, D, X], // 8 дом (лево-низ)
+  [D, S4, X], // 9 дом (лево)
+  [S4, A, X], // 11 дом (лево-верх)
+];
+
+// Итоговый порядок домов (против часовой стрелки, начиная с верхнего ромба, как в классике):
+const housePolygons = [
+  mainRombs[0], // 1 верхний ромб
+  triangles[1], // 2 верх-право
+  triangles[2], // 3 право
+  mainRombs[1], // 4 левый ромб
+  triangles[3], // 5 низ-право
+  triangles[4], // 6 низ
+  mainRombs[2], // 7 нижний ромб
+  triangles[5], // 8 низ-лево
+  triangles[6], // 9 лево
+  mainRombs[3], // 10 правый ромб
+  triangles[7], // 11 верх-лево
+  triangles[0], // 12 верх
+];
+
+// Для каждого дома аккуратно разместим:
+// - номер дома: в первом углу полигона (например, верхний/левый)
+// - знак: во втором углу полигона (например, противоположный угол)
+// - планеты: по центру полигона
+
+function getPolygonLabelPositions(pts) {
+  const [x1, y1] = pts[0];
+  const [x2, y2] = pts[1];
+  const { cx, cy } = getPolygonCenter(pts);
   return {
-    houseNum: { x: hx + (cx - hx) * 0.14, y: hy + (cy - hy) * 0.14 }, // смещён немного к центру
-    sign: { x: sx + (cx - sx) * 0.18, y: sy + (cy - sy) * 0.18 },
-    center: { x: cx, y: cy }
+    houseNum: { x: x1 + (cx - x1) * 0.18, y: y1 + (cy - y1) * 0.18 }, // чуть ближе к центру
+    sign: { x: x2 + (cx - x2) * 0.18, y: y2 + (cy - y2) * 0.18 },
+    center: { x: cx, y: cy },
   };
 }
 
@@ -105,15 +123,16 @@ export default function NatalDiamondChart({ planets }) {
           strokeWidth={3}
         />
         {/* Диагонали */}
-        <line x1={A[0]} y1={A[1]} x2={D[0]} y2={D[1]} stroke="#d88" strokeWidth={1.5}/>
-        <line x1={B[0]} y1={B[1]} x2={C[0]} y2={C[1]} stroke="#d88" strokeWidth={1.5}/>
+        <line x1={A[0]} y1={A[1]} x2={C[0]} y2={C[1]} stroke="#d88" strokeWidth={1.5}/>
+        <line x1={B[0]} y1={B[1]} x2={D[0]} y2={D[1]} stroke="#d88" strokeWidth={1.5}/>
         {/* Дома */}
         {housePolygons.map((pts, i) => {
           const num = i + 1;
+          // Знак. Первый дом — асцендент, далее по кругу
           const signIdx = (ascSignIndex + num - 1) % 12;
           const housePlanets = houseMap[getHouseIndex(num)] || [];
           const pointsAttr = pts.map(p => p.join(",")).join(" ");
-          const pos = getHouseLabelPositions(pts);
+          const pos = getPolygonLabelPositions(pts);
 
           return (
             <g key={i}>
@@ -123,19 +142,19 @@ export default function NatalDiamondChart({ planets }) {
                 stroke="#8B0000"
                 strokeWidth={2}
               />
-              {/* Номер дома — угол полигона */}
+              {/* Номер дома */}
               <text x={pos.houseNum.x} y={pos.houseNum.y} textAnchor="middle"
                 fontWeight={700} fontSize={13} fill="#8B0000"
                 style={{ pointerEvents: "none", dominantBaseline: "hanging" }}>
                 {num}
               </text>
-              {/* Знак — другой угол */}
+              {/* Знак */}
               <text x={pos.sign.x} y={pos.sign.y} textAnchor="middle"
                 fontWeight={700} fontSize={10} fill="#8B0000"
                 style={{ pointerEvents: "none", dominantBaseline: "hanging" }}>
                 {SIGN_SHORT[signIdx]}
               </text>
-              {/* Планеты — по центру */}
+              {/* Планеты */}
               {housePlanets.length > 0 && (
                 <text
                   x={pos.center.x}
