@@ -9,10 +9,10 @@ const SQ = SIZE - 2 * PADDING;
 
 // Углы внешнего квадрата: вверх, право, низ, лево (по часовой)
 const corners = [
-  [CENTER, PADDING],               // A (верх)
-  [SIZE - PADDING, CENTER],        // B (право)
-  [CENTER, SIZE - PADDING],        // C (низ)
-  [PADDING, CENTER],               // D (лево)
+  [PADDING, PADDING],               // A (левый верхний)
+  [SIZE - PADDING, PADDING],        // B (правый верхний)
+  [PADDING, SIZE - PADDING],        // C (левый нижний)
+  [SIZE - PADDING, SIZE - PADDING], // D (правый нижний)
 ];
 
 // Середины сторон квадрата: верх, право, низ, лево (по часовой)
