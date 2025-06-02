@@ -433,107 +433,82 @@ function NatalCardForm({
               </label>
             </div>
           </div>
-          <div style={{
-            marginTop: 7,
-            display: "flex",
-            gap: 7,
-            flexWrap: "wrap",
-            justifyContent: "center",
-            width: "100%",
-          }}>
-            <button
-              type="button"
-              onClick={handleCalc}
-              disabled={loading || !values.date || !values.time}
-              style={{
-                flex: 1,
-                minWidth: 0,
-                maxWidth: "none",
-                width: "100%",
-                padding: "7px 0",
-                border: "none",
-                borderRadius: 7,
-                background: loading ? "#ccc" : MAIN_COLOR,
-                color: "#fff",
-                fontWeight: 600,
-                fontSize: 14,
-                cursor: loading ? "wait" : "pointer",
-                boxShadow: "0 1px 4px #8B000011",
-                marginLeft: 0,
-                marginRight: 0
-              }}
-            >
-              {loading ? "Рассчитываем..." : "Рассчитать планеты"}
-            </button>
-            <button
-              type="submit"
-              disabled={!planets}
-              style={{
-                flex: 1,
-                minWidth: 0,
-                maxWidth: "none",
-                width: "100%",
-                padding: "7px 0",
-                border: "none",
-                borderRadius: 7,
-                background: !planets ? "#eee" : "#228B22",
-                color: !planets ? "#888" : "#fff",
-                fontWeight: 600,
-                fontSize: 14,
-                cursor: !planets ? "not-allowed" : "pointer",
-                boxShadow: "0 1px 4px #8B000011",
-                marginLeft: 0,
-                marginRight: 0
-              }}
-            >
-              Сохранить
-            </button>
-            <button
-              type="button"
-              onClick={() => setExpanded(false)}
-              style={{
-                flex: 1,
-                minWidth: 0,
-                maxWidth: "none",
-                width: "100%",
-                padding: "7px 0",
-                border: "none",
-                borderRadius: 7,
-                background: "#eee",
-                color: "#444",
-                fontWeight: 600,
-                fontSize: 14,
-                cursor: "pointer",
-                boxShadow: "0 1px 4px #8B000011",
-                marginLeft: 0,
-                marginRight: 0
-              }}
-            >
-              Свернуть
-            </button>
-          </div>
-          <div style={{ display: "flex", justifyContent: "center", width: "100%" }}>
-            <button
-              type="button"
-              onClick={handleReset}
-              style={{
-                marginTop: 7,
-                padding: "7px 0",
-                border: "none",
-                borderRadius: 7,
-                background: "#F7D7DB",
-                color: MAIN_COLOR,
-                fontWeight: 600,
-                fontSize: 14,
-                cursor: "pointer",
-                boxShadow: "0 1px 4px #8B000011",
-                width: "100%",
-                display: "block"
-              }}
-            >
-              Новая карта
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={handleCalc}
+            disabled={loading || !values.date || !values.time}
+            style={{
+              width: "100%",
+              padding: "7px 0",
+              border: "none",
+              borderRadius: 7,
+              background: loading ? "#ccc" : MAIN_COLOR,
+              color: "#fff",
+              fontWeight: 600,
+              fontSize: 14,
+              cursor: loading ? "wait" : "pointer",
+              boxShadow: "0 1px 4px #8B000011",
+              marginTop: 0
+            }}
+          >
+            {loading ? "Рассчитываем..." : "Рассчитать планеты"}
+          </button>
+          <button
+            type="submit"
+            disabled={!planets}
+            style={{
+              width: "100%",
+              padding: "7px 0",
+              border: "none",
+              borderRadius: 7,
+              background: !planets ? "#eee" : "#228B22",
+              color: !planets ? "#888" : "#fff",
+              fontWeight: 600,
+              fontSize: 14,
+              cursor: !planets ? "not-allowed" : "pointer",
+              boxShadow: "0 1px 4px #8B000011"
+            }}
+          >
+            Сохранить
+          </button>
+          <button
+            type="button"
+            onClick={() => setExpanded(false)}
+            style={{
+              width: "100%",
+              padding: "7px 0",
+              border: "none",
+              borderRadius: 7,
+              background: "#eee",
+              color: "#444",
+              fontWeight: 600,
+              fontSize: 14,
+              cursor: "pointer",
+              boxShadow: "0 1px 4px #8B000011"
+            }}
+          >
+            Свернуть
+          </button>
+          <button
+            type="button"
+            onClick={handleReset}
+            style={{
+              marginTop: 7,
+              padding: "7px 0",
+              border: "none",
+              borderRadius: 7,
+              background: "#F7D7DB",
+              color: MAIN_COLOR,
+              fontWeight: 600,
+              fontSize: 14,
+              cursor: "pointer",
+              boxShadow: "0 1px 4px #8B000011",
+              width: "100%",
+              display: "block"
+            }}
+          >
+            Новая карта
+          </button>
           {error && <div style={{ color: "red", marginTop: 7, fontSize: 13, textAlign: "center" }}>{error}</div>}
           {ayanamsha !== null && (
             <div style={{ marginTop: 6, color: "#555", fontSize: 13, textAlign: "center" }}>
@@ -774,8 +749,6 @@ export default function GyanPage() {
           width: "100%",
           maxWidth: 370,
           minWidth: 0,
-          display: "flex",
-          justifyContent: "center",
           marginBottom: 7
         }}>
           <button
