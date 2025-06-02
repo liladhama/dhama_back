@@ -57,8 +57,8 @@ function getHouseLabelPositions(points) {
   const [sx, sy] = points[1];
   const { cx, cy } = getPolygonCenter(points);
   return {
-    houseNum: { x: hx + (cx - hx) * 0.14, y: hy + (cy - hy) * 0.14 }, // смещён немного к центру
-    sign: { x: sx + (cx - sx) * 0.18, y: sy + (cy - sy) * 0.18 },
+    houseNum: { x: hx + (cx - hx) * 0.25, y: hy + (cy - hy) * 0.25 }, // смещён немного к центру
+    sign: { x: sx + (cx - sx) * 0.25, y: sy + (cy - sy) * 0.18 },
     center: { x: cx, y: cy }
   };
 }
