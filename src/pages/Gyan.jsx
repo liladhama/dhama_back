@@ -235,7 +235,8 @@ function NatalCardForm({
           outline: "none",
           letterSpacing: "0.02em",
           transition: "background 0.2s, color 0.2s",
-          marginBottom: expanded ? 0 : 8
+          marginBottom: expanded ? 0 : 8,
+          display: "block"
         }}
         aria-label={expanded ? "Свернуть" : "Развернуть"}
       >
@@ -436,7 +437,8 @@ function NatalCardForm({
             marginTop: 7,
             display: "flex",
             gap: 7,
-            flexWrap: "wrap"
+            flexWrap: "wrap",
+            justifyContent: "center"
           }}>
             <button
               type="button"
@@ -444,6 +446,8 @@ function NatalCardForm({
               disabled={loading || !values.date || !values.time}
               style={{
                 flex: 1,
+                minWidth: 100,
+                maxWidth: 140,
                 padding: "7px 0",
                 border: "none",
                 borderRadius: 7,
@@ -452,7 +456,9 @@ function NatalCardForm({
                 fontWeight: 600,
                 fontSize: 14,
                 cursor: loading ? "wait" : "pointer",
-                boxShadow: "0 1px 4px #8B000011"
+                boxShadow: "0 1px 4px #8B000011",
+                marginLeft: 0,
+                marginRight: 0
               }}
             >
               {loading ? "Рассчитываем..." : "Рассчитать планеты"}
@@ -462,6 +468,8 @@ function NatalCardForm({
               disabled={!planets}
               style={{
                 flex: 1,
+                minWidth: 100,
+                maxWidth: 140,
                 padding: "7px 0",
                 border: "none",
                 borderRadius: 7,
@@ -470,7 +478,9 @@ function NatalCardForm({
                 fontWeight: 600,
                 fontSize: 14,
                 cursor: !planets ? "not-allowed" : "pointer",
-                boxShadow: "0 1px 4px #8B000011"
+                boxShadow: "0 1px 4px #8B000011",
+                marginLeft: 0,
+                marginRight: 0
               }}
             >
               Сохранить
@@ -480,6 +490,8 @@ function NatalCardForm({
               onClick={() => setExpanded(false)}
               style={{
                 flex: 1,
+                minWidth: 100,
+                maxWidth: 140,
                 padding: "7px 0",
                 border: "none",
                 borderRadius: 7,
@@ -488,34 +500,39 @@ function NatalCardForm({
                 fontWeight: 600,
                 fontSize: 14,
                 cursor: "pointer",
-                boxShadow: "0 1px 4px #8B000011"
+                boxShadow: "0 1px 4px #8B000011",
+                marginLeft: 0,
+                marginRight: 0
               }}
             >
               Свернуть
             </button>
           </div>
-          <button
-            type="button"
-            onClick={handleReset}
-            style={{
-              marginTop: 7,
-              padding: "7px 0",
-              border: "none",
-              borderRadius: 7,
-              background: "#F7D7DB",
-              color: MAIN_COLOR,
-              fontWeight: 600,
-              fontSize: 14,
-              cursor: "pointer",
-              boxShadow: "0 1px 4px #8B000011",
-              width: "100%"
-            }}
-          >
-            Новая карта
-          </button>
-          {error && <div style={{ color: "red", marginTop: 7, fontSize: 13 }}>{error}</div>}
+          <div style={{ display: "flex", justifyContent: "center", width: "100%" }}>
+            <button
+              type="button"
+              onClick={handleReset}
+              style={{
+                marginTop: 7,
+                padding: "7px 0",
+                border: "none",
+                borderRadius: 7,
+                background: "#F7D7DB",
+                color: MAIN_COLOR,
+                fontWeight: 600,
+                fontSize: 14,
+                cursor: "pointer",
+                boxShadow: "0 1px 4px #8B000011",
+                width: 160,
+                display: "block"
+              }}
+            >
+              Новая карта
+            </button>
+          </div>
+          {error && <div style={{ color: "red", marginTop: 7, fontSize: 13, textAlign: "center" }}>{error}</div>}
           {ayanamsha !== null && (
-            <div style={{ marginTop: 6, color: "#555", fontSize: 13 }}>
+            <div style={{ marginTop: 6, color: "#555", fontSize: 13, textAlign: "center" }}>
               <b>Аянамша Лахири:</b> {ayanamsha.toFixed(6)}°
             </div>
           )}
@@ -749,13 +766,18 @@ export default function GyanPage() {
         position: "relative",
         maxWidth: 370
       }}>
-        <div style={{ width: "100%", maxWidth: 370, minWidth: 0, display: "flex", justifyContent: "center", marginBottom: 7 }}>
+        <div style={{
+          width: "100%",
+          maxWidth: 370,
+          minWidth: 0,
+          display: "flex",
+          justifyContent: "center",
+          marginBottom: 7
+        }}>
           <button
             onClick={() => { setShowSavedPanel(v => !v); setSavedPanelExpanded(true); }}
             style={{
-              width: "100%",
-              maxWidth: 370,
-              minWidth: 0,
+              width: 220,
               padding: "9px 0",
               fontSize: 15,
               fontWeight: 700,
@@ -766,7 +788,8 @@ export default function GyanPage() {
               boxShadow: "0 1px 4px #8B000011",
               cursor: "pointer",
               transition: "background 0.2s, color 0.2s",
-              marginTop: 7
+              marginTop: 7,
+              display: "block"
             }}
           >
             Открыть сохранённые карты
@@ -791,10 +814,11 @@ export default function GyanPage() {
             width: "100%",
             maxWidth: 370,
             fontSize: 13,
-            boxShadow: "0 1px 4px #8B000011"
+            boxShadow: "0 1px 4px #8B000011",
+            textAlign: "center"
           }}>
             <b>Планеты (сидерический зодиак):</b>
-            <ul>
+            <ul style={{ paddingLeft: 18, margin: "7px 0 0 0", textAlign: "left" }}>
               {Object.entries(formPlanets).map(([planet, pos]) => (
                 <li key={planet}>
                   {PLANET_LABELS[planet] || planet}: {pos.sign + " " + pos.deg_in_sign_str}
