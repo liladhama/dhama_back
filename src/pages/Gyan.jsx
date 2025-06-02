@@ -1,7 +1,6 @@
 import React, { useState, useRef } from "react";
 
-// ---- Геокодирование и часовой пояс ----
-
+// --- Геокодирование и часовой пояс ---
 async function fetchCoordinates(city) {
   const apiKey = "b89b0e6fc3b949ebba403db8c42c0d09";
   const url = `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(city)}&limit=1&format=json&apiKey=${apiKey}`;
@@ -214,48 +213,33 @@ function NatalCardForm({
       marginTop: 0,
       overflow: "hidden"
     }}>
-      <div style={{ display: "flex", alignItems: "center", cursor: "pointer", padding: "10px 18px 6px 18px" }}>
-        <button
-          onClick={() => setExpanded(!expanded)}
-          style={{
-            background: "none",
-            border: "none",
-            fontSize: 22,
-            marginRight: 6,
-            cursor: "pointer",
-            color: "#7b3ff2",
-            fontWeight: 700,
-            padding: 0,
-            lineHeight: "1",
-          }}
-          aria-label={expanded ? "Свернуть" : "Развернуть"}
-        >
-          {expanded ? "▼" : "▶"}
-        </button>
-        <span style={{ fontSize: 18, fontWeight: 700, color: "#7b3ff2" }}>Форма расчета натальной карты</span>
-        <button
-          type="button"
-          onClick={handleReset}
-          style={{
-            marginLeft: "auto",
-            padding: "5px 14px",
-            border: "none",
-            borderRadius: 8,
-            background: "#f0eef9",
-            color: "#7b3ff2",
-            fontWeight: 700,
-            fontSize: 14,
-            cursor: "pointer",
-            boxShadow: "0 1px 4px #7b3ff211"
-          }}
-        >Новая карта</button>
-      </div>
+      <button
+        onClick={() => setExpanded(!expanded)}
+        style={{
+          width: "100%",
+          background: expanded
+            ? "linear-gradient(90deg, #7b3ff2 60%, #613fc9 100%)"
+            : "#fff",
+          color: expanded ? "#fff" : "#7b3ff2",
+          border: expanded ? "none" : "2px solid #7b3ff2",
+          borderRadius: "16px 16px 0 0",
+          fontSize: 22,
+          fontWeight: 700,
+          cursor: "pointer",
+          padding: "18px 0 16px 0",
+          boxShadow: expanded ? "0 4px 18px #7b3ff233" : "none",
+          outline: "none"
+        }}
+        aria-label={expanded ? "Свернуть" : "Развернуть"}
+      >
+        Форма расчета натальной карты {expanded ? "▲" : "▼"}
+      </button>
       {expanded && (
         <form onSubmit={handleSubmit} style={{
           marginTop: 2,
           background: "#f9f9fb",
           padding: "16px 24px 18px 24px",
-          borderRadius: 10,
+          borderRadius: "0 0 10px 10px",
           marginBottom: 0,
           display: "flex",
           flexDirection: "column",
@@ -503,6 +487,25 @@ function NatalCardForm({
               Свернуть
             </button>
           </div>
+          <button
+            type="button"
+            onClick={handleReset}
+            style={{
+              marginTop: 12,
+              padding: "11px 0",
+              border: "none",
+              borderRadius: 8,
+              background: "#f0eef9",
+              color: "#7b3ff2",
+              fontWeight: 700,
+              fontSize: 16,
+              cursor: "pointer",
+              boxShadow: "0 1px 4px #7b3ff211",
+              width: "100%"
+            }}
+          >
+            Новая карта
+          </button>
           {error && <div style={{ color: "red", marginTop: 7, fontSize: 14 }}>{error}</div>}
           {ayanamsha !== null && (
             <div style={{ marginTop: 10, color: "#555" }}>
@@ -511,35 +514,6 @@ function NatalCardForm({
           )}
         </form>
       )}
-    </div>
-  );
-}
-
-function NatalCardDetails({ card }) {
-  if (!card) return null;
-  return (
-    <div style={{ marginTop: 18, background: "#fffbe6", borderRadius: 10, padding: 16 }}>
-      <b>Подробности карты:</b>
-      <div>Имя: <b>{card.name}</b></div>
-      <div>Дата: {card.date} {card.time}</div>
-      <div>Место: {card.place || "—"}</div>
-      <div>Широта: {card.latitude}, Долгота: {card.longitude}</div>
-      <div>Временная зона: {card.timezone || "—"}, UTC-offset: {card.tzOffset !== undefined ? card.tzOffset : "—"}</div>
-      {card.ayanamsha !== undefined &&
-        <div>Аянамша Лахири: {card.ayanamsha?.toFixed(6)}°</div>
-      }
-      <div style={{ marginTop: 8 }}>
-        <b>Планеты:</b>
-        {card.planets ? (
-          <ul>
-            {Object.entries(card.planets).map(([planet, pos]) => (
-              <li key={planet}>
-                {PLANET_LABELS[planet] || planet}: {pos.sign + " " + pos.deg_in_sign_str}
-              </li>
-            ))}
-          </ul>
-        ) : <span>Нет данных о планетах</span>}
-      </div>
     </div>
   );
 }
@@ -602,57 +576,44 @@ function SavedCardsPanel({
         >×</button>
       </div>
       {expanded && (
-        <div style={{
-          flex: 1,
-          display: "flex",
-          flexDirection: "column",
-          minHeight: 0,
-          marginTop: 4
+        <ul style={{
+          listStyle: "none",
+          padding: 0,
+          margin: 0,
+          width: "100%",
+          overflowY: "auto",
+          maxHeight: 240
         }}>
           {cards.length === 0 ? (
-            <p style={{ color: "#777", margin: 0, marginTop: 8 }}>Нет сохранённых карт</p>
+            <li style={{ color: "#777", margin: 0, marginTop: 8 }}>Нет сохранённых карт</li>
           ) : (
-            <ul style={{
-              listStyle: "none",
-              padding: 0,
-              margin: 0,
-              width: "100%",
-              overflowY: "auto",
-              maxHeight: 140
-            }}>
-              {cards.map((card, idx) => (
-                <li
-                  key={card.id}
-                  style={{
-                    margin: 0,
-                    marginBottom: 7,
-                    borderRadius: 8,
-                    background: selectedCardId === card.id ? "#e7dbff" : "#f3f3fa",
-                    padding: "7px 10px",
-                    fontWeight: selectedCardId === card.id ? "bold" : "normal",
-                    border: selectedCardId === card.id ? "2px solid #7b3ff2" : "1px solid #d1c2e7",
-                    fontSize: 15,
-                    cursor: "pointer",
-                    transition: "background 0.12s"
-                  }}
-                  onClick={() => onSelectCard(card.id)}
-                >
-                  <div>
-                    <b>{card.name}</b>
-                  </div>
-                  <div style={{ fontSize: 13, color: "#555" }}>
-                    {card.date} {card.time} {card.place ? `(${card.place})` : ""}
-                  </div>
-                </li>
-              ))}
-            </ul>
+            cards.map((card, idx) => (
+              <li
+                key={card.id}
+                style={{
+                  margin: 0,
+                  marginBottom: 7,
+                  borderRadius: 8,
+                  background: selectedCardId === card.id ? "#e7dbff" : "#f3f3fa",
+                  padding: "7px 10px",
+                  fontWeight: selectedCardId === card.id ? "bold" : "normal",
+                  border: selectedCardId === card.id ? "2px solid #7b3ff2" : "1px solid #d1c2e7",
+                  fontSize: 15,
+                  cursor: "pointer",
+                  transition: "background 0.12s"
+                }}
+                onClick={() => onSelectCard(card.id)}
+              >
+                <div>
+                  <b>{card.name}</b>
+                </div>
+                <div style={{ fontSize: 13, color: "#555" }}>
+                  {card.date} {card.time} {card.place ? `(${card.place})` : ""}
+                </div>
+              </li>
+            ))
           )}
-          <div style={{ overflowY: "auto", flex: 1, marginTop: 4, minHeight: 0 }}>
-            {selectedCardId &&
-              <NatalCardDetails card={cards.find(c => c.id === selectedCardId)} />
-            }
-          </div>
-        </div>
+        </ul>
       )}
     </div>
   );
@@ -767,7 +728,6 @@ export default function GyanPage() {
 
   const sectionBg = "#f3e6d7";
 
-  // --- Контент основной секции ---
   let mainSectionContent = null;
   if (selectedSection === "natal") {
     mainSectionContent = (
@@ -833,30 +793,7 @@ export default function GyanPage() {
             </ul>
           </div>
         )}
-        {/* Кнопка "Создать новую карту" ВНИЗУ! */}
-        <div style={{ width: "100%", display: "flex", justifyContent: "center", marginTop: 26 }}>
-          <button
-            onClick={() => setFormExpanded((p) => !p)}
-            style={{
-              minWidth: 240,
-              padding: "18px 30px",
-              fontSize: 22,
-              fontWeight: 700,
-              color: "#fff",
-              background: "linear-gradient(90deg, #7b3ff2 60%, #613fc9 100%)",
-              border: "none",
-              borderRadius: 18,
-              boxShadow: "0 4px 18px #7b3ff233",
-              cursor: "pointer",
-              marginBottom: 0,
-              transition: "background 0.2s",
-              marginTop: 0
-            }}
-          >
-            Создать новую карту
-          </button>
-        </div>
-        {/* --- Форма создания карты прямо ВНУТРИ страницы, сохраняет состояние --- */}
+        {/* --- Форма расчета натальной карты --- */}
         <div style={{ width: "min(500px, 98vw)", marginTop: 14 }}>
           <NatalCardForm
             expanded={formExpanded}
