@@ -21,24 +21,30 @@ const PLANET_LABELS_DIAMOND = {
   ketu: "Ке",
   ascendant: "Ас"
 };
-
-// --- Новая сетка для бриллиантовой карты ---
-// Центры ромбов для 12 домов (по бриллиантовой сетке, а не по кругу)
-const DIAMOND_HOUSES = [
-  { x: 200, y: 60 },   // 1 дом
-  { x: 320, y: 100 },  // 12
-  { x: 360, y: 200 },  // 11
-  { x: 320, y: 300 },  // 10
-  { x: 200, y: 340 },  // 9
-  { x: 80, y: 300 },   // 8
-  { x: 40, y: 200 },   // 7
-  { x: 80, y: 100 },   // 6
-  { x: 140, y: 130 },  // 5
-  { x: 260, y: 130 },  // 4
-  { x: 260, y: 270 },  // 3
-  { x: 140, y: 270 },  // 2
+// Геометрия ромбов и треугольников, координаты центра и тип фигуры (1=верх, далее против часовой)
+const CHART_FIGURES = [
+  { type: "diamond", x: 200, y: 60 },    // 1
+  { type: "triangle", x: 260, y: 60, angle: 0 },    // 2
+  { type: "triangle", x: 340, y: 120, angle: 45 },  // 3
+  { type: "diamond", x: 360, y: 200 },              // 4
+  { type: "triangle", x: 340, y: 280, angle: -45 }, // 5
+  { type: "triangle", x: 260, y: 340, angle: 0 },   // 6
+  { type: "diamond", x: 200, y: 360 },              // 7
+  { type: "triangle", x: 140, y: 340, angle: 0 },   // 8
+  { type: "triangle", x: 60, y: 280, angle: 45 },   // 9
+  { type: "diamond", x: 40, y: 200 },               // 10
+  { type: "triangle", x: 60, y: 120, angle: -45 },  // 11
+  { type: "triangle", x: 140, y: 60, angle: 0 },    // 12
 ];
-function getDiamondPoints(cx, cy, size = 42) {
+// Знаки по углам большого ромба (С,В,Ю,З)
+const CHART_SIGNS_CORNERS = [
+  { x: 200, y: 20, align: "middle", valign: "hanging" }, // север
+  { x: 380, y: 200, align: "end", valign: "middle" }, // восток
+  { x: 200, y: 380, align: "middle", valign: "baseline" }, // юг
+  { x: 20, y: 200, align: "start", valign: "middle" }, // запад
+];
+
+function getDiamondPoints(cx, cy, size = 40) {
   return [
     [cx, cy - size],
     [cx + size, cy],
@@ -46,13 +52,14 @@ function getDiamondPoints(cx, cy, size = 42) {
     [cx - size, cy]
   ].map(p => p.join(",")).join(" ");
 }
-// Координаты углов большого ромба для знаков
-const DIAMOND_CORNERS = [
-  { x: 200, y: 20 },   // верх
-  { x: 380, y: 200 },  // право
-  { x: 200, y: 380 },  // низ
-  { x: 20, y: 200 }    // лево
-];
+function getTrianglePoints(cx, cy, size = 40, angle = 0) {
+  const a = angle * Math.PI / 180;
+  return [
+    [cx, cy - size],
+    [cx + size * Math.cos(Math.PI/6 + a), cy + size * Math.sin(Math.PI/6 + a)],
+    [cx - size * Math.cos(Math.PI/6 - a), cy + size * Math.sin(Math.PI/6 - a)],
+  ].map(p => p.join(",")).join(" ");
+}
 
 function getPlanetHouseMap(planets, ascSignIndex) {
   const houseMap = Array(12).fill().map(() => []);
@@ -65,20 +72,44 @@ function getPlanetHouseMap(planets, ascSignIndex) {
   return houseMap;
 }
 
-function NatalDiamondChart({ planets, nakshatrasInfo = [] }) {
+const NAKSHATRAS = [
+  "Ашвини","Бхарани","Криттика","Рохини","Мригашира","Ардра","Пунарвасу",
+  "Пушья","Ашлеша","Мага","Пурва Пхалгуни","Уттара Пхалгуни","Хаста",
+  "Читра","Свати","Вишакха","Анурадха","Джйештха","Мула","Пурва Ашадха",
+  "Уттара Ашадха","Шравана","Дхаништха","Шатабхиша","Пурва Бхадрапада",
+  "Уттара Бхадрапада","Ревати"
+];
+function calcNakshatraPada(totalDeg) {
+  const nakLen = 13 + 1/3; // 13.333...
+  const padaLen = nakLen / 4; // 3.333...
+  const nakNum = Math.floor(totalDeg / nakLen);
+  const pada = Math.floor((totalDeg % nakLen) / padaLen) + 1;
+  return {
+    nakshatra: NAKSHATRAS[nakNum],
+    pada
+  };
+}
+
+function NatalDiamondChart({ planets }) {
   if (!planets) return null;
   const ascSign = planets.ascendant?.sign || SIGNS[0];
   const ascSignIndex = SIGNS.indexOf(ascSign);
   const houseMap = getPlanetHouseMap(planets, ascSignIndex);
-  const nakshMap = {};
-  nakshatrasInfo.forEach(n => {
-    nakshMap[n.planet] = n;
-  });
 
-  // Порядок знаков с асцендента (по часам, но на углах только 0, 3, 6, 9)
+  // Для подписей знаков по углам
   const signOrder = [];
   for (let i = 0; i < 12; ++i) {
     signOrder.push((ascSignIndex + i) % 12);
+  }
+
+  // Для таблицы накшатра/пада
+  const planetNakshMap = {};
+  for (const [planet, pObj] of Object.entries(planets)) {
+    if (typeof pObj.deg_in_sign === "number" && typeof pObj.sign === "string") {
+      const signIdx = SIGNS.indexOf(pObj.sign);
+      const totalDeg = signIdx * 30 + pObj.deg_in_sign;
+      planetNakshMap[planet] = calcNakshatraPada(totalDeg);
+    }
   }
 
   return (
@@ -86,46 +117,72 @@ function NatalDiamondChart({ planets, nakshatrasInfo = [] }) {
       display: "flex", flexDirection: "column", alignItems: "center", gap: 20, marginTop: 18
     }}>
       <svg viewBox="0 0 400 400" width={320} height={320} style={{ display: "block" }}>
-        {/* Большой ромб */}
+        {/* Контур большого бриллианта */}
         <polygon
           points="200,20 380,200 200,380 20,200"
           fill="#fff"
           stroke="#8B0000"
           strokeWidth={5}
         />
-        {/* Малые ромбы (дома) */}
-        {DIAMOND_HOUSES.map((pt, i) => {
+        {/* 12 домов: ромбы и треугольники */}
+        {CHART_FIGURES.map((fig, i) => {
           const houseNum = i + 1;
           const signIdx = (ascSignIndex + i) % 12;
           const housePlanets = houseMap[i] || [];
+          // Номер дома — ЛВ угол, знак — ПВ угол
+          let numX = fig.x - 24, numY = fig.y - 18;
+          let signX = fig.x + 24, signY = fig.y - 18;
+          if (fig.type === "triangle" && fig.angle === 45) { numX -= 6; signX += 6; }
+          if (fig.type === "triangle" && fig.angle === -45) { numX -= 6; signX += 6; }
           return (
             <g key={i}>
-              <polygon
-                points={getDiamondPoints(pt.x, pt.y, 42)}
-                fill={i === 0 ? "#F7D7DB" : "#fbeeee"}
-                stroke="#8B0000"
-                strokeWidth={2}
-              />
+              {fig.type === "diamond" ? (
+                <polygon
+                  points={getDiamondPoints(fig.x, fig.y, 40)}
+                  fill="#fbeeee"
+                  stroke="#8B0000"
+                  strokeWidth={2}
+                />
+              ) : (
+                <polygon
+                  points={getTrianglePoints(fig.x, fig.y, 40, fig.angle || 0)}
+                  fill="#fbeeee"
+                  stroke="#8B0000"
+                  strokeWidth={2}
+                />
+              )}
               {/* Номер дома */}
               <text
-                x={pt.x}
-                y={pt.y - 15}
+                x={numX}
+                y={numY}
                 textAnchor="middle"
                 fontWeight={700}
-                fontSize={17}
+                fontSize={13}
                 fill="#8B0000"
                 dy={0}
               >
                 {houseNum}
               </text>
-              {/* Планеты */}
+              {/* Знак */}
+              <text
+                x={signX}
+                y={signY}
+                textAnchor="middle"
+                fontWeight={700}
+                fontSize={13}
+                fill="#8B0000"
+                dy={0}
+              >
+                {SIGN_SHORT[signIdx]}
+              </text>
+              {/* Планеты по центру (через пробел) */}
               {housePlanets.length > 0 && (
                 <text
-                  x={pt.x}
-                  y={pt.y + 8}
+                  x={fig.x}
+                  y={fig.y + 6}
                   textAnchor="middle"
-                  fontWeight={600}
-                  fontSize={15}
+                  fontWeight={700}
+                  fontSize={16}
                   fill="#333"
                 >
                   {housePlanets.map((p) => PLANET_LABELS_DIAMOND[p]).join(" ")}
@@ -134,13 +191,14 @@ function NatalDiamondChart({ planets, nakshatrasInfo = [] }) {
             </g>
           );
         })}
-        {/* Знаки по углам */}
-        {DIAMOND_CORNERS.map((pt, i) => (
+        {/* Знаки по углам большого бриллианта */}
+        {CHART_SIGNS_CORNERS.map((pt, i) => (
           <text
             key={i}
-            x={pt.x + (i === 1 ? 24 : i === 3 ? -24 : 0)}
-            y={pt.y + (i === 0 ? -12 : i === 2 ? 26 : 4)}
-            textAnchor="middle"
+            x={pt.x}
+            y={pt.y + (i === 0 ? -10 : i === 2 ? 18 : 0)}
+            textAnchor={pt.align}
+            dominantBaseline={pt.valign}
             fontWeight={700}
             fontSize={18}
             fill="#8B0000"
@@ -173,7 +231,7 @@ function NatalDiamondChart({ planets, nakshatrasInfo = [] }) {
           <tbody>
             {Object.keys(PLANET_LABELS_DIAMOND).map((planetKey) => {
               const p = planets[planetKey];
-              const n = nakshMap[planetKey] || {};
+              const n = planetNakshMap[planetKey] || {};
               if (!p) return null;
               return (
                 <tr key={planetKey} style={{ borderBottom: "1px solid #f1b6c1" }}>
@@ -207,7 +265,6 @@ async function fetchCoordinates(city) {
   }
   return null;
 }
-
 async function fetchTimezone(lat, lon, date) {
   const username = "pastoohkorov";
   const url = `https://secure.geonames.org/timezoneJSON?lat=${lat}&lng=${lon}&date=${date}&username=${username}`;
@@ -221,7 +278,6 @@ async function fetchTimezone(lat, lon, date) {
   }
   return null;
 }
-
 async function fetchPlanetsFromServer({ date, time, lat, lon, tzOffset }) {
   const [year, month, day] = date.split("-").map(Number);
   const [hour, minute] = time.split(":").map(Number);
@@ -701,7 +757,7 @@ function NatalCardForm({
 function SavedCardsPanel({
   cards, onSelectCard, selectedCardId, onClose,
   expanded, setExpanded,
-  onDeleteCard // добавлено!
+  onDeleteCard
 }) {
   return (
     <div
@@ -926,7 +982,6 @@ export default function GyanPage() {
   const [formGeoError, setFormGeoError] = useState("");
   const [formGeoLoading, setFormGeoLoading] = useState(false);
 
-  // Если появится массив накшатр — сюда; сейчас пустой (или можно убрать вообще)
   const [formNakshatrasInfo] = useState([]);
 
   const NATAL_LIMIT = 5;
@@ -1001,7 +1056,6 @@ export default function GyanPage() {
         {formPlanets && (
           <NatalDiamondChart
             planets={formPlanets}
-            nakshatrasInfo={formNakshatrasInfo}
           />
         )}
         {/* --- /КОНЕЦ вставки --- */}
