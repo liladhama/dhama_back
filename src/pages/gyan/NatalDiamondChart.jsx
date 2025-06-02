@@ -48,34 +48,34 @@ const housePolygons = [
   [S1, B, M2],                // 12 верх-право (треугольник — 3 угла)
 ];
 
-// ---------- Новая функция для работы с углами полигона ----------
-// Для любого полигона (3 или 4 точки) возвращает координаты всех углов
-// Позволяет размещать обозначения (номер, знак) в любом углу
-function getHouseLabelPositionsAllVertices(points, houseIdx) {
-  // В каждом доме можем указывать, в каком углу какой элемент отображать
-  // Например, для 3-угольных домов: 0, 1, 2 — три варианта
-  // Для 4-угольных: 0, 1, 2, 3 — четыре варианта
-  // Здесь для примера: номер дома — в первом углу (0), знак — во втором (1)
-  // Можно расширить до кастомного маппинга для каждого дома
+// Для максимальной кастомизации — для каждого дома указываем какой угол для знака и смещение от угла
+// Индексы углов (0,1,2,3 для ромбов; 0,1,2 для треугольников), а также индивидуальные смещения
+const houseLabelVertexMap = [
+  { sign: 1, signOffset: 0.22 }, // 1 (ромб)
+  { sign: 1, signOffset: 0.18 }, // 2 (треуг)
+  { sign: 1, signOffset: 0.18 }, // 3 (треуг)
+  { sign: 1, signOffset: 0.19 }, // 4 (ромб)
+  { sign: 1, signOffset: 0.15 }, // 5 (треуг)
+  { sign: 1, signOffset: 0.16 }, // 6 (треуг)
+  { sign: 1, signOffset: 0.20 }, // 7 (ромб)
+  { sign: 1, signOffset: 0.17 }, // 8 (треуг)
+  { sign: 1, signOffset: 0.16 }, // 9 (треуг)
+  { sign: 1, signOffset: 0.21 }, // 10 (ромб)
+  { sign: 1, signOffset: 0.17 }, // 11 (треуг)
+  { sign: 1, signOffset: 0.18 }, // 12 (треуг)
+];
 
-  // Можно задать массивы индексов для номеров и знаков
-  // Например, для всех ромбов [0,1,2,3], для всех треугольников [0,1,2]
+// Для любого полигона (3 или 4 точки) возвращает координаты углов
+// Позволяет размещать обозначения знаков в любом углу
+function getHouseLabelPositionsSignOnly(points, houseIdx) {
   const vertices = points.map(([x, y]) => ({ x, y }));
   const { cx, cy } = getPolygonCenter(points);
 
-  // Индексы углов для номера дома и знака (можно менять индивидуально для каждого дома)
-  // Например, номер в первом углу, знак во втором, но можно подогнать массивом ниже:
-  const houseNumVertexIdx = houseLabelVertexMap[houseIdx]?.houseNum ?? 0;
+  // Индекс угла для знака (можно менять индивидуально для каждого дома)
   const signVertexIdx = houseLabelVertexMap[houseIdx]?.sign ?? 1;
 
-  // Смещения от угла к центру (можно индивидуально)
-  const houseNumOffset = houseLabelVertexMap[houseIdx]?.houseNumOffset ?? 0.27;
+  // Смещение от угла к центру (можно индивидуально)
   const signOffset = houseLabelVertexMap[houseIdx]?.signOffset ?? 0.22;
-
-  // Координаты для номера дома
-  const vxNum = vertices[houseNumVertexIdx];
-  const numX = vxNum.x + (cx - vxNum.x) * houseNumOffset;
-  const numY = vxNum.y + (cy - vxNum.y) * houseNumOffset;
 
   // Координаты для знака
   const vxSign = vertices[signVertexIdx];
@@ -83,29 +83,10 @@ function getHouseLabelPositionsAllVertices(points, houseIdx) {
   const signY = vxSign.y + (cy - vxSign.y) * signOffset;
 
   return {
-    houseNum: { x: numX, y: numY },
     sign: { x: signX, y: signY },
-    allVertices: vertices,
     center: { x: cx, y: cy },
   };
 }
-
-// Для максимальной кастомизации — для каждого дома указываем какой угол для номера, какой для знака и смещение от угла
-// Индексы углов (0,1,2,3 для ромбов; 0,1,2 для треугольников), а также индивидуальные смещения
-const houseLabelVertexMap = [
-  { houseNum: 0, sign: 1, houseNumOffset: 0.25, signOffset: 0.22 }, // 1 (ромб)
-  { houseNum: 0, sign: 1, houseNumOffset: 0.22, signOffset: 0.18 }, // 2 (треуг)
-  { houseNum: 0, sign: 1, houseNumOffset: 0.22, signOffset: 0.18 }, // 3 (треуг)
-  { houseNum: 0, sign: 1, houseNumOffset: 0.24, signOffset: 0.19 }, // 4 (ромб)
-  { houseNum: 0, sign: 1, houseNumOffset: 0.22, signOffset: 0.15 }, // 5 (треуг)
-  { houseNum: 0, sign: 1, houseNumOffset: 0.22, signOffset: 0.16 }, // 6 (треуг)
-  { houseNum: 0, sign: 1, houseNumOffset: 0.25, signOffset: 0.20 }, // 7 (ромб)
-  { houseNum: 0, sign: 1, houseNumOffset: 0.22, signOffset: 0.17 }, // 8 (треуг)
-  { houseNum: 0, sign: 1, houseNumOffset: 0.22, signOffset: 0.16 }, // 9 (треуг)
-  { houseNum: 0, sign: 1, houseNumOffset: 0.26, signOffset: 0.21 }, // 10 (ромб)
-  { houseNum: 0, sign: 1, houseNumOffset: 0.22, signOffset: 0.17 }, // 11 (треуг)
-  { houseNum: 0, sign: 1, houseNumOffset: 0.25, signOffset: 0.18 }, // 12 (треуг)
-];
 
 // Центр полигона
 function getPolygonCenter(points) {
@@ -113,7 +94,7 @@ function getPolygonCenter(points) {
   const ys = points.map(([, y]) => y);
   return {
     cx: xs.reduce((a, b) => a + b) / xs.length,
-    cy: ys.reduce((a, b) => a + b) / ys.length,
+    cy: ys.reduce((a, b) => a + b) / xs.length,
   };
 }
 
@@ -157,8 +138,7 @@ export default function NatalDiamondChart({ planets }) {
           const signIdx = (ascSignIndex + num - 1) % 12;
           const housePlanets = houseMap[getHouseIndex(num)] || [];
           const pointsAttr = pts.map(p => p.join(",")).join(" ");
-          // Используем новую функцию с поддержкой всех углов
-          const pos = getHouseLabelPositionsAllVertices(pts, i);
+          const pos = getHouseLabelPositionsSignOnly(pts, i);
 
           return (
             <g key={i}>
@@ -168,16 +148,6 @@ export default function NatalDiamondChart({ planets }) {
                 stroke="#8B0000"
                 strokeWidth={2}
               />
-              {/* Показываем все углы полигона точками (для отладки, можно убрать) */}
-              {/* {pos.allVertices.map((v, idx) => (
-                <circle key={idx} cx={v.x} cy={v.y} r={2.5} fill="blue" />
-              ))} */}
-              {/* Номер дома — выбранный угол полигона */}
-              <text x={pos.houseNum.x} y={pos.houseNum.y} textAnchor="middle"
-                fontWeight={700} fontSize={13} fill="#8B0000"
-                style={{ pointerEvents: "none", dominantBaseline: "hanging" }}>
-                {num}
-              </text>
               {/* Знак — выбранный угол */}
               <text x={pos.sign.x} y={pos.sign.y} textAnchor="middle"
                 fontWeight={700} fontSize={10} fill="#8B0000"
