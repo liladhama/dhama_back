@@ -55,13 +55,13 @@ async function fetchPlanetsFromServer({ date, time, lat, lon, tzOffset }) {
   const min = String(utcDateObj.getUTCMinutes()).padStart(2, "0");
   const apiDate = `${yyyy}-${mm}-${dd}T${hh}:${min}`;
 
-  // Собираем URL
+  // Собираем URL (ИСПОЛЬЗУЕМ HTTPS и домен!)
   const params = new URLSearchParams({
     date: apiDate,
     lat: lat,
     lon: lon,
   });
-  const url = `http://13.48.133.27:8000/api/planets?${params.toString()}`;
+  const url = `https://astrogyan.duckdns.org/api/planets?${params.toString()}`;
 
   const res = await fetch(url);
   if (!res.ok) {
