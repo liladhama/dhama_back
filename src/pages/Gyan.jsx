@@ -214,7 +214,10 @@ function NatalCardForm({
       borderRadius: 12,
       marginBottom: 8,
       marginTop: 0,
-      overflow: "hidden"
+      overflow: "hidden",
+      width: "100%",
+      maxWidth: 370,
+      minWidth: 0
     }}>
       <button
         onClick={() => setExpanded(!expanded)}
@@ -223,7 +226,7 @@ function NatalCardForm({
           background: expanded ? MAIN_COLOR : "#fff",
           color: expanded ? "#fff" : MAIN_COLOR,
           border: expanded ? "none" : `1.5px solid ${MAIN_COLOR}`,
-          borderRadius: "12px 12px 0 0",
+          borderRadius: 12,
           fontSize: 17,
           fontWeight: 700,
           cursor: "pointer",
@@ -231,18 +234,19 @@ function NatalCardForm({
           boxShadow: expanded ? "0 2px 8px #8B000033" : "none",
           outline: "none",
           letterSpacing: "0.02em",
-          transition: "background 0.2s, color 0.2s"
+          transition: "background 0.2s, color 0.2s",
+          marginBottom: expanded ? 0 : 8
         }}
         aria-label={expanded ? "Свернуть" : "Развернуть"}
       >
-        создать карту {expanded ? "▲" : "▼"}
+        Создать карту {expanded ? "▲" : "▼"}
       </button>
       {expanded && (
         <form onSubmit={handleSubmit} style={{
           marginTop: 2,
           background: BG_COLOR,
           padding: "12px 14px 13px 14px",
-          borderRadius: "0 0 10px 10px",
+          borderRadius: 12,
           marginBottom: 0,
           display: "flex",
           flexDirection: "column",
@@ -532,7 +536,9 @@ function SavedCardsPanel({
         top: 65,
         left: "50%",
         transform: "translateX(-50%)",
-        width: "min(320px, 96vw)",
+        width: "100%",
+        maxWidth: 370,
+        minWidth: 0,
         background: "rgba(250,245,255,0.97)",
         boxShadow: "0 0 24px #8B000033",
         zIndex: 2050,
@@ -740,14 +746,16 @@ export default function GyanPage() {
         marginTop: 6,
         gap: 10,
         width: "100%",
-        position: "relative"
+        position: "relative",
+        maxWidth: 370
       }}>
-        {/* Кнопка "Открыть сохранённые карты" СВЕРХУ! */}
-        <div style={{ width: "100%", display: "flex", justifyContent: "center", marginBottom: 7 }}>
+        <div style={{ width: "100%", maxWidth: 370, minWidth: 0, display: "flex", justifyContent: "center", marginBottom: 7 }}>
           <button
             onClick={() => { setShowSavedPanel(v => !v); setSavedPanelExpanded(true); }}
             style={{
-              minWidth: 150,
+              width: "100%",
+              maxWidth: 370,
+              minWidth: 0,
               padding: "9px 0",
               fontSize: 15,
               fontWeight: 700,
@@ -764,7 +772,6 @@ export default function GyanPage() {
             Открыть сохранённые карты
           </button>
         </div>
-        {/* --- Всплывающая панель со списком карт --- */}
         {showSavedPanel && (
           <SavedCardsPanel
             cards={natalCards}
@@ -775,16 +782,16 @@ export default function GyanPage() {
             setExpanded={setSavedPanelExpanded}
           />
         )}
-        {/* --- Карта, если посчитана --- */}
         {formPlanets && (
           <div style={{
             marginTop: showSavedPanel ? 11 : 18,
             background: "#fbeeee",
             borderRadius: 8,
             padding: 10,
-            width: "min(370px, 98vw)",
-            boxShadow: "0 1px 4px #8B000011",
-            fontSize: 13
+            width: "100%",
+            maxWidth: 370,
+            fontSize: 13,
+            boxShadow: "0 1px 4px #8B000011"
           }}>
             <b>Планеты (сидерический зодиак):</b>
             <ul>
@@ -796,8 +803,7 @@ export default function GyanPage() {
             </ul>
           </div>
         )}
-        {/* --- Форма расчета натальной карты --- */}
-        <div style={{ width: "min(370px, 98vw)", marginTop: 10 }}>
+        <div style={{ width: "100%", maxWidth: 370, marginTop: 10 }}>
           <NatalCardForm
             expanded={formExpanded}
             setExpanded={setFormExpanded}
