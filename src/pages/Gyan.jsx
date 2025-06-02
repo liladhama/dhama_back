@@ -438,6 +438,47 @@ const SECTIONS = [
   { id: "forecast", label: "Прогнозы" },
 ];
 
+// --- Новый компонент "ручка" для меню ---
+function SideMenuHandle({ onClick, visible }) {
+  // "ручка" — вертикальная полоса с кружочком, появляется когда меню закрыто
+  if (!visible) return null;
+  return (
+    <div
+      onClick={onClick}
+      style={{
+        position: "fixed",
+        top: "50%",
+        left: 0,
+        transform: "translateY(-50%)",
+        zIndex: 1300,
+        cursor: "pointer",
+        width: 24,
+        height: 80,
+        background: "rgba(123,63,242,0.5)",
+        borderTopRightRadius: 16,
+        borderBottomRightRadius: 16,
+        boxShadow: "2px 0 8px #0002",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "flex-start",
+        transition: "background 0.2s",
+      }}
+    >
+      <div
+        style={{
+          width: 16,
+          height: 16,
+          background: "#fff",
+          border: "2px solid #7b3ff2",
+          borderRadius: "50%",
+          marginLeft: 3,
+          boxShadow: "0 1px 4px #0001",
+        }}
+      />
+    </div>
+  );
+}
+
 export default function GyanPage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [selectedSection, setSelectedSection] = useState("natal");
@@ -471,48 +512,27 @@ export default function GyanPage() {
 
   return (
     <div style={{ height: "100vh", background: sectionBg, transition: "background 0.3s", position: "relative" }}>
-      {!menuOpen && (
-        <button
-          onClick={() => setMenuOpen(true)}
-          aria-label="Открыть меню"
-          style={{
-            position: "fixed",
-            top: TOP_BAR_HEIGHT + 12,
-            left: 20,
-            zIndex: 1201,
-            width: 48,
-            height: 48,
-            borderRadius: "50%",
-            background: "#7b3ff2",
-            color: "#fff",
-            border: "none",
-            boxShadow: "0 2px 8px #0002",
-            fontSize: 28,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            cursor: "pointer",
-            transition: "background 0.2s",
-          }}
-        >
-          ☰
-        </button>
-      )}
+      {/* --- Новый "ручка" вместо кнопки-гамбургера --- */}
+      <SideMenuHandle onClick={() => setMenuOpen(true)} visible={!menuOpen} />
+
+      {/* --- Меню: теперь полу-прозрачное, поверх основного фона, не сдвигает контент --- */}
       <div
         style={{
           position: "fixed",
-          left: menuOpen ? 0 : "-40vw",
+          left: 0,
           top: 0,
           width: "40vw",
           maxWidth: 320,
           height: "100vh",
-          background: "#fff",
-          boxShadow: menuOpen ? "2px 0 8px #0002" : "none",
+          background: "rgba(255,255,255,0.92)",
+          boxShadow: menuOpen ? "2px 0 12px #0003" : "none",
           zIndex: 1200,
-          transition: "left 0.3s",
+          transition: "transform 0.3s",
+          transform: menuOpen ? "translateX(0)" : "translateX(-100%)",
           padding: 24,
           display: "flex",
           flexDirection: "column",
+          backdropFilter: "blur(4px)",
         }}
       >
         <button
@@ -551,9 +571,10 @@ export default function GyanPage() {
           </button>
         ))}
       </div>
+      {/* --- Контент всегда marginLeft: 0 --- */}
       <div
         style={{
-          marginLeft: menuOpen ? "40vw" : 0,
+          marginLeft: 0,
           transition: "margin-left 0.3s",
           padding: 32,
         }}
