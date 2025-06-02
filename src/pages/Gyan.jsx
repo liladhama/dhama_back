@@ -91,6 +91,9 @@ const defaultFormValues = {
   tzOffset: ""
 };
 
+const MAIN_COLOR = "#8B0000";
+const BG_COLOR = "#f9f6f4";
+
 function NatalCardForm({
   expanded, setExpanded,
   values, setValues,
@@ -206,9 +209,9 @@ function NatalCardForm({
   return (
     <div style={{
       transition: "box-shadow 0.2s",
-      boxShadow: expanded ? "0 4px 32px #0002" : "none",
+      boxShadow: expanded ? "0 2px 16px #0001" : "none",
       background: "#fff",
-      borderRadius: 16,
+      borderRadius: 12,
       marginBottom: 8,
       marginTop: 0,
       overflow: "hidden"
@@ -217,53 +220,53 @@ function NatalCardForm({
         onClick={() => setExpanded(!expanded)}
         style={{
           width: "100%",
-          background: expanded
-            ? "linear-gradient(90deg, #7b3ff2 60%, #613fc9 100%)"
-            : "#fff",
-          color: expanded ? "#fff" : "#7b3ff2",
-          border: expanded ? "none" : "2px solid #7b3ff2",
-          borderRadius: "16px 16px 0 0",
-          fontSize: 22,
+          background: expanded ? MAIN_COLOR : "#fff",
+          color: expanded ? "#fff" : MAIN_COLOR,
+          border: expanded ? "none" : `1.5px solid ${MAIN_COLOR}`,
+          borderRadius: "12px 12px 0 0",
+          fontSize: 17,
           fontWeight: 700,
           cursor: "pointer",
-          padding: "18px 0 16px 0",
-          boxShadow: expanded ? "0 4px 18px #7b3ff233" : "none",
-          outline: "none"
+          padding: "12px 0 10px 0",
+          boxShadow: expanded ? "0 2px 8px #8B000033" : "none",
+          outline: "none",
+          letterSpacing: "0.02em",
+          transition: "background 0.2s, color 0.2s"
         }}
         aria-label={expanded ? "Свернуть" : "Развернуть"}
       >
-        Форма расчета натальной карты {expanded ? "▲" : "▼"}
+        создать карту {expanded ? "▲" : "▼"}
       </button>
       {expanded && (
         <form onSubmit={handleSubmit} style={{
           marginTop: 2,
-          background: "#f9f9fb",
-          padding: "16px 24px 18px 24px",
+          background: BG_COLOR,
+          padding: "12px 14px 13px 14px",
           borderRadius: "0 0 10px 10px",
           marginBottom: 0,
           display: "flex",
           flexDirection: "column",
-          gap: 12
+          gap: 7
         }}>
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            <label style={{ fontWeight: 600, color: "#444" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            <label style={{ fontWeight: 500, color: "#444", fontSize: 14 }}>
               Имя/метка
               <input
                 value={values.name}
                 onChange={e => setValues(v => ({ ...v, name: e.target.value }))}
                 required
                 style={{
-                  marginTop: 4,
-                  padding: "9px 12px",
-                  borderRadius: 7,
-                  border: "1px solid #d1c2e7",
-                  fontSize: 15,
+                  marginTop: 3,
+                  padding: "6px 10px",
+                  borderRadius: 6,
+                  border: "1px solid #e7d6d6",
+                  fontSize: 14,
                   outline: "none"
                 }}
                 placeholder="Моя карта"
               />
             </label>
-            <label style={{ fontWeight: 600, color: "#444" }}>
+            <label style={{ fontWeight: 500, color: "#444", fontSize: 14 }}>
               Дата рождения
               <input
                 type="date"
@@ -271,16 +274,16 @@ function NatalCardForm({
                 onChange={e => setValues(v => ({ ...v, date: e.target.value }))}
                 required
                 style={{
-                  marginTop: 4,
-                  padding: "9px 12px",
-                  borderRadius: 7,
-                  border: "1px solid #d1c2e7",
-                  fontSize: 15,
+                  marginTop: 3,
+                  padding: "6px 10px",
+                  borderRadius: 6,
+                  border: "1px solid #e7d6d6",
+                  fontSize: 14,
                   outline: "none"
                 }}
               />
             </label>
-            <label style={{ fontWeight: 600, color: "#444" }}>
+            <label style={{ fontWeight: 500, color: "#444", fontSize: 14 }}>
               Время рождения
               <input
                 type="time"
@@ -288,28 +291,28 @@ function NatalCardForm({
                 onChange={e => setValues(v => ({ ...v, time: e.target.value }))}
                 required
                 style={{
-                  marginTop: 4,
-                  padding: "9px 12px",
-                  borderRadius: 7,
-                  border: "1px solid #d1c2e7",
-                  fontSize: 15,
+                  marginTop: 3,
+                  padding: "6px 10px",
+                  borderRadius: 6,
+                  border: "1px solid #e7d6d6",
+                  fontSize: 14,
                   outline: "none"
                 }}
               />
             </label>
-            <div style={{ display: "flex", alignItems: "flex-end", gap: 10 }}>
-              <label style={{ flex: 1, fontWeight: 600, color: "#444" }}>
+            <div style={{ display: "flex", alignItems: "flex-end", gap: 7 }}>
+              <label style={{ flex: 1, fontWeight: 500, color: "#444", fontSize: 14 }}>
                 Город/место рождения
                 <input
                   value={values.place}
                   onChange={e => setValues(v => ({ ...v, place: e.target.value }))}
                   required
                   style={{
-                    marginTop: 4,
-                    padding: "9px 12px",
-                    borderRadius: 7,
-                    border: "1px solid #d1c2e7",
-                    fontSize: 15,
+                    marginTop: 3,
+                    padding: "6px 10px",
+                    borderRadius: 6,
+                    border: "1px solid #e7d6d6",
+                    fontSize: 14,
                     outline: "none",
                     width: "100%"
                   }}
@@ -322,16 +325,16 @@ function NatalCardForm({
                 disabled={!values.place || !values.date || geoLoading}
                 style={{
                   marginBottom: 1,
-                  padding: "7px 14px",
+                  padding: "5px 10px",
                   border: "none",
-                  borderRadius: 8,
-                  background: "#7b3ff2",
+                  borderRadius: 7,
+                  background: MAIN_COLOR,
                   color: "#fff",
-                  fontWeight: 700,
-                  fontSize: 15,
+                  fontWeight: 600,
+                  fontSize: 13,
                   cursor: geoLoading ? "wait" : "pointer",
-                  boxShadow: "0 1px 4px #7b3ff211",
-                  minWidth: 56,
+                  boxShadow: "0 1px 4px #8B000011",
+                  minWidth: 44,
                   transition: "background 0.18s"
                 }}
                 title="Определить координаты и часовой пояс"
@@ -340,10 +343,10 @@ function NatalCardForm({
               </button>
             </div>
             {geoError && (
-              <span style={{ color: "red", marginLeft: 2, fontSize: 13 }}>{geoError}</span>
+              <span style={{ color: "red", marginLeft: 2, fontSize: 12 }}>{geoError}</span>
             )}
-            <div style={{ display: "flex", gap: 10 }}>
-              <label style={{ flex: 1, fontWeight: 600, color: "#444" }}>
+            <div style={{ display: "flex", gap: 7 }}>
+              <label style={{ flex: 1, fontWeight: 500, color: "#444", fontSize: 14 }}>
                 Широта
                 <input
                   ref={latInput}
@@ -354,17 +357,17 @@ function NatalCardForm({
                   placeholder="55.75"
                   required
                   style={{
-                    marginTop: 4,
-                    padding: "9px 12px",
-                    borderRadius: 7,
-                    border: "1px solid #d1c2e7",
-                    fontSize: 15,
+                    marginTop: 3,
+                    padding: "6px 10px",
+                    borderRadius: 6,
+                    border: "1px solid #e7d6d6",
+                    fontSize: 14,
                     outline: "none",
                     width: "100%"
                   }}
                 />
               </label>
-              <label style={{ flex: 1, fontWeight: 600, color: "#444" }}>
+              <label style={{ flex: 1, fontWeight: 500, color: "#444", fontSize: 14 }}>
                 Долгота
                 <input
                   ref={lonInput}
@@ -375,48 +378,48 @@ function NatalCardForm({
                   placeholder="37.6166"
                   required
                   style={{
-                    marginTop: 4,
-                    padding: "9px 12px",
-                    borderRadius: 7,
-                    border: "1px solid #d1c2e7",
-                    fontSize: 15,
+                    marginTop: 3,
+                    padding: "6px 10px",
+                    borderRadius: 6,
+                    border: "1px solid #e7d6d6",
+                    fontSize: 14,
                     outline: "none",
                     width: "100%"
                   }}
                 />
               </label>
             </div>
-            <div style={{ display: "flex", gap: 10 }}>
-              <label style={{ flex: 1, fontWeight: 600, color: "#444" }}>
+            <div style={{ display: "flex", gap: 7 }}>
+              <label style={{ flex: 1, fontWeight: 500, color: "#444", fontSize: 14 }}>
                 Временная зона
                 <input
                   value={values.timezone}
                   readOnly
                   style={{
-                    marginTop: 4,
-                    padding: "9px 12px",
-                    borderRadius: 7,
+                    marginTop: 3,
+                    padding: "6px 10px",
+                    borderRadius: 6,
                     border: "1px solid #eee",
                     background: "#eee",
-                    fontSize: 15,
+                    fontSize: 14,
                     color: "#888",
                     outline: "none",
                     width: "100%"
                   }}
                 />
               </label>
-              <label style={{ flex: 1, fontWeight: 600, color: "#444" }}>
+              <label style={{ flex: 1, fontWeight: 500, color: "#444", fontSize: 14 }}>
                 UTC-offset
                 <input
                   value={values.tzOffset}
                   readOnly
                   style={{
-                    marginTop: 4,
-                    padding: "9px 12px",
-                    borderRadius: 7,
+                    marginTop: 3,
+                    padding: "6px 10px",
+                    borderRadius: 6,
                     border: "1px solid #eee",
                     background: "#eee",
-                    fontSize: 15,
+                    fontSize: 14,
                     color: "#888",
                     outline: "none",
                     width: "100%"
@@ -426,9 +429,9 @@ function NatalCardForm({
             </div>
           </div>
           <div style={{
-            marginTop: 10,
+            marginTop: 7,
             display: "flex",
-            gap: 10,
+            gap: 7,
             flexWrap: "wrap"
           }}>
             <button
@@ -437,15 +440,15 @@ function NatalCardForm({
               disabled={loading || !values.date || !values.time}
               style={{
                 flex: 1,
-                padding: "11px 0",
+                padding: "7px 0",
                 border: "none",
-                borderRadius: 8,
-                background: loading ? "#ccc" : "#7b3ff2",
+                borderRadius: 7,
+                background: loading ? "#ccc" : MAIN_COLOR,
                 color: "#fff",
-                fontWeight: 700,
-                fontSize: 16,
+                fontWeight: 600,
+                fontSize: 14,
                 cursor: loading ? "wait" : "pointer",
-                boxShadow: "0 1px 4px #7b3ff211"
+                boxShadow: "0 1px 4px #8B000011"
               }}
             >
               {loading ? "Рассчитываем..." : "Рассчитать планеты"}
@@ -455,15 +458,15 @@ function NatalCardForm({
               disabled={!planets}
               style={{
                 flex: 1,
-                padding: "11px 0",
+                padding: "7px 0",
                 border: "none",
-                borderRadius: 8,
-                background: !planets ? "#eee" : "#57b846",
+                borderRadius: 7,
+                background: !planets ? "#eee" : "#228B22",
                 color: !planets ? "#888" : "#fff",
-                fontWeight: 700,
-                fontSize: 16,
+                fontWeight: 600,
+                fontSize: 14,
                 cursor: !planets ? "not-allowed" : "pointer",
-                boxShadow: "0 1px 4px #7b3ff211"
+                boxShadow: "0 1px 4px #8B000011"
               }}
             >
               Сохранить
@@ -473,15 +476,15 @@ function NatalCardForm({
               onClick={() => setExpanded(false)}
               style={{
                 flex: 1,
-                padding: "11px 0",
+                padding: "7px 0",
                 border: "none",
-                borderRadius: 8,
+                borderRadius: 7,
                 background: "#eee",
                 color: "#444",
-                fontWeight: 700,
-                fontSize: 16,
+                fontWeight: 600,
+                fontSize: 14,
                 cursor: "pointer",
-                boxShadow: "0 1px 4px #7b3ff211"
+                boxShadow: "0 1px 4px #8B000011"
               }}
             >
               Свернуть
@@ -491,24 +494,24 @@ function NatalCardForm({
             type="button"
             onClick={handleReset}
             style={{
-              marginTop: 12,
-              padding: "11px 0",
+              marginTop: 7,
+              padding: "7px 0",
               border: "none",
-              borderRadius: 8,
-              background: "#f0eef9",
-              color: "#7b3ff2",
-              fontWeight: 700,
-              fontSize: 16,
+              borderRadius: 7,
+              background: "#F7D7DB",
+              color: MAIN_COLOR,
+              fontWeight: 600,
+              fontSize: 14,
               cursor: "pointer",
-              boxShadow: "0 1px 4px #7b3ff211",
+              boxShadow: "0 1px 4px #8B000011",
               width: "100%"
             }}
           >
             Новая карта
           </button>
-          {error && <div style={{ color: "red", marginTop: 7, fontSize: 14 }}>{error}</div>}
+          {error && <div style={{ color: "red", marginTop: 7, fontSize: 13 }}>{error}</div>}
           {ayanamsha !== null && (
-            <div style={{ marginTop: 10, color: "#555" }}>
+            <div style={{ marginTop: 6, color: "#555", fontSize: 13 }}>
               <b>Аянамша Лахири:</b> {ayanamsha.toFixed(6)}°
             </div>
           )}
@@ -529,31 +532,31 @@ function SavedCardsPanel({
         top: 65,
         left: "50%",
         transform: "translateX(-50%)",
-        width: "min(360px, 98vw)",
+        width: "min(320px, 96vw)",
         background: "rgba(250,245,255,0.97)",
-        boxShadow: "0 0 24px #7b3ff266",
+        boxShadow: "0 0 24px #8B000033",
         zIndex: 2050,
-        padding: "12px 18px 18px 18px",
+        padding: "10px 10px 12px 10px",
         overflow: "hidden",
-        borderRadius: 18,
+        borderRadius: 12,
         display: "flex",
         flexDirection: "column",
         backdropFilter: "blur(10px)",
         transition: "max-height 0.3s cubic-bezier(0.4,0,0.2,1)",
-        maxHeight: expanded ? 400 : 46,
-        minHeight: 46,
+        maxHeight: expanded ? 330 : 38,
+        minHeight: 38,
       }}
     >
-      <div style={{ display: "flex", alignItems: "center", marginBottom: expanded ? 9 : 0 }}>
+      <div style={{ display: "flex", alignItems: "center", marginBottom: expanded ? 7 : 0 }}>
         <button
           onClick={() => setExpanded(!expanded)}
           style={{
             background: "none",
             border: "none",
-            fontSize: 20,
+            fontSize: 16,
             marginRight: 6,
             cursor: "pointer",
-            color: "#7b3ff2",
+            color: MAIN_COLOR,
             fontWeight: 700,
             padding: 0,
             lineHeight: "1",
@@ -562,14 +565,14 @@ function SavedCardsPanel({
         >
           {expanded ? "▼" : "▶"}
         </button>
-        <span style={{ fontSize: 17, fontWeight: 700, color: "#7b3ff2" }}>Сохранённые карты</span>
+        <span style={{ fontSize: 14, fontWeight: 700, color: MAIN_COLOR }}>Сохранённые карты</span>
         <button onClick={onClose}
           style={{
             marginLeft: "auto",
             background: "none",
             border: "none",
-            fontSize: 20,
-            color: "#7b3ff2",
+            fontSize: 16,
+            color: MAIN_COLOR,
             cursor: "pointer"
           }}
           aria-label="Закрыть"
@@ -582,23 +585,23 @@ function SavedCardsPanel({
           margin: 0,
           width: "100%",
           overflowY: "auto",
-          maxHeight: 240
+          maxHeight: 180
         }}>
           {cards.length === 0 ? (
-            <li style={{ color: "#777", margin: 0, marginTop: 8 }}>Нет сохранённых карт</li>
+            <li style={{ color: "#777", margin: 0, marginTop: 6, fontSize: 13 }}>Нет сохранённых карт</li>
           ) : (
             cards.map((card, idx) => (
               <li
                 key={card.id}
                 style={{
                   margin: 0,
-                  marginBottom: 7,
-                  borderRadius: 8,
-                  background: selectedCardId === card.id ? "#e7dbff" : "#f3f3fa",
-                  padding: "7px 10px",
+                  marginBottom: 5,
+                  borderRadius: 7,
+                  background: selectedCardId === card.id ? "#F7D7DB" : "#f3f3fa",
+                  padding: "6px 8px",
                   fontWeight: selectedCardId === card.id ? "bold" : "normal",
-                  border: selectedCardId === card.id ? "2px solid #7b3ff2" : "1px solid #d1c2e7",
-                  fontSize: 15,
+                  border: selectedCardId === card.id ? `2px solid ${MAIN_COLOR}` : "1px solid #e7d6d6",
+                  fontSize: 13,
                   cursor: "pointer",
                   transition: "background 0.12s"
                 }}
@@ -607,7 +610,7 @@ function SavedCardsPanel({
                 <div>
                   <b>{card.name}</b>
                 </div>
-                <div style={{ fontSize: 13, color: "#555" }}>
+                <div style={{ fontSize: 12, color: "#555" }}>
                   {card.date} {card.time} {card.place ? `(${card.place})` : ""}
                 </div>
               </li>
@@ -631,11 +634,11 @@ function SideMenuHandle({ onClick, visible }) {
         transform: "translateY(-50%)",
         zIndex: 1300,
         cursor: "pointer",
-        width: 24,
-        height: 80,
-        background: "rgba(123,63,242,0.5)",
-        borderTopRightRadius: 16,
-        borderBottomRightRadius: 16,
+        width: 20,
+        height: 60,
+        background: "rgba(139,0,0,0.5)",
+        borderTopRightRadius: 12,
+        borderBottomRightRadius: 12,
         boxShadow: "2px 0 8px #0002",
         display: "flex",
         alignItems: "center",
@@ -645,10 +648,10 @@ function SideMenuHandle({ onClick, visible }) {
     >
       <div
         style={{
-          width: 16,
-          height: 16,
+          width: 13,
+          height: 13,
           background: "#fff",
-          border: "2px solid #7b3ff2",
+          border: `2px solid ${MAIN_COLOR}`,
           borderRadius: "50%",
           marginLeft: 3,
           boxShadow: "0 1px 4px #0001",
@@ -666,26 +669,27 @@ const SECTIONS = [
 
 function InterpretationsSection() {
   return (
-    <div style={{ marginTop: 38 }}>
-      <h2 style={{ fontSize: 26, color: "#7b3ff2" }}>Трактовки положений планет</h2>
-      <p style={{ color: "#aaa" }}>Здесь будут трактовки по выбранной карте</p>
+    <div style={{ marginTop: 30 }}>
+      <h2 style={{ fontSize: 18, color: MAIN_COLOR }}>Трактовки положений планет</h2>
+      <p style={{ color: "#aaa", fontSize: 13 }}>Здесь будут трактовки по выбранной карте</p>
     </div>
   );
 }
 
 function ForecastsSection() {
   return (
-    <div style={{ marginTop: 38 }}>
-      <h2 style={{ fontSize: 26, color: "#7b3ff2" }}>Прогнозы</h2>
-      <p>Общие прогнозы доступны бесплатно.</p>
+    <div style={{ marginTop: 30 }}>
+      <h2 style={{ fontSize: 18, color: MAIN_COLOR }}>Прогнозы</h2>
+      <p style={{ fontSize: 13 }}>Общие прогнозы доступны бесплатно.</p>
       <button style={{
-        padding: "12px 20px",
+        padding: "9px 14px",
         marginTop: 8,
-        background: "#7b3ff2",
+        background: MAIN_COLOR,
         color: "#fff",
         fontWeight: 600,
         border: "none",
-        borderRadius: 9,
+        borderRadius: 7,
+        fontSize: 14
       }}>Оформить подписку на индивидуальные прогнозы (Toncoin)</button>
     </div>
   );
@@ -726,8 +730,6 @@ export default function GyanPage() {
 
   const handleSelectCard = (id) => setSelectedCardId(id);
 
-  const sectionBg = "#f3e6d7";
-
   let mainSectionContent = null;
   if (selectedSection === "natal") {
     mainSectionContent = (
@@ -735,28 +737,28 @@ export default function GyanPage() {
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        marginTop: 8,
-        gap: 12,
+        marginTop: 6,
+        gap: 10,
         width: "100%",
         position: "relative"
       }}>
         {/* Кнопка "Открыть сохранённые карты" СВЕРХУ! */}
-        <div style={{ width: "100%", display: "flex", justifyContent: "center", marginBottom: 8 }}>
+        <div style={{ width: "100%", display: "flex", justifyContent: "center", marginBottom: 7 }}>
           <button
             onClick={() => { setShowSavedPanel(v => !v); setSavedPanelExpanded(true); }}
             style={{
-              minWidth: 200,
-              padding: "12px 24px",
-              fontSize: 18,
+              minWidth: 150,
+              padding: "9px 0",
+              fontSize: 15,
               fontWeight: 700,
-              color: "#7b3ff2",
+              color: MAIN_COLOR,
               background: "#fff",
-              border: "2px solid #7b3ff2",
-              borderRadius: 14,
-              boxShadow: "0 2px 8px #7b3ff211",
+              border: `1.5px solid ${MAIN_COLOR}`,
+              borderRadius: 12,
+              boxShadow: "0 1px 4px #8B000011",
               cursor: "pointer",
               transition: "background 0.2s, color 0.2s",
-              marginTop: 8
+              marginTop: 7
             }}
           >
             Открыть сохранённые карты
@@ -776,12 +778,13 @@ export default function GyanPage() {
         {/* --- Карта, если посчитана --- */}
         {formPlanets && (
           <div style={{
-            marginTop: showSavedPanel ? 16 : 32,
-            background: "#eef",
-            borderRadius: 10,
-            padding: 16,
-            width: "min(500px, 98vw)",
-            boxShadow: "0 2px 8px #7b3ff233"
+            marginTop: showSavedPanel ? 11 : 18,
+            background: "#fbeeee",
+            borderRadius: 8,
+            padding: 10,
+            width: "min(370px, 98vw)",
+            boxShadow: "0 1px 4px #8B000011",
+            fontSize: 13
           }}>
             <b>Планеты (сидерический зодиак):</b>
             <ul>
@@ -794,7 +797,7 @@ export default function GyanPage() {
           </div>
         )}
         {/* --- Форма расчета натальной карты --- */}
-        <div style={{ width: "min(500px, 98vw)", marginTop: 14 }}>
+        <div style={{ width: "min(370px, 98vw)", marginTop: 10 }}>
           <NatalCardForm
             expanded={formExpanded}
             setExpanded={setFormExpanded}
@@ -826,10 +829,10 @@ export default function GyanPage() {
   return (
     <div style={{
       minHeight: "100vh",
-      background: sectionBg,
+      background: BG_COLOR,
       transition: "background 0.3s",
       position: "relative",
-      paddingBottom: 80,
+      paddingBottom: 50,
       margin: 0,
       boxSizing: "border-box"
     }}>
@@ -841,29 +844,31 @@ export default function GyanPage() {
           position: "fixed",
           left: 0,
           top: 0,
-          width: "40vw",
-          maxWidth: 320,
+          width: "38vw",
+          maxWidth: 220,
           height: "100vh",
-          background: "rgba(255,255,255,0.94)",
-          boxShadow: menuOpen ? "2px 0 12px #0003" : "none",
+          background: "#fff6f6",
+          boxShadow: menuOpen ? "2px 0 10px #8B000022" : "none",
           zIndex: 1200,
           transition: "transform 0.3s",
           transform: menuOpen ? "translateX(0)" : "translateX(-100%)",
-          padding: 24,
+          padding: 16,
           display: "flex",
           flexDirection: "column",
-          backdropFilter: "blur(4px)",
+          backdropFilter: "blur(3px)",
         }}
       >
         <button
           onClick={() => setMenuOpen(false)}
           style={{
             alignSelf: "flex-end",
-            marginBottom: 16,
+            marginBottom: 8,
             background: "none",
             border: "none",
-            fontSize: 28,
+            fontSize: 18,
             cursor: "pointer",
+            color: MAIN_COLOR,
+            fontWeight: 700
           }}
           aria-label="Закрыть меню"
         >
@@ -877,15 +882,15 @@ export default function GyanPage() {
               setMenuOpen(false);
             }}
             style={{
-              background: selectedSection === sec.id ? "#e7dbff" : "transparent",
+              background: selectedSection === sec.id ? "#F7D7DB" : "transparent",
               fontWeight: selectedSection === sec.id ? 600 : 400,
-              padding: "14px 0",
+              padding: "8px 0",
               textAlign: "left",
               border: "none",
               width: "100%",
               cursor: "pointer",
-              fontSize: 19,
-              color: "#7b3ff2",
+              fontSize: 14,
+              color: MAIN_COLOR,
               borderRadius: 7,
               marginBottom: 2,
               transition: "background 0.15s"
@@ -899,7 +904,7 @@ export default function GyanPage() {
       {/* --- Основная секция --- */}
       <div style={{
         width: "100%",
-        maxWidth: 800,
+        maxWidth: 440,
         margin: "0 auto",
         minHeight: 0,
         marginTop: 0,
