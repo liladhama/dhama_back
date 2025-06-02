@@ -21,20 +21,39 @@ const PLANET_LABELS_DIAMOND = {
   ketu: "Ке",
   ascendant: "Ас"
 };
-const DIAMOND_POINTS = [
-  { x: 0.5, y: 0 },
-  { x: 0.75, y: 0.15 },
-  { x: 0.93, y: 0.37 },
-  { x: 1, y: 0.5 },
-  { x: 0.93, y: 0.63 },
-  { x: 0.75, y: 0.85 },
-  { x: 0.5, y: 1 },
-  { x: 0.25, y: 0.85 },
-  { x: 0.07, y: 0.63 },
-  { x: 0, y: 0.5 },
-  { x: 0.07, y: 0.37 },
-  { x: 0.25, y: 0.15 }
+
+// --- Новая сетка для бриллиантовой карты ---
+// Центры ромбов для 12 домов (по бриллиантовой сетке, а не по кругу)
+const DIAMOND_HOUSES = [
+  { x: 200, y: 60 },   // 1 дом
+  { x: 320, y: 100 },  // 12
+  { x: 360, y: 200 },  // 11
+  { x: 320, y: 300 },  // 10
+  { x: 200, y: 340 },  // 9
+  { x: 80, y: 300 },   // 8
+  { x: 40, y: 200 },   // 7
+  { x: 80, y: 100 },   // 6
+  { x: 140, y: 130 },  // 5
+  { x: 260, y: 130 },  // 4
+  { x: 260, y: 270 },  // 3
+  { x: 140, y: 270 },  // 2
 ];
+function getDiamondPoints(cx, cy, size = 42) {
+  return [
+    [cx, cy - size],
+    [cx + size, cy],
+    [cx, cy + size],
+    [cx - size, cy]
+  ].map(p => p.join(",")).join(" ");
+}
+// Координаты углов большого ромба для знаков
+const DIAMOND_CORNERS = [
+  { x: 200, y: 20 },   // верх
+  { x: 380, y: 200 },  // право
+  { x: 200, y: 380 },  // низ
+  { x: 20, y: 200 }    // лево
+];
+
 function getPlanetHouseMap(planets, ascSignIndex) {
   const houseMap = Array(12).fill().map(() => []);
   for (const [planet, pos] of Object.entries(planets)) {
@@ -45,6 +64,7 @@ function getPlanetHouseMap(planets, ascSignIndex) {
   }
   return houseMap;
 }
+
 function NatalDiamondChart({ planets, nakshatrasInfo = [] }) {
   if (!planets) return null;
   const ascSign = planets.ascendant?.sign || SIGNS[0];
@@ -55,81 +75,85 @@ function NatalDiamondChart({ planets, nakshatrasInfo = [] }) {
     nakshMap[n.planet] = n;
   });
 
+  // Порядок знаков с асцендента (по часам, но на углах только 0, 3, 6, 9)
+  const signOrder = [];
+  for (let i = 0; i < 12; ++i) {
+    signOrder.push((ascSignIndex + i) % 12);
+  }
+
   return (
     <div style={{
       display: "flex", flexDirection: "column", alignItems: "center", gap: 20, marginTop: 18
     }}>
-      {/* SVG-бриллиант */}
       <svg viewBox="0 0 400 400" width={320} height={320} style={{ display: "block" }}>
+        {/* Большой ромб */}
         <polygon
           points="200,20 380,200 200,380 20,200"
           fill="#fff"
           stroke="#8B0000"
           strokeWidth={5}
         />
-        {/* Внутренние ромбики-дома */}
-        {DIAMOND_POINTS.map((pt, i) => {
-          const x = pt.x * 360 + 20;
-          const y = pt.y * 360 + 20;
-          const houseNum = (i === 0) ? 1 : ((13 - i) > 12 ? (13 - i - 12) : (13 - i));
+        {/* Малые ромбы (дома) */}
+        {DIAMOND_HOUSES.map((pt, i) => {
+          const houseNum = i + 1;
           const signIdx = (ascSignIndex + i) % 12;
-          const signShort = SIGN_SHORT[signIdx];
           const housePlanets = houseMap[i] || [];
           return (
             <g key={i}>
               <polygon
-                points={[
-                  [x, y - 38],
-                  [x + 38, y],
-                  [x, y + 38],
-                  [x - 38, y]
-                ].map(p => p.join(",")).join(" ")}
+                points={getDiamondPoints(pt.x, pt.y, 42)}
                 fill={i === 0 ? "#F7D7DB" : "#fbeeee"}
                 stroke="#8B0000"
                 strokeWidth={2}
               />
               {/* Номер дома */}
               <text
-                x={x} y={y - 20}
+                x={pt.x}
+                y={pt.y - 15}
                 textAnchor="middle"
                 fontWeight={700}
-                fontSize={i === 0 ? 17 : 15}
+                fontSize={17}
                 fill="#8B0000"
-                dy={-2}
+                dy={0}
               >
                 {houseNum}
-              </text>
-              {/* Знак */}
-              <text
-                x={x} y={y + 12}
-                textAnchor="middle"
-                fontWeight={500}
-                fontSize={15}
-                fill="#8B0000"
-              >
-                {signShort}
               </text>
               {/* Планеты */}
               {housePlanets.length > 0 && (
                 <text
-                  x={x} y={y + 32}
+                  x={pt.x}
+                  y={pt.y + 8}
                   textAnchor="middle"
                   fontWeight={600}
-                  fontSize={14}
+                  fontSize={15}
                   fill="#333"
                 >
-                  {housePlanets.map(p => PLANET_LABELS_DIAMOND[p]).join(" ")}
+                  {housePlanets.map((p) => PLANET_LABELS_DIAMOND[p]).join(" ")}
                 </text>
               )}
             </g>
           );
         })}
-        <polygon
-          points="200,20 380,200 200,380 20,200"
-          fill="none"
-          stroke="#8B0000"
-          strokeWidth={5}
-        />
+        {/* Знаки по углам */}
+        {DIAMOND_CORNERS.map((pt, i) => (
+          <text
+            key={i}
+            x={pt.x + (i === 1 ? 24 : i === 3 ? -24 : 0)}
+            y={pt.y + (i === 0 ? -12 : i === 2 ? 26 : 4)}
+            textAnchor="middle"
+            fontWeight={700}
+            fontSize={18}
+            fill="#8B0000"
+            style={{
+              paintOrder: "stroke",
+              stroke: "#fff",
+              strokeWidth: 4,
+              strokeLinejoin: "round"
+            }}
+          >
+            {SIGN_SHORT[signOrder[i * 3]]}
+          </text>
+        ))}
       </svg>
       {/* Таблица под картой */}
       <div style={{
