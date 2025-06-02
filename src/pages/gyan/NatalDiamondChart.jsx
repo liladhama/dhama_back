@@ -53,7 +53,7 @@ const housePolygons = [
 const houseLabelVertexMap = [
   { sign: 2, signOffset: 0.30 }, // 1 (ромб)
   { sign: 2, signOffset: 0.45 }, // 2 (треуг)
-  { sign: 2, signOffset: 0.45 }, // 3 (треуг)
+  { sign: 2, signOffset: 0.35 }, // 3 (треуг)
   { sign: 1, signOffset: 0.19 }, // 4 (ромб)
   { sign: 1, signOffset: 0.15 }, // 5 (треуг)
   { sign: 1, signOffset: 0.16 }, // 6 (треуг)
