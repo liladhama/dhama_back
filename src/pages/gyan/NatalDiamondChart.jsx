@@ -1,82 +1,100 @@
 import React from "react";
 import { SIGNS, SIGN_SHORT, PLANET_LABELS_DIAMOND, calcNakshatraPada, getPlanetHouseMap } from "./astroUtils";
 
+// Размер SVG и отступы
 const SIZE = 320;
+const PADDING = 24;
 const CENTER = SIZE / 2;
-const R = 110; // расстояние от центра до центра ромба (подбирается визуально)
-const D = 80;  // половина диагонали ромба
+const SQ = SIZE - 2 * PADDING;
+const R = SQ / 2;
 
-// 4 ромба: 1 (верх), 4 (лево), 7 (низ), 10 (право)
-const diamonds = [
-  { num: 1,  cx: CENTER,      cy: CENTER - R, angle: 0 },
-  { num: 4,  cx: CENTER - R,  cy: CENTER,     angle: 90 },
-  { num: 7,  cx: CENTER,      cy: CENTER + R, angle: 180 },
-  { num:10,  cx: CENTER + R,  cy: CENTER,     angle: 270 },
+// Вершины внешнего квадрата (по часовой, начиная сверху)
+const VERTICES = [
+  [CENTER, PADDING],              // верх
+  [SIZE - PADDING, CENTER],       // право
+  [CENTER, SIZE - PADDING],       // низ
+  [PADDING, CENTER],              // лево
 ];
 
-// Вычисляем 8 точек стыка ромбов (куда будут "вклиниваться" треугольники)
-function getDiamondCorners(cx, cy, angle, d) {
-  // Возвращает 4 точки ромба (по часовой от вершины)
-  const toRad = a => a * Math.PI / 180;
+// Центры ромбов — середины сторон квадрата
+const ROMBES = [
+  { num: 1,  cx: CENTER,            cy: PADDING + R,    angle:   0 },
+  { num: 4,  cx: PADDING + R,       cy: CENTER,         angle:  90 },
+  { num: 7,  cx: CENTER,            cy: SIZE - PADDING - R, angle: 180 },
+  { num:10,  cx: SIZE - PADDING - R,cy: CENTER,         angle: 270 },
+];
+
+// Для ромба: вершина (угол квадрата), 2 боковых точки (на сторонах квадрата), внутренний угол (центр)
+function getDiamondPoints(idx) {
+  const [vx, vy] = VERTICES[idx];                       // Вершина ромба
+  const [vxl, vyl] = VERTICES[(idx + 3) % 4];           // Левая соседняя вершина
+  const [vxr, vyr] = VERTICES[(idx + 1) % 4];           // Правая соседняя вершина
+
+  // Боковые точки: 1/2 между вершинами
+  const pxl = (vx + vxl) / 2, pyl = (vy + vyl) / 2;
+  const pxr = (vx + vxr) / 2, pyr = (vy + vyr) / 2;
+
+  // Центр ромба — центр SVG
   return [
-    [cx, cy - d], // вверх
-    [cx + d, cy], // право
-    [cx, cy + d], // низ
-    [cx - d, cy], // лево
-  ].map(([x, y]) => {
-    // Повернуть вокруг центра на угол angle
-    const dx = x - cx;
-    const dy = y - cy;
-    const rad = toRad(angle);
-    return [
-      cx + dx * Math.cos(rad) - dy * Math.sin(rad),
-      cy + dx * Math.sin(rad) + dy * Math.cos(rad),
-    ];
-  });
+    [vx, vy],           // наружный угол (вершина квадрата)
+    [pxr, pyr],         // правая боковая точка
+    [CENTER, CENTER],   // внутренний угол (центр)
+    [pxl, pyl]          // левая боковая точка
+  ];
 }
 
-// Считаем все углы ромбов (по часовой, начиная сверху)
-const allCorners = diamonds.map(d =>
-  getDiamondCorners(d.cx, d.cy, d.angle, D / Math.sqrt(2))
-);
+// Треугольники между ромбами и углом квадрата
+// Каждый треугольник: вершина квадрата + внешние боковые углы двух соседних ромбов
+const TRIANGLES = [
+  // 2 дом — левый верхний треугольник (между 1 и 4 ромбом, верхний левый угол)
+  [VERTICES[0], getDiamondPoints(0)[3], getDiamondPoints(1)[1]],
 
-// Треугольники между ромбами (их вершины — это соседние углы ромбов плюс центр)
-const triangles = [
-  { num: 2,  points: [allCorners[0][1], allCorners[3][0], [CENTER, CENTER]] }, // между 1 и 10
-  { num: 3,  points: [allCorners[3][0], allCorners[1][3], [CENTER, CENTER]] }, // между 10 и 4
-  { num: 5,  points: [allCorners[1][3], allCorners[2][2], [CENTER, CENTER]] }, // между 4 и 7
-  { num: 6,  points: [allCorners[2][2], allCorners[0][1], [CENTER, CENTER]] }, // между 7 и 1
+  // 3 дом — левый верхний угловой треугольник (между 4 и 1 ромбом, верхний левый угол)
+  [VERTICES[3], getDiamondPoints(1)[0], getDiamondPoints(0)[3]],
 
-  { num: 8,  points: [allCorners[2][0], allCorners[1][1], [CENTER, CENTER]] }, // между 7 и 4 (нижний правый)
-  { num: 9,  points: [allCorners[1][1], allCorners[3][2], [CENTER, CENTER]] }, // между 4 и 10
-  { num:11,  points: [allCorners[3][2], allCorners[0][3], [CENTER, CENTER]] }, // между 10 и 1
-  { num:12,  points: [allCorners[0][3], allCorners[2][0], [CENTER, CENTER]] }, // между 1 и 7
+  // 5 дом — левый нижний угловой треугольник
+  [VERTICES[3], getDiamondPoints(1)[2], getDiamondPoints(2)[0]],
+
+  // 6 дом — левый нижний треугольник
+  [VERTICES[2], getDiamondPoints(2)[3], getDiamondPoints(1)[2]],
+
+  // 8 дом — нижний правый треугольник
+  [VERTICES[2], getDiamondPoints(2)[1], getDiamondPoints(3)[2]],
+
+  // 9 дом — нижний правый угловой треугольник
+  [VERTICES[1], getDiamondPoints(3)[0], getDiamondPoints(2)[1]],
+
+  // 11 дом — правый верхний угловой треугольник
+  [VERTICES[1], getDiamondPoints(3)[2], getDiamondPoints(0)[1]],
+
+  // 12 дом — правый верхний треугольник
+  [VERTICES[0], getDiamondPoints(0)[1], getDiamondPoints(3)[2]],
 ];
 
-// Финальный layout домов (против часовой стрелки!)
+// Финальный порядок домов (против часовой стрелки, начиная с верхнего ромба)
 const houseLayout = [
-  diamonds[0], // 1
-  triangles[0], // 2
-  triangles[1], // 3
-  diamonds[1], // 4
-  triangles[2], // 5
-  triangles[3], // 6
-  diamonds[2], // 7
-  triangles[4], // 8
-  triangles[5], // 9
-  diamonds[3], // 10
-  triangles[6], // 11
-  triangles[7], // 12
+  { num: 1,  type: "diamond", idx: 0 },
+  { num: 2,  type: "triangle", idx: 0 },
+  { num: 3,  type: "triangle", idx: 1 },
+  { num: 4,  type: "diamond", idx: 1 },
+  { num: 5,  type: "triangle", idx: 2 },
+  { num: 6,  type: "triangle", idx: 3 },
+  { num: 7,  type: "diamond", idx: 2 },
+  { num: 8,  type: "triangle", idx: 4 },
+  { num: 9,  type: "triangle", idx: 5 },
+  { num:10,  type: "diamond", idx: 3 },
+  { num:11,  type: "triangle", idx: 6 },
+  { num:12,  type: "triangle", idx: 7 },
 ];
 
-// Функции для SVG
-function diamondPoints(cx, cy, angle, d) {
-  const pts = getDiamondCorners(cx, cy, angle, d);
-  return pts.map(p => p.join(",")).join(" ");
-}
-
-function trianglePoints(pts) {
-  return pts.map(p => p.join(",")).join(" ");
+// Центр фигуры для текста (среднее по точкам)
+function getPolygonCenter(points) {
+  const xs = points.map(([x]) => x);
+  const ys = points.map(([, y]) => y);
+  return {
+    cx: xs.reduce((a, b) => a + b) / xs.length,
+    cy: ys.reduce((a, b) => a + b) / ys.length,
+  };
 }
 
 export default function NatalDiamondChart({ planets }) {
@@ -89,6 +107,7 @@ export default function NatalDiamondChart({ planets }) {
     return (num - 1 + 12) % 12;
   }
 
+  // Планеты для таблицы
   const planetNakshMap = {};
   for (const [planet, pObj] of Object.entries(planets)) {
     if (typeof pObj.deg_in_sign === "number" && typeof pObj.sign === "string") {
@@ -102,9 +121,9 @@ export default function NatalDiamondChart({ planets }) {
     <div style={{
       display: "flex", flexDirection: "column", alignItems: "center", gap: 20, marginTop: 18
     }}>
-      <svg viewBox="0 0 320 320" width={320} height={320} style={{ display: "block" }}>
+      <svg viewBox={`0 0 ${SIZE} ${SIZE}`} width={SIZE} height={SIZE} style={{ display: "block" }}>
         {/* Рамка */}
-        <rect x={8} y={8} width={304} height={304}
+        <rect x={8} y={8} width={SIZE-16} height={SIZE-16}
           fill="#fff"
           stroke="#8B0000"
           strokeWidth={5}
@@ -112,28 +131,30 @@ export default function NatalDiamondChart({ planets }) {
         />
         {/* Дома */}
         {houseLayout.map((h, i) => {
-          const num = i + 1;
+          const num = h.num;
           const signIdx = (ascSignIndex + num - 1) % 12;
           const housePlanets = houseMap[getHouseIndex(num)] || [];
-          if (h.cx !== undefined) {
-            // Ромб
-            const pts = getDiamondCorners(h.cx, h.cy, h.angle, D / Math.sqrt(2));
-            const labelX = h.cx;
-            const labelY = h.cy - (D / Math.sqrt(2)) + 16;
+          if (h.type === "diamond") {
+            const pts = getDiamondPoints(h.idx);
+            const pointsAttr = pts.map(p => p.join(",")).join(" ");
+            const { cx, cy } = getPolygonCenter(pts);
             return (
               <g key={i}>
                 <polygon
-                  points={diamondPoints(h.cx, h.cy, h.angle, D / Math.sqrt(2))}
+                  points={pointsAttr}
                   fill="#fbeeee"
                   stroke="#8B0000"
                   strokeWidth={2}
                 />
-                <text x={labelX} y={labelY} textAnchor="middle" fontWeight={700} fontSize={13} fill="#8B0000">{num}</text>
-                <text x={labelX+22} y={labelY} textAnchor="end" fontWeight={700} fontSize={12} fill="#8B0000">{SIGN_SHORT[signIdx]}</text>
+                {/* Номер дома — ближе к центру, но не жёстко */}
+                <text x={cx} y={cy - 18} textAnchor="middle" fontWeight={700} fontSize={13} fill="#8B0000">{num}</text>
+                {/* Знак — ближе к правому внешнему углу */}
+                <text x={pts[1][0] - 8} y={pts[1][1] - 4} textAnchor="end" fontWeight={700} fontSize={12} fill="#8B0000">{SIGN_SHORT[signIdx]}</text>
+                {/* Планеты — по центру фигуры */}
                 {housePlanets.length > 0 && (
                   <text
-                    x={h.cx}
-                    y={h.cy + 4 - (housePlanets.length - 1) * 9 / 2}
+                    x={cx}
+                    y={cy + 4 - (housePlanets.length - 1) * 9 / 2}
                     textAnchor="middle"
                     fontWeight={700}
                     fontSize={housePlanets.length > 2 ? 11 : 14}
@@ -142,7 +163,7 @@ export default function NatalDiamondChart({ planets }) {
                   >
                     {housePlanets.map((p, idx) => (
                       <tspan
-                        x={h.cx}
+                        x={cx}
                         dy={idx === 0 ? 0 : 13}
                         key={p}
                       >
@@ -155,18 +176,19 @@ export default function NatalDiamondChart({ planets }) {
             );
           } else {
             // Треугольник
-            const cx = (h.points[0][0] + h.points[1][0] + h.points[2][0]) / 3;
-            const cy = (h.points[0][1] + h.points[1][1] + h.points[2][1]) / 3;
+            const pts = TRIANGLES[h.idx];
+            const pointsAttr = pts.map(p => p.join(",")).join(" ");
+            const { cx, cy } = getPolygonCenter(pts);
             return (
               <g key={i}>
                 <polygon
-                  points={trianglePoints(h.points)}
+                  points={pointsAttr}
                   fill="#fbeeee"
                   stroke="#8B0000"
                   strokeWidth={2}
                 />
-                <text x={cx} y={cy-12} textAnchor="middle" fontWeight={700} fontSize={11} fill="#8B0000">{num}</text>
-                <text x={cx+18} y={cy-12} textAnchor="end" fontWeight={700} fontSize={10} fill="#8B0000">{SIGN_SHORT[signIdx]}</text>
+                <text x={cx} y={cy - 12} textAnchor="middle" fontWeight={700} fontSize={11} fill="#8B0000">{num}</text>
+                <text x={cx + 18} y={cy - 10} textAnchor="end" fontWeight={700} fontSize={10} fill="#8B0000">{SIGN_SHORT[signIdx]}</text>
                 {housePlanets.length > 0 && (
                   <text
                     x={cx}
@@ -193,7 +215,7 @@ export default function NatalDiamondChart({ planets }) {
           }
         })}
       </svg>
-      {/* Таблица как раньше */}
+      {/* Таблица */}
       <div style={{
         width: 320,
         maxWidth: "100%",
