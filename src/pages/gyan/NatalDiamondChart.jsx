@@ -48,22 +48,51 @@ const housePolygons = [
   [S1, B, M2],                // 12 верх-право
 ];
 
-// Для каждого дома определяем углы для номеров/знаков
-function getHouseLabelPositions(points) {
-  // Первый угол полигона (points[0]) — для номера дома (верхний/левый по обходу)
-  // Второй угол (points[1]) — для знака (он часто правый/верхний)
-  // Центр — для планет
+// ----------- МЕСТО ДЛЯ КАСТОМНОЙ ЛОГИКИ РАСПОЛОЖЕНИЯ ОБОЗНАЧЕНИЙ -----------
+
+// Для каждого дома (1-12) задаём относительные координаты для номера и знака
+// Значения dx, dy: 0=угол, 1=центр полигона (рекомендуется 0.23..0.35)
+const houseLabelOffsets = [
+  //         houseNum: [dx, dy],         sign: [dx, dy]
+  { houseNum: [0.27, 0.24], sign: [0.22, 0.48] }, // 1
+  { houseNum: [0.23, 0.20], sign: [0.10, 0.40] }, // 2
+  { houseNum: [0.22, 0.22], sign: [0.16, 0.35] }, // 3
+  { houseNum: [0.24, 0.28], sign: [0.19, 0.45] }, // 4
+  { houseNum: [0.23, 0.23], sign: [0.14, 0.32] }, // 5
+  { houseNum: [0.22, 0.22], sign: [0.12, 0.38] }, // 6
+  { houseNum: [0.24, 0.25], sign: [0.18, 0.46] }, // 7
+  { houseNum: [0.24, 0.22], sign: [0.15, 0.36] }, // 8
+  { houseNum: [0.23, 0.19], sign: [0.13, 0.38] }, // 9
+  { houseNum: [0.28, 0.25], sign: [0.20, 0.44] }, // 10
+  { houseNum: [0.22, 0.22], sign: [0.16, 0.39] }, // 11
+  { houseNum: [0.25, 0.20], sign: [0.14, 0.41] }, // 12
+];
+
+// Для каждого полигона вычисляем кастомные позиции для номера и знака
+function getHouseLabelPositionsCustom(points, houseIdx) {
+  // Для текущего дома используем свою пару dx, dy для номера и знака
+  const { houseNum, sign } = houseLabelOffsets[houseIdx];
   const [hx, hy] = points[0];
   const [sx, sy] = points[1];
   const { cx, cy } = getPolygonCenter(points);
+
+  // Для houseNum
+  const houseNumX = hx + (cx - hx) * houseNum[0];
+  const houseNumY = hy + (cy - hy) * houseNum[1];
+
+  // Для sign
+  const signX = sx + (cx - sx) * sign[0];
+  const signY = sy + (cy - sy) * sign[1];
+
   return {
-    houseNum: { x: hx + (cx - hx) * 0.25, y: hy + (cy - hy) * 0.25 }, // смещён немного к центру
-    sign: { x: sx + (cx - sx) * 0.25, y: sy + (cy - sy) * 0.18 },
+    houseNum: { x: houseNumX, y: houseNumY },
+    sign: { x: signX, y: signY },
     center: { x: cx, y: cy }
   };
 }
 
-// Центр полигона
+// ----------- КОНЕЦ КАСТОМНОГО КУСКА -----------
+
 function getPolygonCenter(points) {
   const xs = points.map(([x]) => x);
   const ys = points.map(([, y]) => y);
@@ -113,7 +142,8 @@ export default function NatalDiamondChart({ planets }) {
           const signIdx = (ascSignIndex + num - 1) % 12;
           const housePlanets = houseMap[getHouseIndex(num)] || [];
           const pointsAttr = pts.map(p => p.join(",")).join(" ");
-          const pos = getHouseLabelPositions(pts);
+          // Используем новую функцию с кастомными смещениями:
+          const pos = getHouseLabelPositionsCustom(pts, i);
 
           return (
             <g key={i}>
