@@ -438,7 +438,8 @@ function NatalCardForm({
             display: "flex",
             gap: 7,
             flexWrap: "wrap",
-            justifyContent: "center"
+            justifyContent: "center",
+            width: "100%",
           }}>
             <button
               type="button"
@@ -446,8 +447,9 @@ function NatalCardForm({
               disabled={loading || !values.date || !values.time}
               style={{
                 flex: 1,
-                minWidth: 100,
-                maxWidth: 140,
+                minWidth: 0,
+                maxWidth: "none",
+                width: "100%",
                 padding: "7px 0",
                 border: "none",
                 borderRadius: 7,
@@ -468,8 +470,9 @@ function NatalCardForm({
               disabled={!planets}
               style={{
                 flex: 1,
-                minWidth: 100,
-                maxWidth: 140,
+                minWidth: 0,
+                maxWidth: "none",
+                width: "100%",
                 padding: "7px 0",
                 border: "none",
                 borderRadius: 7,
@@ -490,8 +493,9 @@ function NatalCardForm({
               onClick={() => setExpanded(false)}
               style={{
                 flex: 1,
-                minWidth: 100,
-                maxWidth: 140,
+                minWidth: 0,
+                maxWidth: "none",
+                width: "100%",
                 padding: "7px 0",
                 border: "none",
                 borderRadius: 7,
@@ -523,7 +527,7 @@ function NatalCardForm({
                 fontSize: 14,
                 cursor: "pointer",
                 boxShadow: "0 1px 4px #8B000011",
-                width: 160,
+                width: "100%",
                 display: "block"
               }}
             >
@@ -777,7 +781,7 @@ export default function GyanPage() {
           <button
             onClick={() => { setShowSavedPanel(v => !v); setSavedPanelExpanded(true); }}
             style={{
-              width: 220,
+              width: "100%",
               padding: "9px 0",
               fontSize: 15,
               fontWeight: 700,
