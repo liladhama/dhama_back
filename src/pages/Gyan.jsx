@@ -374,23 +374,23 @@ function SavedCardsPanel({
     <div
       style={{
         position: "fixed",
-        top: 0,
-        right: 0,
-        height: "100vh",
-        width: "min(420px, 90vw)",
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%,-50%)",
+        height: "min(380px, 90vh)",
+        width: "min(350px, 98vw)",
         background: "rgba(250,245,255,0.97)",
         boxShadow: "0 0 32px #7b3ff266",
         zIndex: 2050,
-        padding: 24,
-        overflowY: "auto",
-        borderTopLeftRadius: 24,
-        borderBottomLeftRadius: 24,
-        transition: "transform 0.3s",
-        transform: expanded ? "translateX(0)" : `translateX(100%)`,
-        backdropFilter: "blur(6px)"
+        padding: 18,
+        overflow: "hidden",
+        borderRadius: 24,
+        display: "flex",
+        flexDirection: "column",
+        backdropFilter: "blur(10px)"
       }}
     >
-      <div style={{ display: "flex", alignItems: "center", marginBottom: 8 }}>
+      <div style={{ display: "flex", alignItems: "center", marginBottom: 6 }}>
         <button
           onClick={() => setExpanded(!expanded)}
           style={{
@@ -408,13 +408,13 @@ function SavedCardsPanel({
         >
           {expanded ? "▼" : "▶"}
         </button>
-        <span style={{ fontSize: 18, fontWeight: 700, color: "#7b3ff2" }}>Сохранённые карты</span>
+        <span style={{ fontSize: 17, fontWeight: 700, color: "#7b3ff2" }}>Сохранённые карты</span>
         <button onClick={onClose}
           style={{
             marginLeft: "auto",
             background: "none",
             border: "none",
-            fontSize: 24,
+            fontSize: 22,
             color: "#7b3ff2",
             cursor: "pointer"
           }}
@@ -422,32 +422,59 @@ function SavedCardsPanel({
         >×</button>
       </div>
       {expanded && (
-        <div>
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0 }}>
           {cards.length === 0 ? (
             <p style={{ color: "#777" }}>Нет сохранённых карт</p>
           ) : (
-            <ul style={{ marginTop: 10 }}>
+            <div
+              style={{
+                overflowX: "auto",
+                flexDirection: "row",
+                display: "flex",
+                gap: 12,
+                padding: "8px 0",
+                minHeight: 64,
+                alignItems: "flex-start",
+                // можно добавить swipe с помощью react-swipeable, но тут просто скролл
+              }}
+            >
               {cards.map((card, idx) => (
-                <li
+                <div
                   key={card.id}
                   style={{
-                    fontWeight: selectedCardId === card.id ? "bold" : "normal",
+                    minWidth: 120,
+                    maxWidth: 170,
+                    boxShadow: selectedCardId === card.id
+                      ? "0 2px 12px #7b3ff288"
+                      : "0 1px 3px #aaa2",
+                    borderRadius: 10,
+                    background: selectedCardId === card.id ? "#e7dbff" : "#f3f3fa",
+                    padding: "8px 10px",
+                    marginBottom: 7,
                     cursor: "pointer",
-                    marginBottom: 6,
-                    background: "#f3f3fa",
-                    borderRadius: 6,
-                    padding: "4px 10px"
+                    fontWeight: selectedCardId === card.id ? "bold" : "normal",
+                    border: selectedCardId === card.id ? "2px solid #7b3ff2" : "1px solid #d1c2e7"
                   }}
                   onClick={() => onSelectCard(card.id)}
                 >
-                  <b>{card.name}</b> — {card.date} {card.time} ({card.place || "—"})
-                </li>
+                  <div style={{ fontSize: 14 }}>
+                    <b>{card.name}</b>
+                  </div>
+                  <div style={{ fontSize: 12, color: "#555" }}>
+                    {card.date} {card.time}
+                  </div>
+                  <div style={{ fontSize: 12, color: "#999" }}>
+                    {card.place || "—"}
+                  </div>
+                </div>
               ))}
-            </ul>
+            </div>
           )}
-          {selectedCardId && (
-            <NatalCardDetails card={cards.find(c => c.id === selectedCardId)} />
-          )}
+          <div style={{ overflowY: "auto", flex: 1, marginTop: 4 }}>
+            {selectedCardId &&
+              <NatalCardDetails card={cards.find(c => c.id === selectedCardId)} />
+            }
+          </div>
         </div>
       )}
     </div>
@@ -493,8 +520,43 @@ function SideMenuHandle({ onClick, visible }) {
   );
 }
 
+// --- Секции (для левого меню) ---
+const SECTIONS = [
+  { id: "natal", label: "Мои карты" },
+  { id: "interpret", label: "Трактовки" },
+  { id: "forecast", label: "Прогнозы" },
+];
+
+function InterpretationsSection() {
+  return (
+    <div style={{ marginTop: 38 }}>
+      <h2 style={{ fontSize: 26, color: "#7b3ff2" }}>Трактовки положений планет</h2>
+      <p style={{ color: "#aaa" }}>Здесь будут трактовки по выбранной карте</p>
+    </div>
+  );
+}
+
+function ForecastsSection() {
+  return (
+    <div style={{ marginTop: 38 }}>
+      <h2 style={{ fontSize: 26, color: "#7b3ff2" }}>Прогнозы</h2>
+      <p>Общие прогнозы доступны бесплатно.</p>
+      <button style={{
+        padding: "12px 20px",
+        marginTop: 8,
+        background: "#7b3ff2",
+        color: "#fff",
+        fontWeight: 600,
+        border: "none",
+        borderRadius: 9,
+      }}>Оформить подписку на индивидуальные прогнозы (Toncoin)</button>
+    </div>
+  );
+}
+
 export default function GyanPage() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [selectedSection, setSelectedSection] = useState("natal");
   const [natalCards, setNatalCards] = useState([]);
   const [selectedCardId, setSelectedCardId] = useState(null);
   const [showFormPanel, setShowFormPanel] = useState(false);
@@ -510,7 +572,7 @@ export default function GyanPage() {
         { ...card, id }
       ]);
       setSelectedCardId(id);
-      setShowSavedPanel(true); // После сохранения сразу открыть панель карт
+      setShowSavedPanel(true);
     }
   };
 
@@ -519,10 +581,19 @@ export default function GyanPage() {
   const sectionBg = "#f3e6d7";
 
   return (
-    <div style={{ minHeight: "100vh", background: sectionBg, transition: "background 0.3s", position: "relative", paddingBottom: 80 }}>
+    <div style={{
+      minHeight: "100vh",
+      background: sectionBg,
+      transition: "background 0.3s",
+      position: "relative",
+      paddingBottom: 80,
+      margin: 0, // чтобы не было отступа
+      boxSizing: "border-box"
+    }}>
+      {/* --- "Ручка" для открытия меню --- */}
       <SideMenuHandle onClick={() => setMenuOpen(true)} visible={!menuOpen} />
 
-      {/* --- Главное меню (можно оставить, если нужно) --- */}
+      {/* --- Левое всплывающее меню --- */}
       <div
         style={{
           position: "fixed",
@@ -531,7 +602,7 @@ export default function GyanPage() {
           width: "40vw",
           maxWidth: 320,
           height: "100vh",
-          background: "rgba(255,255,255,0.92)",
+          background: "rgba(255,255,255,0.94)",
           boxShadow: menuOpen ? "2px 0 12px #0003" : "none",
           zIndex: 1200,
           transition: "transform 0.3s",
@@ -556,102 +627,98 @@ export default function GyanPage() {
         >
           ×
         </button>
-        {/* Можно добавить пункты меню */}
+        {SECTIONS.map((sec) => (
+          <button
+            key={sec.id}
+            onClick={() => {
+              setSelectedSection(sec.id);
+              setMenuOpen(false);
+            }}
+            style={{
+              background: selectedSection === sec.id ? "#e7dbff" : "transparent",
+              fontWeight: selectedSection === sec.id ? 600 : 400,
+              padding: "14px 0",
+              textAlign: "left",
+              border: "none",
+              width: "100%",
+              cursor: "pointer",
+              fontSize: 19,
+              color: "#7b3ff2",
+              borderRadius: 7,
+              marginBottom: 2,
+              transition: "background 0.15s"
+            }}
+          >
+            {sec.label}
+          </button>
+        ))}
       </div>
 
       {/* --- Кнопки-команды по центру страницы --- */}
-      <div style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        marginTop: 80,
-        gap: 32,
-      }}>
-        <button
-          onClick={() => setShowFormPanel(true)}
-          style={{
-            minWidth: 240,
-            padding: "18px 30px",
-            fontSize: 22,
-            fontWeight: 700,
-            color: "#fff",
-            background: "linear-gradient(90deg, #7b3ff2 60%, #613fc9 100%)",
-            border: "none",
-            borderRadius: 18,
-            boxShadow: "0 4px 18px #7b3ff233",
-            cursor: "pointer",
-            marginBottom: 10,
-            transition: "background 0.2s",
-          }}
-        >
-          Создать новую карту
-        </button>
-        <button
-          onClick={() => setShowSavedPanel(true)}
-          style={{
-            minWidth: 240,
-            padding: "18px 30px",
-            fontSize: 22,
-            fontWeight: 700,
-            color: "#7b3ff2",
-            background: "#fff",
-            border: "2px solid #7b3ff2",
-            borderRadius: 18,
-            boxShadow: "0 2px 10px #7b3ff211",
-            cursor: "pointer",
-            transition: "background 0.2s, color 0.2s",
-          }}
-        >
-          Открыть сохранённые карты
-        </button>
-      </div>
-
-      {/* --- Панель создания и расчёта карты --- */}
-      {showFormPanel && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100vw",
-            height: "100vh",
-            zIndex: 2000,
-            background: "rgba(123,63,242,0.14)",
-            display: "flex",
-            alignItems: "flex-start",
-            justifyContent: "center",
-            paddingTop: 80,
-            overflowY: "auto",
-          }}
-        >
-          <div style={{
-            width: "min(480px, 98vw)",
-            background: "rgba(255,255,255,0.97)",
-            borderRadius: 22,
-            boxShadow: "0 0 32px #7b3ff266",
-            padding: 22,
-            position: "relative",
-          }}>
-            <button
-              onClick={() => setShowFormPanel(false)}
-              style={{
-                position: "absolute",
-                top: 12,
-                right: 16,
-                background: "none",
-                border: "none",
-                fontSize: 28,
-                color: "#7b3ff2",
-                cursor: "pointer"
-              }}
-              aria-label="Закрыть"
-            >×</button>
-            <NatalCardForm
-              onSave={handleAddCard}
-              onCancel={() => setShowFormPanel(false)}
-              initiallyOpen={true}
-            />
-          </div>
+      {selectedSection === "natal" && (
+        <div style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          marginTop: 80,
+          gap: 32,
+        }}>
+          <button
+            onClick={() => setShowFormPanel(p => !p)}
+            style={{
+              minWidth: 240,
+              padding: "18px 30px",
+              fontSize: 22,
+              fontWeight: 700,
+              color: "#fff",
+              background: "linear-gradient(90deg, #7b3ff2 60%, #613fc9 100%)",
+              border: "none",
+              borderRadius: 18,
+              boxShadow: "0 4px 18px #7b3ff233",
+              cursor: "pointer",
+              marginBottom: 10,
+              transition: "background 0.2s",
+            }}
+          >
+            Создать новую карту
+          </button>
+          <button
+            onClick={() => setShowSavedPanel(true)}
+            style={{
+              minWidth: 240,
+              padding: "18px 30px",
+              fontSize: 22,
+              fontWeight: 700,
+              color: "#7b3ff2",
+              background: "#fff",
+              border: "2px solid #7b3ff2",
+              borderRadius: 18,
+              boxShadow: "0 2px 10px #7b3ff211",
+              cursor: "pointer",
+              transition: "background 0.2s, color 0.2s",
+            }}
+          >
+            Открыть сохранённые карты
+          </button>
+          {/* --- Форма создания карты прямо ВНУТРИ страницы --- */}
+          {showFormPanel && (
+            <div style={{
+              marginTop: 28,
+              width: "min(500px, 98vw)",
+              background: "rgba(255,255,255,0.98)",
+              borderRadius: 22,
+              boxShadow: "0 0 24px #7b3ff266",
+              padding: 22,
+              position: "relative",
+              zIndex: 5,
+            }}>
+              <NatalCardForm
+                onSave={handleAddCard}
+                onCancel={() => setShowFormPanel(false)}
+                initiallyOpen={true}
+              />
+            </div>
+          )}
         </div>
       )}
 
@@ -664,6 +731,10 @@ export default function GyanPage() {
           onClose={() => setShowSavedPanel(false)}
         />
       )}
+
+      {/* --- Остальные секции --- */}
+      {selectedSection === "interpret" && <InterpretationsSection />}
+      {selectedSection === "forecast" && <ForecastsSection />}
     </div>
   );
 }
