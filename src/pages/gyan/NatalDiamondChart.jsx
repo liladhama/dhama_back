@@ -7,56 +7,63 @@ const PADDING = 24;
 const CENTER = SIZE / 2;
 const SQ = SIZE - 2 * PADDING;
 
-// Углы внешнего квадрата: A (левый верхний), B (правый верхний), C (левый нижний), D (правый нижний)
+// Углы квадрата: A — левый верхний, B — правый верхний, D — правый нижний, C — левый нижний
 const A = [PADDING, PADDING];
 const B = [SIZE - PADDING, PADDING];
 const C = [PADDING, SIZE - PADDING];
 const D = [SIZE - PADDING, SIZE - PADDING];
 
-// Середины сторон квадрата: S1 (верх), S2 (право), S3 (низ), S4 (лево)
+// Середины сторон
 const S1 = [(A[0] + B[0]) / 2, (A[1] + B[1]) / 2];
 const S2 = [(B[0] + D[0]) / 2, (B[1] + D[1]) / 2];
 const S3 = [(D[0] + C[0]) / 2, (D[1] + C[1]) / 2];
 const S4 = [(C[0] + A[0]) / 2, (C[1] + A[1]) / 2];
 
-// Центр квадрата
+// Центр
 const X = [CENTER, CENTER];
 
-// Точки между углом и центром (M1–M4): между каждым углом квадрата и центром
+// Точки между углом и центром
 const M1 = [(A[0] + X[0]) / 2, (A[1] + X[1]) / 2];
 const M2 = [(B[0] + X[0]) / 2, (B[1] + X[1]) / 2];
 const M3 = [(D[0] + X[0]) / 2, (D[1] + X[1]) / 2];
 const M4 = [(C[0] + X[0]) / 2, (C[1] + X[1]) / 2];
 
-// Правильная ведическая квадратная разметка домов — строго против часовой стрелки, начиная сверху
+// Хранилище всех точек для удобства ссылок
+const pointsMap = {
+  A, B, C, D, S1, S2, S3, S4, X, M1, M2, M3, M4,
+};
+// Пронумерованные полигоны домов против часовой стрелки
 const housePolygons = [
-  // 1. Центральный ромб: S1, S2, S3, S4
-  [S1, S2, S3, S4],
-  // 2. Верхний треугольник: A, S1, M1
-  [A, S1, M1],
-  // 3. Верх-лево треугольник: S4, A, M1
-  [S4, A, M1],
-  // 4. Левый треугольник: C, S4, M4
-  [C, S4, M4],
-  // 5. Низ-лево треугольник: S3, C, M4
-  [S3, C, M4],
-  // 6. Нижний треугольник: D, S3, M3
-  [D, S3, M3],
-  // 7. Низ-право треугольник: S2, D, M3
-  [S2, D, M3],
-  // 8. Правый треугольник: B, S2, M2
-  [B, S2, M2],
-  // 9. Верх-право треугольник: S1, B, M2
-  [S1, B, M2],
-  // 10. Верхний внутренний ромб: M1, S1, M2, X
-  [M1, S1, M2, X],
-  // 11. Правый внутренний ромб: M2, S2, M3, X
-  [M2, S2, M3, X],
-  // 12. Нижний внутренний ромб: M3, S3, M4, X
-  [M3, S3, M4, X],
+  [S1, S2, S3, S4],           // 1 центр ромб
+  [A, S1, M1],                // 2 верх
+  [S4, A, M1],                // 3 верх-лево
+  [C, S4, M4],                // 4 лево
+  [S3, C, M4],                // 5 низ-лево
+  [D, S3, M3],                // 6 низ
+  [S2, D, M3],                // 7 низ-право
+  [B, S2, M2],                // 8 право
+  [S1, B, M2],                // 9 верх-право
+  [M1, S1, M2, X],            // 10 верхний внутренний ромб
+  [M2, S2, M3, X],            // 11 правый внутренний ромб
+  [M3, S3, M4, X],            // 12 нижний внутренний ромб
 ];
 
-// Центр многоугольника для подписи
+// Для каждого дома определяем углы для номеров/знаков
+function getHouseLabelPositions(points) {
+  // Первый угол полигона (points[0]) — для номера дома (верхний/левый по обходу)
+  // Второй угол (points[1]) — для знака (он часто правый/верхний)
+  // Центр — для планет
+  const [hx, hy] = points[0];
+  const [sx, sy] = points[1];
+  const { cx, cy } = getPolygonCenter(points);
+  return {
+    houseNum: { x: hx + (cx - hx) * 0.14, y: hy + (cy - hy) * 0.14 }, // смещён немного к центру
+    sign: { x: sx + (cx - sx) * 0.18, y: sy + (cy - sy) * 0.18 },
+    center: { x: cx, y: cy }
+  };
+}
+
+// Центр полигона
 function getPolygonCenter(points) {
   const xs = points.map(([x]) => x);
   const ys = points.map(([, y]) => y);
@@ -106,7 +113,8 @@ export default function NatalDiamondChart({ planets }) {
           const signIdx = (ascSignIndex + num - 1) % 12;
           const housePlanets = houseMap[getHouseIndex(num)] || [];
           const pointsAttr = pts.map(p => p.join(",")).join(" ");
-          const { cx, cy } = getPolygonCenter(pts);
+          const pos = getHouseLabelPositions(pts);
+
           return (
             <g key={i}>
               <polygon
@@ -115,12 +123,23 @@ export default function NatalDiamondChart({ planets }) {
                 stroke="#8B0000"
                 strokeWidth={2}
               />
-              <text x={cx} y={cy - 12} textAnchor="middle" fontWeight={700} fontSize={13} fill="#8B0000">{num}</text>
-              <text x={cx + 18} y={cy - 10} textAnchor="end" fontWeight={700} fontSize={10} fill="#8B0000">{SIGN_SHORT[signIdx]}</text>
+              {/* Номер дома — угол полигона */}
+              <text x={pos.houseNum.x} y={pos.houseNum.y} textAnchor="middle"
+                fontWeight={700} fontSize={13} fill="#8B0000"
+                style={{ pointerEvents: "none", dominantBaseline: "hanging" }}>
+                {num}
+              </text>
+              {/* Знак — другой угол */}
+              <text x={pos.sign.x} y={pos.sign.y} textAnchor="middle"
+                fontWeight={700} fontSize={10} fill="#8B0000"
+                style={{ pointerEvents: "none", dominantBaseline: "hanging" }}>
+                {SIGN_SHORT[signIdx]}
+              </text>
+              {/* Планеты — по центру */}
               {housePlanets.length > 0 && (
                 <text
-                  x={cx}
-                  y={cy + 4 - (housePlanets.length - 1) * 9 / 2}
+                  x={pos.center.x}
+                  y={pos.center.y - ((housePlanets.length - 1) * 10) / 2}
                   textAnchor="middle"
                   fontWeight={700}
                   fontSize={housePlanets.length > 2 ? 10 : 12}
@@ -129,8 +148,8 @@ export default function NatalDiamondChart({ planets }) {
                 >
                   {housePlanets.map((p, idx) => (
                     <tspan
-                      x={cx}
-                      dy={idx === 0 ? 0 : 13}
+                      x={pos.center.x}
+                      dy={idx === 0 ? 0 : 14}
                       key={p}
                     >
                       {PLANET_LABELS_DIAMOND[p]}
@@ -141,20 +160,6 @@ export default function NatalDiamondChart({ planets }) {
             </g>
           );
         })}
-        {/* Вспомогательные точки (закомментировано, можно включить для отладки) */}
-        {/* <circle cx={A[0]} cy={A[1]} r={3.5} fill="#000"/>
-        <circle cx={B[0]} cy={B[1]} r={3.5} fill="#000"/>
-        <circle cx={C[0]} cy={C[1]} r={3.5} fill="#000"/>
-        <circle cx={D[0]} cy={D[1]} r={3.5} fill="#000"/>
-        <circle cx={S1[0]} cy={S1[1]} r={3} fill="#1e90ff"/>
-        <circle cx={S2[0]} cy={S2[1]} r={3} fill="#1e90ff"/>
-        <circle cx={S3[0]} cy={S3[1]} r={3} fill="#1e90ff"/>
-        <circle cx={S4[0]} cy={S4[1]} r={3} fill="#1e90ff"/>
-        <circle cx={M1[0]} cy={M1[1]} r={2.7} fill="#b200b2"/>
-        <circle cx={M2[0]} cy={M2[1]} r={2.7} fill="#b200b2"/>
-        <circle cx={M3[0]} cy={M3[1]} r={2.7} fill="#b200b2"/>
-        <circle cx={M4[0]} cy={M4[1]} r={2.7} fill="#b200b2"/>
-        <circle cx={X[0]} cy={X[1]} r={3} fill="#090"/> */}
       </svg>
       {/* Таблица */}
       <div style={{
