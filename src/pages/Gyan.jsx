@@ -523,12 +523,11 @@ function NatalCardForm({
   );
 }
 
-// ----------- КНОПКА УДАЛЕНИЯ КАРТЫ ВНИЗУ -------------
-
+// --- КНОПКА УДАЛЕНИЯ ВНИЗУ ---
 function SavedCardsPanel({
   cards, onSelectCard, selectedCardId, onClose,
   expanded, setExpanded,
-  onDeleteCard // добавлено
+  onDeleteCard // добавлено!
 }) {
   return (
     <div
@@ -662,18 +661,119 @@ function SavedCardsPanel({
   );
 }
 
-// ... остальные компоненты (SideMenuHandle, InterpretationsSection, ForecastsSection) без изменений ...
+function SideMenuHandle({ onClick, visible }) {
+  if (!visible) return null;
+  return (
+    <div
+      onClick={onClick}
+      style={{
+        position: "fixed",
+        top: "50%",
+        left: 0,
+        transform: "translateY(-50%)",
+        zIndex: 1300,
+        cursor: "pointer",
+        width: 20,
+        height: 60,
+        background: "rgba(139,0,0,0.5)",
+        borderTopRightRadius: 12,
+        borderBottomRightRadius: 12,
+        boxShadow: "2px 0 8px #0002",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "flex-start",
+        transition: "background 0.2s",
+      }}
+    >
+      <div
+        style={{
+          width: 13,
+          height: 13,
+          background: "#fff",
+          border: `2px solid ${MAIN_COLOR}`,
+          borderRadius: "50%",
+          marginLeft: 3,
+          boxShadow: "0 1px 4px #0001",
+        }}
+      />
+    </div>
+  );
+}
+
+const SECTIONS = [
+  { id: "natal", label: "Мои карты" },
+  { id: "interpret", label: "Трактовки" },
+  { id: "forecast", label: "Прогнозы" },
+];
+
+function InterpretationsSection() {
+  return (
+    <div style={{ marginTop: 30 }}>
+      <h2 style={{ fontSize: 18, color: MAIN_COLOR }}>Трактовки положений планет</h2>
+      <p style={{ color: "#aaa", fontSize: 13 }}>Здесь будут трактовки по выбранной карте</p>
+    </div>
+  );
+}
+
+function ForecastsSection() {
+  return (
+    <div style={{ marginTop: 30 }}>
+      <h2 style={{ fontSize: 18, color: MAIN_COLOR }}>Прогнозы</h2>
+      <p style={{ fontSize: 13 }}>Общие прогнозы доступны бесплатно.</p>
+      <button style={{
+        padding: "9px 14px",
+        marginTop: 8,
+        background: MAIN_COLOR,
+        color: "#fff",
+        fontWeight: 600,
+        border: "none",
+        borderRadius: 7,
+        fontSize: 14
+      }}>Оформить подписку на индивидуальные прогнозы (Toncoin)</button>
+    </div>
+  );
+}
 
 export default function GyanPage() {
-  // ... все useState ...
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [selectedSection, setSelectedSection] = useState("natal");
+  const [natalCards, setNatalCards] = useState([]);
+  const [selectedCardId, setSelectedCardId] = useState(null);
 
-  // Добавить функцию удаления
+  const [formExpanded, setFormExpanded] = useState(false);
+  const [savedPanelExpanded, setSavedPanelExpanded] = useState(false);
+  const [showSavedPanel, setShowSavedPanel] = useState(false);
+
+  const [formValues, setFormValues] = useState({ ...defaultFormValues });
+  const [formPlanets, setFormPlanets] = useState(null);
+  const [formAyanamsha, setFormAyanamsha] = useState(null);
+  const [formLoading, setFormLoading] = useState(false);
+  const [formError, setFormError] = useState("");
+  const [formGeoError, setFormGeoError] = useState("");
+  const [formGeoLoading, setFormGeoLoading] = useState(false);
+
+  const NATAL_LIMIT = 5;
+
+  const handleAddCard = (card) => {
+    if (natalCards.length < NATAL_LIMIT) {
+      const id = Date.now().toString();
+      setNatalCards([
+        ...natalCards,
+        { ...card, id }
+      ]);
+      setSelectedCardId(id);
+      setShowSavedPanel(true);
+      setSavedPanelExpanded(true);
+    }
+  };
+
+  const handleSelectCard = (id) => setSelectedCardId(id);
+
+  // --- функция удаления карты ---
   const handleDeleteCard = (id) => {
     setNatalCards(cards => cards.filter(card => card.id !== id));
     if (selectedCardId === id) setSelectedCardId(null);
   };
-
-  // ... остальной код без изменений ...
 
   let mainSectionContent = null;
   if (selectedSection === "natal") {
