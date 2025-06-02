@@ -53,7 +53,7 @@ const housePolygons = [
 const houseLabelVertexMap = [
   { sign: 2, signOffset: 0.30 }, // 1 (ромб)
   { sign: 2, signOffset: 0.45 }, // 2 (треуг)
-  { sign: 2, signOffset: 0.26 }, // 3 (треуг)
+  { sign: 2, signOffset: 0.45 }, // 3 (треуг)
   { sign: 1, signOffset: 0.19 }, // 4 (ромб)
   { sign: 1, signOffset: 0.15 }, // 5 (треуг)
   { sign: 1, signOffset: 0.16 }, // 6 (треуг)
@@ -72,7 +72,7 @@ function getHouseLabelPositionsSignOnly(points, houseIdx) {
   const { cx, cy } = getPolygonCenter(points);
 
   // Индекс угла для знака (можно менять индивидуально для каждого дома)
-  const signVertexIdx = houseLabelVertexMap[houseIdx]?.sign ?? 0.60;
+  const signVertexIdx = houseLabelVertexMap[houseIdx]?.sign ?? 1;
 
   // Смещение от угла к центру (можно индивидуально)
   const signOffset = houseLabelVertexMap[houseIdx]?.signOffset ?? 0.22;
