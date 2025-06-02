@@ -217,7 +217,9 @@ function NatalCardForm({
       overflow: "hidden",
       width: "100%",
       maxWidth: 370,
-      minWidth: 0
+      minWidth: 0,
+      marginLeft: "auto",
+      marginRight: "auto"
     }}>
       <button
         onClick={() => setExpanded(!expanded)}
@@ -736,42 +738,37 @@ export default function GyanPage() {
   if (selectedSection === "natal") {
     mainSectionContent = (
       <div style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
+        width: "100%",
+        maxWidth: 370,
+        margin: "0 auto",
         marginTop: 6,
         gap: 10,
-        width: "100%",
         position: "relative",
-        maxWidth: 370
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "stretch"
       }}>
-        <div style={{
-          width: "100%",
-          maxWidth: 370,
-          minWidth: 0,
-          marginBottom: 7
-        }}>
-          <button
-            onClick={() => { setShowSavedPanel(v => !v); setSavedPanelExpanded(true); }}
-            style={{
-              width: "100%",
-              padding: "9px 0",
-              fontSize: 15,
-              fontWeight: 700,
-              color: MAIN_COLOR,
-              background: "#fff",
-              border: `1.5px solid ${MAIN_COLOR}`,
-              borderRadius: 12,
-              boxShadow: "0 1px 4px #8B000011",
-              cursor: "pointer",
-              transition: "background 0.2s, color 0.2s",
-              marginTop: 7,
-              display: "block"
-            }}
-          >
-            Открыть сохранённые карты
-          </button>
-        </div>
+        <button
+          onClick={() => { setShowSavedPanel(v => !v); setSavedPanelExpanded(true); }}
+          style={{
+            width: "100%",
+            padding: "9px 0",
+            fontSize: 15,
+            fontWeight: 700,
+            color: MAIN_COLOR,
+            background: "#fff",
+            border: `1.5px solid ${MAIN_COLOR}`,
+            borderRadius: 12,
+            boxShadow: "0 1px 4px #8B000011",
+            cursor: "pointer",
+            transition: "background 0.2s, color 0.2s",
+            marginTop: 7,
+            marginBottom: 7,
+            display: "block"
+          }}
+        >
+          Открыть сохранённые карты
+        </button>
         {showSavedPanel && (
           <SavedCardsPanel
             cards={natalCards}
@@ -789,7 +786,6 @@ export default function GyanPage() {
             borderRadius: 8,
             padding: 10,
             width: "100%",
-            maxWidth: 370,
             fontSize: 13,
             boxShadow: "0 1px 4px #8B000011",
             textAlign: "center"
@@ -804,7 +800,7 @@ export default function GyanPage() {
             </ul>
           </div>
         )}
-        <div style={{ width: "100%", maxWidth: 370, marginTop: 10 }}>
+        <div style={{ width: "100%", marginTop: 10 }}>
           <NatalCardForm
             expanded={formExpanded}
             setExpanded={setFormExpanded}
