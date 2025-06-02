@@ -52,7 +52,7 @@ const housePolygons = [
 // Индексы углов (0,1,2,3 для ромбов; 0,1,2 для треугольников), а также индивидуальные смещения
 const houseLabelVertexMap = [
   { sign: 2, signOffset: 0.30 }, // 1 (ромб)
-  { sign: 0, signOffset: 0.60 }, // 2 (треуг)
+  { sign: 2, signOffset: 0.60 }, // 2 (треуг)
   { sign: 1, signOffset: 0.18 }, // 3 (треуг)
   { sign: 1, signOffset: 0.19 }, // 4 (ромб)
   { sign: 1, signOffset: 0.15 }, // 5 (треуг)
