@@ -1,5 +1,173 @@
 import React, { useState, useRef } from "react";
 
+// --- Бриллиантовая натальная карта ---
+const SIGNS = [
+  "Овен", "Телец", "Близнецы", "Рак", "Лев", "Дева",
+  "Весы", "Скорпион", "Стрелец", "Козерог", "Водолей", "Рыбы"
+];
+const SIGN_SHORT = [
+  "Ов", "Те", "Бл", "Ра", "Ле", "Де",
+  "Ве", "Ск", "Ст", "Ко", "Во", "Ры"
+];
+const PLANET_LABELS_DIAMOND = {
+  sun: "Су",
+  moon: "Лу",
+  mercury: "Ме",
+  venus: "Ве",
+  mars: "Ма",
+  jupiter: "Юп",
+  saturn: "Са",
+  rahu: "Ра",
+  ketu: "Ке",
+  ascendant: "Ас"
+};
+const DIAMOND_POINTS = [
+  { x: 0.5, y: 0 },
+  { x: 0.75, y: 0.15 },
+  { x: 0.93, y: 0.37 },
+  { x: 1, y: 0.5 },
+  { x: 0.93, y: 0.63 },
+  { x: 0.75, y: 0.85 },
+  { x: 0.5, y: 1 },
+  { x: 0.25, y: 0.85 },
+  { x: 0.07, y: 0.63 },
+  { x: 0, y: 0.5 },
+  { x: 0.07, y: 0.37 },
+  { x: 0.25, y: 0.15 }
+];
+function getPlanetHouseMap(planets, ascSignIndex) {
+  const houseMap = Array(12).fill().map(() => []);
+  for (const [planet, pos] of Object.entries(planets)) {
+    let signIdx = SIGNS.indexOf(pos.sign);
+    if (signIdx === -1) continue;
+    let houseIdx = (12 + signIdx - ascSignIndex) % 12;
+    houseMap[houseIdx].push(planet);
+  }
+  return houseMap;
+}
+function NatalDiamondChart({ planets, nakshatrasInfo = [] }) {
+  if (!planets) return null;
+  const ascSign = planets.ascendant?.sign || SIGNS[0];
+  const ascSignIndex = SIGNS.indexOf(ascSign);
+  const houseMap = getPlanetHouseMap(planets, ascSignIndex);
+  const nakshMap = {};
+  nakshatrasInfo.forEach(n => {
+    nakshMap[n.planet] = n;
+  });
+
+  return (
+    <div style={{
+      display: "flex", flexDirection: "column", alignItems: "center", gap: 20, marginTop: 18
+    }}>
+      {/* SVG-бриллиант */}
+      <svg viewBox="0 0 400 400" width={320} height={320} style={{ display: "block" }}>
+        <polygon
+          points="200,20 380,200 200,380 20,200"
+          fill="#fff"
+          stroke="#8B0000"
+          strokeWidth={5}
+        />
+        {/* Внутренние ромбики-дома */}
+        {DIAMOND_POINTS.map((pt, i) => {
+          const x = pt.x * 360 + 20;
+          const y = pt.y * 360 + 20;
+          const houseNum = (i === 0) ? 1 : ((13 - i) > 12 ? (13 - i - 12) : (13 - i));
+          const signIdx = (ascSignIndex + i) % 12;
+          const signShort = SIGN_SHORT[signIdx];
+          const housePlanets = houseMap[i] || [];
+          return (
+            <g key={i}>
+              <polygon
+                points={[
+                  [x, y - 38],
+                  [x + 38, y],
+                  [x, y + 38],
+                  [x - 38, y]
+                ].map(p => p.join(",")).join(" ")}
+                fill={i === 0 ? "#F7D7DB" : "#fbeeee"}
+                stroke="#8B0000"
+                strokeWidth={2}
+              />
+              {/* Номер дома */}
+              <text
+                x={x} y={y - 20}
+                textAnchor="middle"
+                fontWeight={700}
+                fontSize={i === 0 ? 17 : 15}
+                fill="#8B0000"
+                dy={-2}
+              >
+                {houseNum}
+              </text>
+              {/* Знак */}
+              <text
+                x={x} y={y + 12}
+                textAnchor="middle"
+                fontWeight={500}
+                fontSize={15}
+                fill="#8B0000"
+              >
+                {signShort}
+              </text>
+              {/* Планеты */}
+              {housePlanets.length > 0 && (
+                <text
+                  x={x} y={y + 32}
+                  textAnchor="middle"
+                  fontWeight={600}
+                  fontSize={14}
+                  fill="#333"
+                >
+                  {housePlanets.map(p => PLANET_LABELS_DIAMOND[p]).join(" ")}
+                </text>
+              )}
+            </g>
+          );
+        })}
+        <polygon
+          points="200,20 380,200 200,380 20,200"
+          fill="none"
+          stroke="#8B0000"
+          strokeWidth={5}
+        />
+      </svg>
+      {/* Таблица под картой */}
+      <div style={{
+        width: 320, maxWidth: "100%", background: "#fff", borderRadius: 10,
+        boxShadow: "0 1px 8px #8B000022", padding: 12, marginTop: 4
+      }}>
+        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 15 }}>
+          <thead>
+            <tr style={{ color: "#8B0000", fontWeight: 700, fontSize: 15 }}>
+              <th style={{ textAlign: "left", padding: "2px 6px" }}>Планета</th>
+              <th style={{ textAlign: "left", padding: "2px 6px" }}>Градусы</th>
+              <th style={{ textAlign: "left", padding: "2px 6px" }}>Знак</th>
+              <th style={{ textAlign: "left", padding: "2px 6px" }}>Накшатра</th>
+              <th style={{ textAlign: "left", padding: "2px 6px" }}>Пада</th>
+            </tr>
+          </thead>
+          <tbody>
+            {Object.keys(PLANET_LABELS_DIAMOND).map((planetKey) => {
+              const p = planets[planetKey];
+              const n = nakshMap[planetKey] || {};
+              if (!p) return null;
+              return (
+                <tr key={planetKey} style={{ borderBottom: "1px solid #f1b6c1" }}>
+                  <td style={{ padding: "1px 6px" }}>{PLANET_LABELS_DIAMOND[planetKey]}</td>
+                  <td style={{ padding: "1px 6px" }}>{p.deg_in_sign_str || ""}</td>
+                  <td style={{ padding: "1px 6px" }}>{p.sign || ""}</td>
+                  <td style={{ padding: "1px 6px" }}>{n.nakshatra || ""}</td>
+                  <td style={{ padding: "1px 6px" }}>{n.pada || ""}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
 // --- Геокодирование и часовой пояс ---
 async function fetchCoordinates(city) {
   const apiKey = "b89b0e6fc3b949ebba403db8c42c0d09";
@@ -475,24 +643,6 @@ function NatalCardForm({
           </button>
           <button
             type="button"
-            onClick={() => setExpanded(false)}
-            style={{
-              width: "100%",
-              padding: "7px 0",
-              border: "none",
-              borderRadius: 7,
-              background: "#eee",
-              color: "#444",
-              fontWeight: 600,
-              fontSize: 14,
-              cursor: "pointer",
-              boxShadow: "0 1px 4px #8B000011"
-            }}
-          >
-            Свернуть
-          </button>
-          <button
-            type="button"
             onClick={handleReset}
             style={{
               marginTop: 7,
@@ -752,6 +902,9 @@ export default function GyanPage() {
   const [formGeoError, setFormGeoError] = useState("");
   const [formGeoLoading, setFormGeoLoading] = useState(false);
 
+  // Если появится массив накшатр — сюда; сейчас пустой (или можно убрать вообще)
+  const [formNakshatrasInfo] = useState([]);
+
   const NATAL_LIMIT = 5;
 
   const handleAddCard = (card) => {
@@ -769,7 +922,6 @@ export default function GyanPage() {
 
   const handleSelectCard = (id) => setSelectedCardId(id);
 
-  // --- функция удаления карты ---
   const handleDeleteCard = (id) => {
     setNatalCards(cards => cards.filter(card => card.id !== id));
     if (selectedCardId === id) setSelectedCardId(null);
@@ -821,27 +973,14 @@ export default function GyanPage() {
             onDeleteCard={handleDeleteCard}
           />
         )}
+        {/* --- ВСТАВКА: Бриллиантовая карта */}
         {formPlanets && (
-          <div style={{
-            marginTop: showSavedPanel ? 11 : 18,
-            background: "#fbeeee",
-            borderRadius: 8,
-            padding: 10,
-            width: "100%",
-            fontSize: 13,
-            boxShadow: "0 1px 4px #8B000011",
-            textAlign: "center"
-          }}>
-            <b>Планеты (сидерический зодиак):</b>
-            <ul style={{ paddingLeft: 18, margin: "7px 0 0 0", textAlign: "left" }}>
-              {Object.entries(formPlanets).map(([planet, pos]) => (
-                <li key={planet}>
-                  {PLANET_LABELS[planet] || planet}: {pos.sign + " " + pos.deg_in_sign_str}
-                </li>
-              ))}
-            </ul>
-          </div>
+          <NatalDiamondChart
+            planets={formPlanets}
+            nakshatrasInfo={formNakshatrasInfo}
+          />
         )}
+        {/* --- /КОНЕЦ вставки --- */}
         <div style={{ width: "100%", marginTop: 10 }}>
           <NatalCardForm
             expanded={formExpanded}
