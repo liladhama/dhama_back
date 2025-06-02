@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 import Altar from './pages/Altar';
 import Japa from './pages/Japa';
-import Gyan from './pages/Gyan';
+import Gyan from './pages/gyan/Gyan';
 import Shiksha from './pages/Shiksha';
 import Market from './pages/Market';
 
