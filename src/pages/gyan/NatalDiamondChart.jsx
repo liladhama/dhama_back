@@ -49,7 +49,6 @@ const housePolygons = [
 ];
 
 // Для максимальной кастомизации — для каждого дома указываем какой угол для знака и смещение от угла
-// Индексы углов (0,1,2,3 для ромбов; 0,1,2 для треугольников), а также индивидуальные смещения
 const houseLabelVertexMap = [
   { sign: 2, signOffset: 0.30 }, // 1 (ромб)
   { sign: 2, signOffset: 0.45 }, // 2 (треуг)
@@ -94,7 +93,7 @@ function getPolygonCenter(points) {
   const ys = points.map(([, y]) => y);
   return {
     cx: xs.reduce((a, b) => a + b) / xs.length,
-    cy: ys.reduce((a, b) => a + b) / xs.length,
+    cy: ys.reduce((a, b) => a + b) / ys.length,
   };
 }
 
