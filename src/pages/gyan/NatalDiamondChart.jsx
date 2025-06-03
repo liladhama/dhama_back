@@ -142,7 +142,7 @@ export default function NatalDiamondChart({ planets }) {
               {/* Знак — выбранный угол */}
               <text x={pos.sign.x} y={pos.sign.y} textAnchor="middle"
                 fontWeight={700} fontSize={10} fill="#8B0000"
-                style={{ pointerEvents: "none", dominantBaseline: "hanging" }}>
+                style={{ pointerEvents: "none", dominantBaseline: "middle" }}>
                 {SIGN_SHORT[signIdx]}
               </text>
               {/* Планеты — по центру */}
