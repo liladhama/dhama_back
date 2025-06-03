@@ -28,10 +28,6 @@ const M2 = [(B[0] + X[0]) / 2, (B[1] + X[1]) / 2];
 const M3 = [(D[0] + X[0]) / 2, (D[1] + X[1]) / 2];
 const M4 = [(C[0] + X[0]) / 2, (C[1] + X[1]) / 2];
 
-// Хранилище всех точек для удобства ссылок
-const pointsMap = {
-  A, B, C, D, S1, S2, S3, S4, X, M1, M2, M3, M4,
-};
 // Пронумерованные полигоны домов против часовой стрелки
 const housePolygons = [
   [S1, M1, X, M2],            // 1 верх (ромб — 4 угла)
@@ -48,38 +44,34 @@ const housePolygons = [
   [S1, B, M2],                // 12 верх-право (треугольник — 3 угла)
 ];
 
-// Для максимальной кастомизации — для каждого дома указываем какой угол для знака и смещение от угла
+// Теперь можно задавать два коэффициента для смещения: по X и по Y
 const houseLabelVertexMap = [
-  { sign: 2, signOffset: 0.30 }, // 1 (ромб)
-  { sign: 2, signOffset: 0.45 }, // 2 (треуг)
-  { sign: 2, signOffset: 0.35 }, // 3 (треуг)
-  { sign: 1, signOffset: 0.19 }, // 4 (ромб)
-  { sign: 1, signOffset: 0.15 }, // 5 (треуг)
-  { sign: 1, signOffset: 0.16 }, // 6 (треуг)
-  { sign: 1, signOffset: 0.20 }, // 7 (ромб)
-  { sign: 1, signOffset: 0.17 }, // 8 (треуг)
-  { sign: 1, signOffset: 0.16 }, // 9 (треуг)
-  { sign: 1, signOffset: 0.21 }, // 10 (ромб)
-  { sign: 1, signOffset: 0.17 }, // 11 (треуг)
-  { sign: 1, signOffset: 0.18 }, // 12 (треуг)
+  { sign: 2, signOffsetX: 0.30, signOffsetY: 0.36 }, // 1 (ромб)
+  { sign: 2, signOffsetX: 0.45, signOffsetY: 0.38 }, // 2 (треуг)
+  { sign: 2, signOffsetX: 0.35, signOffsetY: 0.35 }, // 3 (треуг)
+  { sign: 1, signOffsetX: 0.19, signOffsetY: 0.19 }, // 4 (ромб)
+  { sign: 1, signOffsetX: 0.15, signOffsetY: 0.13 }, // 5 (треуг)
+  { sign: 1, signOffsetX: 0.16, signOffsetY: 0.15 }, // 6 (треуг)
+  { sign: 1, signOffsetX: 0.20, signOffsetY: 0.22 }, // 7 (ромб)
+  { sign: 1, signOffsetX: 0.17, signOffsetY: 0.16 }, // 8 (треуг)
+  { sign: 1, signOffsetX: 0.16, signOffsetY: 0.18 }, // 9 (треуг)
+  { sign: 1, signOffsetX: 0.21, signOffsetY: 0.22 }, // 10 (ромб)
+  { sign: 1, signOffsetX: 0.17, signOffsetY: 0.18 }, // 11 (треуг)
+  { sign: 1, signOffsetX: 0.18, signOffsetY: 0.17 }, // 12 (треуг)
 ];
 
-// Для любого полигона (3 или 4 точки) возвращает координаты углов
-// Позволяет размещать обозначения знаков в любом углу
+// Функция для расчета положения знака по двум независимым смещениям
 function getHouseLabelPositionsSignOnly(points, houseIdx) {
   const vertices = points.map(([x, y]) => ({ x, y }));
   const { cx, cy } = getPolygonCenter(points);
 
-  // Индекс угла для знака (можно менять индивидуально для каждого дома)
   const signVertexIdx = houseLabelVertexMap[houseIdx]?.sign ?? 1;
+  const signOffsetX = houseLabelVertexMap[houseIdx]?.signOffsetX ?? 0.22;
+  const signOffsetY = houseLabelVertexMap[houseIdx]?.signOffsetY ?? 0.22;
 
-  // Смещение от угла к центру (можно индивидуально)
-  const signOffset = houseLabelVertexMap[houseIdx]?.signOffset ?? 0.22;
-
-  // Координаты для знака
   const vxSign = vertices[signVertexIdx];
-  const signX = vxSign.x + (cx - vxSign.x) * signOffset;
-  const signY = vxSign.y + (cy - vxSign.y) * signOffset;
+  const signX = vxSign.x + (cx - vxSign.x) * signOffsetX;
+  const signY = vxSign.y + (cy - vxSign.y) * signOffsetY;
 
   return {
     sign: { x: signX, y: signY },
