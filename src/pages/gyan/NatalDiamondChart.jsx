@@ -182,7 +182,7 @@ export default function NatalDiamondChart({ planets }) {
                   fontSize={housePlanets.length > 2 ? 10 : 12}
                   fill="#333"
                   stroke="#fff"
-                  strokeWidth={1.5}
+                  strokeWidth={3}
                   paintOrder="stroke"
                   strokeLinejoin="round"
                   style={{ pointerEvents: "none" }}
