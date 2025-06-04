@@ -132,11 +132,9 @@ export default function NatalDiamondChart({ planets }) {
           const signIdx = (ascSignIndex + num - 1) % 12;
           let housePlanets = houseMap[getHouseIndex(num)] || [];
 
-          // Убираем ascendant из первого дома (верхний ромб)
+          // Убираем "АС" (ascendant) из первого дома (i === 0)
           if (i === 0) {
-            housePlanets = housePlanets.filter(
-              p => p !== "asc" && p !== "ascendant" && p !== "Asc" && p !== "Ascendant"
-            );
+            housePlanets = housePlanets.filter(p => PLANET_LABELS_DIAMOND[p] !== "АС");
           }
 
           const pointsAttr = pts.map(p => p.join(",")).join(" ");
