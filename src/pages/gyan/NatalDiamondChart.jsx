@@ -151,9 +151,25 @@ export default function NatalDiamondChart({ planets }) {
                 fontWeight={700}
                 fontSize={10}
                 fill="#8B0000"
-                style={{ pointerEvents: "none" }}
+                style={{
+                  pointerEvents: "none",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                  maxWidth: 28,
+                }}
               >
-                {SIGN_SHORT[signIdx]}
+                <tspan
+                  style={{
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                    maxWidth: 28,
+                    display: "inline-block"
+                  }}
+                >
+                  {SIGN_SHORT[signIdx]}
+                </tspan>
               </text>
               {/* Планеты — по центру */}
               {housePlanets.length > 0 && (
@@ -200,8 +216,8 @@ export default function NatalDiamondChart({ planets }) {
         }}>
           <thead>
             <tr style={{ color: "#8B0000", fontWeight: 700 }}>
-              <th style={{ textAlign: "left", padding: "2px 2px", width: "17%" }}>Планета</th>
-              <th style={{ textAlign: "left", padding: "2px 2px", width: "18%" }}>Градусы</th>
+              <th style={{ textAlign: "left", padding: "2px 2px", width: "10%" }}>Пл</th>
+              <th style={{ textAlign: "left", padding: "2px 2px", width: "15%" }}>Град</th>
               <th style={{ textAlign: "left", padding: "2px 2px", width: "17%" }}>Знак</th>
               <th style={{ textAlign: "left", padding: "2px 2px", width: "33%" }}>Накшатра</th>
               <th style={{ textAlign: "left", padding: "2px 2px", width: "15%" }}>Пада</th>
@@ -220,19 +236,29 @@ export default function NatalDiamondChart({ planets }) {
                       overflow: "hidden",
                       textOverflow: "ellipsis",
                       whiteSpace: "nowrap",
-                      maxWidth: 50
+                      maxWidth: 20,
                     }}
                   >
                     {PLANET_LABELS_DIAMOND[planetKey]}
                   </td>
-                  <td style={{ padding: "1px 2px", whiteSpace: "nowrap" }}>{p.deg_in_sign_str || ""}</td>
+                  <td
+                    style={{
+                      padding: "1px 2px",
+                      whiteSpace: "nowrap",
+                      maxWidth: 36,
+                      overflow: "hidden",
+                      textOverflow: "ellipsis"
+                    }}
+                  >
+                    {p.deg_in_sign_str || ""}
+                  </td>
                   <td
                     style={{
                       padding: "1px 2px",
                       overflow: "hidden",
                       textOverflow: "ellipsis",
                       whiteSpace: "nowrap",
-                      maxWidth: 55
+                      maxWidth: 38
                     }}
                   >
                     {p.sign || ""}
