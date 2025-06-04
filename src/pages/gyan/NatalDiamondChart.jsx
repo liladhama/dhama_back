@@ -130,7 +130,13 @@ export default function NatalDiamondChart({ planets }) {
         {housePolygons.map((pts, i) => {
           const num = i + 1;
           const signIdx = (ascSignIndex + num - 1) % 12;
-          const housePlanets = houseMap[getHouseIndex(num)] || [];
+          let housePlanets = houseMap[getHouseIndex(num)] || [];
+
+          // Убираем "АС" (ascendant) из первого дома (i === 0)
+          if (i === 0) {
+            housePlanets = housePlanets.filter(p => PLANET_LABELS_DIAMOND[p] !== "АС");
+          }
+
           const pointsAttr = pts.map(p => p.join(",")).join(" ");
           const pos = getHouseLabelPositionsSignOnly(pts, i);
 
