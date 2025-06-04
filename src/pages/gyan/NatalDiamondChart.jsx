@@ -44,20 +44,20 @@ const housePolygons = [
   [S1, B, M2],                // 12 верх-право (треугольник — 3 угла)
 ];
 
-// Теперь только один коэффициент для смещения: signOffset (от 0 до 1)
+// Только один коэффициент для смещения: signOffset (от 0 до 1)
 const houseLabelVertexMap = [
-  { sign: 2, signOffset: 0.20 }, // 1 (ромб)
-  { sign: 2, signOffset: 0.25 }, // 2 (треуг)
-  { sign: 2, signOffset: 0.30 }, // 3 (треуг)
-  { sign: 3, signOffset: 0.20 }, // 4 (ромб)
-  { sign: 2, signOffset: 0.30 }, // 5 (треуг)
-  { sign: 2, signOffset: 0.30 }, // 6 (треуг)
-  { sign: 3, signOffset: 0.20 }, // 7 (ромб)
-  { sign: 2, signOffset: 0.30 }, // 8 (треуг)
-  { sign: 2, signOffset: 0.30 }, // 9 (треуг)
-  { sign: 3, signOffset: 0.21 }, // 10 (ромб)
-  { sign: 2, signOffset: 0.30 }, // 11 (треуг)
-  { sign: 2, signOffset: 0.30 }, // 12 (треуг)
+  { sign: 2, signOffset: 0.25 }, // 1 (ромб)
+  { sign: 2, signOffset: 0.45 }, // 2 (треуг)
+  { sign: 2, signOffset: 0.35 }, // 3 (треуг)
+  { sign: 1, signOffset: 0.19 }, // 4 (ромб)
+  { sign: 1, signOffset: 0.15 }, // 5 (треуг)
+  { sign: 1, signOffset: 0.16 }, // 6 (треуг)
+  { sign: 1, signOffset: 0.20 }, // 7 (ромб)
+  { sign: 1, signOffset: 0.17 }, // 8 (треуг)
+  { sign: 1, signOffset: 0.16 }, // 9 (треуг)
+  { sign: 1, signOffset: 0.21 }, // 10 (ромб)
+  { sign: 1, signOffset: 0.17 }, // 11 (треуг)
+  { sign: 1, signOffset: 0.18 }, // 12 (треуг)
 ];
 
 // Функция для расчета положения знака по одному смещению
@@ -68,7 +68,11 @@ function getHouseLabelPositionsSignOnly(points, houseIdx) {
   const signVertexIdx = houseLabelVertexMap[houseIdx]?.sign ?? 1;
   const signOffset = houseLabelVertexMap[houseIdx]?.signOffset ?? 0.22;
 
-  const vxSign = vertices[signVertexIdx];
+  let vxSign = vertices[signVertexIdx];
+  // Safety check for invalid index
+  if (!vxSign) {
+    vxSign = vertices[0];
+  }
   const signX = vxSign.x + (cx - vxSign.x) * signOffset;
   const signY = vxSign.y + (cy - vxSign.y) * signOffset;
 
@@ -210,9 +214,29 @@ export default function NatalDiamondChart({ planets }) {
               if (!p) return null;
               return (
                 <tr key={planetKey} style={{ borderBottom: "1px solid #f1b6c1" }}>
-                  <td style={{ padding: "1px 2px", whiteSpace: "nowrap" }}>{PLANET_LABELS_DIAMOND[planetKey]}</td>
+                  <td
+                    style={{
+                      padding: "1px 2px",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                      maxWidth: 50
+                    }}
+                  >
+                    {PLANET_LABELS_DIAMOND[planetKey]}
+                  </td>
                   <td style={{ padding: "1px 2px", whiteSpace: "nowrap" }}>{p.deg_in_sign_str || ""}</td>
-                  <td style={{ padding: "1px 2px", whiteSpace: "nowrap" }}>{p.sign || ""}</td>
+                  <td
+                    style={{
+                      padding: "1px 2px",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                      maxWidth: 55
+                    }}
+                  >
+                    {p.sign || ""}
+                  </td>
                   <td
                     style={{
                       padding: "1px 2px",
