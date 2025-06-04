@@ -54,10 +54,10 @@ const houseLabelVertexMap = [
   { sign: 2, signOffset: 0.30 }, // 6 (треуг)
   { sign: 3, signOffset: 0.20 }, // 7 (ромб)
   { sign: 2, signOffset: 0.30 }, // 8 (треуг)
-  { sign: 2, signOffset: 0.16 }, // 9 (треуг)
-  { sign: 1, signOffset: 0.21 }, // 10 (ромб)
-  { sign: 1, signOffset: 0.17 }, // 11 (треуг)
-  { sign: 1, signOffset: 0.18 }, // 12 (треуг)
+  { sign: 2, signOffset: 0.30 }, // 9 (треуг)
+  { sign: 3, signOffset: 0.21 }, // 10 (ромб)
+  { sign: 2, signOffset: 0.17 }, // 11 (треуг)
+  { sign: 2, signOffset: 0.18 }, // 12 (треуг)
 ];
 
 // Функция для расчета положения знака по одному смещению
