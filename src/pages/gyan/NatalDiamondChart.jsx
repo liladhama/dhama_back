@@ -50,7 +50,7 @@ const houseLabelVertexMap = [
   { sign: 2, signOffset: 0.25 }, // 2 (треуг)
   { sign: 2, signOffset: 0.35 }, // 3 (треуг)
   { sign: 3, signOffset: 0.35 }, // 4 (ромб)
-  { sign: 3, signOffset: 0.30 }, // 5 (треуг)
+  { sign: 2, signOffset: 0.30 }, // 5 (треуг)
   { sign: 1, signOffset: 0.16 }, // 6 (треуг)
   { sign: 1, signOffset: 0.20 }, // 7 (ромб)
   { sign: 1, signOffset: 0.17 }, // 8 (треуг)
