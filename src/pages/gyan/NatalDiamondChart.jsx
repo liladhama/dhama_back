@@ -47,9 +47,9 @@ const housePolygons = [
 // Теперь только один коэффициент для смещения: signOffset (от 0 до 1)
 const houseLabelVertexMap = [
   { sign: 2, signOffset: 0.25 }, // 1 (ромб)
-  { sign: 2, signOffset: 0.45 }, // 2 (треуг)
+  { sign: 2, signOffset: 0.35 }, // 2 (треуг)
   { sign: 2, signOffset: 0.35 }, // 3 (треуг)
-  { sign: 1, signOffset: 0.19 }, // 4 (ромб)
+  { sign: 3, signOffset: 0.19 }, // 4 (ромб)
   { sign: 1, signOffset: 0.15 }, // 5 (треуг)
   { sign: 1, signOffset: 0.16 }, // 6 (треуг)
   { sign: 1, signOffset: 0.20 }, // 7 (ромб)
