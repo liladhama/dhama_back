@@ -46,18 +46,18 @@ const housePolygons = [
 
 // Только один коэффициент для смещения: signOffset (от 0 до 1)
 const houseLabelVertexMap = [
-  { sign: 2, signOffset: 0.25 }, // 1 (ромб)
-  { sign: 2, signOffset: 0.45 }, // 2 (треуг)
-  { sign: 2, signOffset: 0.35 }, // 3 (треуг)
-  { sign: 1, signOffset: 0.19 }, // 4 (ромб)
-  { sign: 1, signOffset: 0.15 }, // 5 (треуг)
-  { sign: 1, signOffset: 0.16 }, // 6 (треуг)
-  { sign: 1, signOffset: 0.20 }, // 7 (ромб)
-  { sign: 1, signOffset: 0.17 }, // 8 (треуг)
-  { sign: 1, signOffset: 0.16 }, // 9 (треуг)
-  { sign: 1, signOffset: 0.21 }, // 10 (ромб)
-  { sign: 1, signOffset: 0.17 }, // 11 (треуг)
-  { sign: 1, signOffset: 0.18 }, // 12 (треуг)
+  { sign: 2, signOffset: 0.20 }, // 1 (ромб)
+  { sign: 2, signOffset: 0.25 }, // 2 (треуг)
+  { sign: 2, signOffset: 0.30 }, // 3 (треуг)
+  { sign: 3, signOffset: 0.20 }, // 4 (ромб)
+  { sign: 2, signOffset: 0.30 }, // 5 (треуг)
+  { sign: 2, signOffset: 0.30 }, // 6 (треуг)
+  { sign: 3, signOffset: 0.20 }, // 7 (ромб)
+  { sign: 2, signOffset: 0.30 }, // 8 (треуг)
+  { sign: 2, signOffset: 0.30 }, // 9 (треуг)
+  { sign: 3, signOffset: 0.21 }, // 10 (ромб)
+  { sign: 2, signOffset: 0.30 }, // 11 (треуг)
+  { sign: 2, signOffset: 0.30 }, // 12 (треуг)
 ];
 
 // Функция для расчета положения знака по одному смещению
