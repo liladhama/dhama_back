@@ -171,7 +171,7 @@ export default function NatalDiamondChart({ planets }) {
                   {SIGN_SHORT[signIdx]}
                 </tspan>
               </text>
-              {/* Планеты — по центру, РЯДОМ В СТРОЧКУ */}
+              {/* Планеты — по центру, в одну строку, с обводкой */}
               {housePlanets.length > 0 && (
                 <text
                   x={pos.center.x}
@@ -181,6 +181,10 @@ export default function NatalDiamondChart({ planets }) {
                   fontWeight={700}
                   fontSize={housePlanets.length > 2 ? 10 : 12}
                   fill="#333"
+                  stroke="#fff"
+                  strokeWidth={1.5}
+                  paintOrder="stroke"
+                  strokeLinejoin="round"
                   style={{ pointerEvents: "none" }}
                 >
                   {housePlanets.map(p => PLANET_LABELS_DIAMOND[p]).join(" ")}
