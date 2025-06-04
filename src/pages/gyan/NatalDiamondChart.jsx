@@ -134,6 +134,7 @@ export default function NatalDiamondChart({ planets }) {
           const pointsAttr = pts.map(p => p.join(",")).join(" ");
           const pos = getHouseLabelPositionsSignOnly(pts, i);
 
+          // Планеты: 3,5,9,11 дом — столбик если >2, остальные — всегда в строчку
           return (
             <g key={i}>
               <polygon
@@ -171,24 +172,51 @@ export default function NatalDiamondChart({ planets }) {
                   {SIGN_SHORT[signIdx]}
                 </tspan>
               </text>
-              {/* Планеты — по центру, в одну строку, с обводкой */}
               {housePlanets.length > 0 && (
-                <text
-                  x={pos.center.x}
-                  y={pos.center.y}
-                  textAnchor="middle"
-                  dominantBaseline="middle"
-                  fontWeight={700}
-                  fontSize={housePlanets.length > 2 ? 10 : 12}
-                  fill="#333"
-                  stroke="#fff"
-                  strokeWidth={3}
-                  paintOrder="stroke"
-                  strokeLinejoin="round"
-                  style={{ pointerEvents: "none" }}
-                >
-                  {housePlanets.map(p => PLANET_LABELS_DIAMOND[p]).join(" ")}
-                </text>
+                (housePlanets.length > 2 && [2, 4, 8, 10].includes(i)) ? (
+                  // 3,5,9,11 дом — столбик
+                  <text
+                    x={pos.center.x}
+                    y={pos.center.y - ((housePlanets.length - 1) * 10) / 2}
+                    textAnchor="middle"
+                    fontWeight={700}
+                    fontSize={10}
+                    fill="#333"
+                    stroke="#fff"
+                    strokeWidth={1.5}
+                    paintOrder="stroke"
+                    strokeLinejoin="round"
+                    style={{ pointerEvents: "none" }}
+                  >
+                    {housePlanets.map((p, idx) => (
+                      <tspan
+                        x={pos.center.x}
+                        dy={idx === 0 ? 0 : 14}
+                        key={p}
+                      >
+                        {PLANET_LABELS_DIAMOND[p]}
+                      </tspan>
+                    ))}
+                  </text>
+                ) : (
+                  // остальные дома — в строку
+                  <text
+                    x={pos.center.x}
+                    y={pos.center.y}
+                    textAnchor="middle"
+                    dominantBaseline="middle"
+                    fontWeight={700}
+                    fontSize={housePlanets.length > 2 ? 10 : 12}
+                    fill="#333"
+                    stroke="#fff"
+                    strokeWidth={1.5}
+                    paintOrder="stroke"
+                    strokeLinejoin="round"
+                    style={{ pointerEvents: "none" }}
+                  >
+                    {housePlanets.map(p => PLANET_LABELS_DIAMOND[p]).join(" ")}
+                  </text>
+                )
               )}
             </g>
           );
