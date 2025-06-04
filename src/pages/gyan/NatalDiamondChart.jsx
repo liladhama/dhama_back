@@ -171,26 +171,19 @@ export default function NatalDiamondChart({ planets }) {
                   {SIGN_SHORT[signIdx]}
                 </tspan>
               </text>
-              {/* Планеты — по центру */}
+              {/* Планеты — по центру, РЯДОМ В СТРОЧКУ */}
               {housePlanets.length > 0 && (
                 <text
                   x={pos.center.x}
-                  y={pos.center.y - ((housePlanets.length - 1) * 10) / 2}
+                  y={pos.center.y}
                   textAnchor="middle"
+                  dominantBaseline="middle"
                   fontWeight={700}
                   fontSize={housePlanets.length > 2 ? 10 : 12}
                   fill="#333"
                   style={{ pointerEvents: "none" }}
                 >
-                  {housePlanets.map((p, idx) => (
-                    <tspan
-                      x={pos.center.x}
-                      dy={idx === 0 ? 0 : 14}
-                      key={p}
-                    >
-                      {PLANET_LABELS_DIAMOND[p]}
-                    </tspan>
-                  ))}
+                  {housePlanets.map(p => PLANET_LABELS_DIAMOND[p]).join(" ")}
                 </text>
               )}
             </g>
