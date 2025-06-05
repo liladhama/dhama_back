@@ -112,6 +112,9 @@ export default function NatalDiamondChart({ planets }) {
     }
   }
 
+  // Индексы домов, где подпись (знак) идёт по горизонтали от угла к центру (и требует сдвига вниз)
+  const horizontallyShiftedHouses = [1, 4, 7, 10]; // 2, 5, 8, 11 дома (индексация с 0)
+
   return (
     <div style={{
       display: "flex", flexDirection: "column", alignItems: "center", gap: 20, marginTop: 18
@@ -154,7 +157,11 @@ export default function NatalDiamondChart({ planets }) {
               {/* Знак — выбранный угол */}
               <text
                 x={pos.sign.x}
-                y={pos.sign.y}
+                y={
+                  horizontallyShiftedHouses.includes(i)
+                    ? pos.sign.y + 4 // сдвиг вниз для горизонтальных домов
+                    : pos.sign.y
+                }
                 textAnchor="middle"
                 dominantBaseline="middle"
                 fontWeight={700}
@@ -185,8 +192,9 @@ export default function NatalDiamondChart({ planets }) {
                   // 3,5,9,11 дом — столбик
                   <text
                     x={pos.center.x}
-                    y={pos.center.y - ((housePlanets.length - 1) * 10) / 2}
+                    y={pos.center.y - ((housePlanets.length - 1) * 10) / 2 + 3}
                     textAnchor="middle"
+                    dominantBaseline="middle"
                     fontWeight={700}
                     fontSize={10}
                     fill="#333"
