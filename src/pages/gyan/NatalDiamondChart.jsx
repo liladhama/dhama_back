@@ -46,18 +46,18 @@ const housePolygons = [
 
 // Только один коэффициент для смещения: signOffset (от 0 до 1)
 const houseLabelVertexMap = [
-  { sign: 2, signOffset: 0.20 }, // 1 (ромб)
+  { sign: 2, signOffset: 0.10 }, // 1 (ромб)
   { sign: 2, signOffset: 0.25 }, // 2 (треуг)
   { sign: 2, signOffset: 0.30 }, // 3 (треуг)
   { sign: 3, signOffset: 0.20 }, // 4 (ромб)
   { sign: 2, signOffset: 0.30 }, // 5 (треуг)
-  { sign: 2, signOffset: 0.30 }, // 6 (треуг)
-  { sign: 3, signOffset: 0.20 }, // 7 (ромб)
-  { sign: 2, signOffset: 0.30 }, // 8 (треуг)
+  { sign: 2, signOffset: 0.35 }, // 6 (треуг)
+  { sign: 3, signOffset: 0.30 }, // 7 (ромб)
+  { sign: 2, signOffset: 0.35 }, // 8 (треуг)
   { sign: 2, signOffset: 0.30 }, // 9 (треуг)
   { sign: 3, signOffset: 0.21 }, // 10 (ромб)
   { sign: 2, signOffset: 0.30 }, // 11 (треуг)
-  { sign: 2, signOffset: 0.30 }, // 12 (треуг)
+  { sign: 2, signOffset: 0.25 }, // 12 (треуг)
 ];
 
 // Функция для расчета положения знака по одному смещению
@@ -114,12 +114,12 @@ export default function NatalDiamondChart({ planets }) {
 
   // Индивидуальные вертикальные сдвиги знаков для проблемных домов (визуальное выравнивание)
   const customSignYShift = {
-    2: 4,   // 3 дом (Во)
-    3: 4, 
-    4: 4,   // 4 дом (Ры)
-    8: 4,   // 9 дом (Ле)
-    9: 4,   // 10 дом
-    10: 4,
+    2: 3,   // 3 дом (Во)
+    3: 3, 
+    4: 3,   // 4 дом (Ры)
+    8: 3,   // 9 дом (Ле)
+    9: 3,   // 10 дом
+    10: 3,
   };
 
   return (
