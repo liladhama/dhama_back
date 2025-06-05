@@ -113,7 +113,7 @@ export default function NatalDiamondChart({ planets }) {
   }
 
   // Индексы домов, где подпись (знак) идёт по горизонтали от угла к центру (и требует сдвига вниз)
-  const horizontallyShiftedHouses = [1, 4, 7, 10]; // 2, 5, 8, 11 дома (индексация с 0)
+  const horizontallyShiftedHouses = [1, 4, 7, 10];
 
   return (
     <div style={{
@@ -157,18 +157,17 @@ export default function NatalDiamondChart({ planets }) {
               {/* Знак — выбранный угол */}
               <text
                 x={pos.sign.x}
-                y={
-                  horizontallyShiftedHouses.includes(i)
-                    ? pos.sign.y + 4 // сдвиг вниз для горизонтальных домов
-                    : pos.sign.y
-                }
+                y={pos.sign.y}
                 textAnchor="middle"
                 dominantBaseline="middle"
+                alignmentBaseline="middle"
                 fontWeight={700}
                 fontSize={10}
+                fontFamily="Arial, sans-serif"
                 fill="#8B0000"
                 style={{
                   pointerEvents: "none",
+                  userSelect: "none",
                   overflow: "hidden",
                   textOverflow: "ellipsis",
                   whiteSpace: "nowrap",
@@ -176,6 +175,7 @@ export default function NatalDiamondChart({ planets }) {
                 }}
               >
                 <tspan
+                  dy={horizontallyShiftedHouses.includes(i) ? "3" : "0"}
                   style={{
                     overflow: "hidden",
                     textOverflow: "ellipsis",
@@ -195,14 +195,16 @@ export default function NatalDiamondChart({ planets }) {
                     y={pos.center.y - ((housePlanets.length - 1) * 10) / 2 + 3}
                     textAnchor="middle"
                     dominantBaseline="middle"
+                    alignmentBaseline="middle"
                     fontWeight={700}
                     fontSize={10}
+                    fontFamily="Arial, sans-serif"
                     fill="#333"
                     stroke="#fff"
                     strokeWidth={1.5}
                     paintOrder="stroke"
                     strokeLinejoin="round"
-                    style={{ pointerEvents: "none" }}
+                    style={{ pointerEvents: "none", userSelect: "none" }}
                   >
                     {housePlanets.map((p, idx) => (
                       <tspan
@@ -221,14 +223,16 @@ export default function NatalDiamondChart({ planets }) {
                     y={pos.center.y}
                     textAnchor="middle"
                     dominantBaseline="middle"
+                    alignmentBaseline="middle"
                     fontWeight={700}
                     fontSize={housePlanets.length > 2 ? 10 : 12}
+                    fontFamily="Arial, sans-serif"
                     fill="#333"
                     stroke="#fff"
                     strokeWidth={1.5}
                     paintOrder="stroke"
                     strokeLinejoin="round"
-                    style={{ pointerEvents: "none" }}
+                    style={{ pointerEvents: "none", userSelect: "none" }}
                   >
                     {housePlanets.map(p => PLANET_LABELS_DIAMOND[p]).join(" ")}
                   </text>
