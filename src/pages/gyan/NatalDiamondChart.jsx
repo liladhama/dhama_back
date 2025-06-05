@@ -217,7 +217,7 @@ export default function NatalDiamondChart({ planets }) {
                         dy={idx === 0 ? 0 : 14}
                         key={p}
                       >
-                        {PLANET_LABELS_DIAMOND[p]}
+                        {PLANET_LABELS_DIAMOND[p] + (planets[p]?.retro ? "(р)" : "")}
                       </tspan>
                     ))}
                   </text>
@@ -239,7 +239,7 @@ export default function NatalDiamondChart({ planets }) {
                     strokeLinejoin="round"
                     style={{ pointerEvents: "none", userSelect: "none" }}
                   >
-                    {housePlanets.map(p => PLANET_LABELS_DIAMOND[p]).join(" ")}
+                    {housePlanets.map(p => PLANET_LABELS_DIAMOND[p] + (planets[p]?.retro ? "(р)" : "")).join(" ")}
                   </text>
                 )
               )}
@@ -289,7 +289,7 @@ export default function NatalDiamondChart({ planets }) {
                       maxWidth: 20,
                     }}
                   >
-                    {PLANET_LABELS_DIAMOND[planetKey]}
+                    {PLANET_LABELS_DIAMOND[planetKey] + (p?.retro ? "(р)" : "")}
                   </td>
                   <td
                     style={{
