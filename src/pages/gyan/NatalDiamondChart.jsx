@@ -44,37 +44,34 @@ const housePolygons = [
   [S1, B, M2],                // 12 верх-право (треугольник — 3 угла)
 ];
 
-// Только один коэффициент для смещения: signOffset (от 0 до 1)
+// Теперь можно задавать два коэффициента для смещения: по X и по Y
 const houseLabelVertexMap = [
-  { sign: 2, signOffset: 0.15 }, // 1 (ромб)
-  { sign: 2, signOffset: 0.25 }, // 2 (треуг)
-  { sign: 2, signOffset: 0.30 }, // 3 (треуг)
-  { sign: 3, signOffset: 0.20 }, // 4 (ромб)
-  { sign: 2, signOffset: 0.30 }, // 5 (треуг)
-  { sign: 2, signOffset: 0.35 }, // 6 (треуг)
-  { sign: 3, signOffset: 0.25 }, // 7 (ромб)
-  { sign: 2, signOffset: 0.35 }, // 8 (треуг)
-  { sign: 2, signOffset: 0.30 }, // 9 (треуг)
-  { sign: 3, signOffset: 0.21 }, // 10 (ромб)
-  { sign: 2, signOffset: 0.30 }, // 11 (треуг)
-  { sign: 2, signOffset: 0.25 }, // 12 (треуг)
+  { sign: 2, signOffsetX: 0.30, signOffsetY: 0.36 }, // 1 (ромб)
+  { sign: 2, signOffsetX: 0.45, signOffsetY: 0.38 }, // 2 (треуг)
+  { sign: 2, signOffsetX: 0.35, signOffsetY: 0.35 }, // 3 (треуг)
+  { sign: 1, signOffsetX: 0.19, signOffsetY: 0.19 }, // 4 (ромб)
+  { sign: 1, signOffsetX: 0.15, signOffsetY: 0.13 }, // 5 (треуг)
+  { sign: 1, signOffsetX: 0.16, signOffsetY: 0.15 }, // 6 (треуг)
+  { sign: 1, signOffsetX: 0.20, signOffsetY: 0.22 }, // 7 (ромб)
+  { sign: 1, signOffsetX: 0.17, signOffsetY: 0.16 }, // 8 (треуг)
+  { sign: 1, signOffsetX: 0.16, signOffsetY: 0.18 }, // 9 (треуг)
+  { sign: 1, signOffsetX: 0.21, signOffsetY: 0.22 }, // 10 (ромб)
+  { sign: 1, signOffsetX: 0.17, signOffsetY: 0.18 }, // 11 (треуг)
+  { sign: 1, signOffsetX: 0.18, signOffsetY: 0.17 }, // 12 (треуг)
 ];
 
-// Функция для расчета положения знака по одному смещению
+// Функция для расчета положения знака по двум независимым смещениям
 function getHouseLabelPositionsSignOnly(points, houseIdx) {
   const vertices = points.map(([x, y]) => ({ x, y }));
   const { cx, cy } = getPolygonCenter(points);
 
   const signVertexIdx = houseLabelVertexMap[houseIdx]?.sign ?? 1;
-  const signOffset = houseLabelVertexMap[houseIdx]?.signOffset ?? 0.22;
+  const signOffsetX = houseLabelVertexMap[houseIdx]?.signOffsetX ?? 0.22;
+  const signOffsetY = houseLabelVertexMap[houseIdx]?.signOffsetY ?? 0.22;
 
-  let vxSign = vertices[signVertexIdx];
-  // Safety check for invalid index
-  if (!vxSign) {
-    vxSign = vertices[0];
-  }
-  const signX = vxSign.x + (cx - vxSign.x) * signOffset;
-  const signY = vxSign.y + (cy - vxSign.y) * signOffset;
+  const vxSign = vertices[signVertexIdx];
+  const signX = vxSign.x + (cx - vxSign.x) * signOffsetX;
+  const signY = vxSign.y + (cy - vxSign.y) * signOffsetY;
 
   return {
     sign: { x: signX, y: signY },
@@ -88,7 +85,7 @@ function getPolygonCenter(points) {
   const ys = points.map(([, y]) => y);
   return {
     cx: xs.reduce((a, b) => a + b) / xs.length,
-    cy: ys.reduce((a, b) => a + b) / ys.length,
+    cy: ys.reduce((a, b) => a + b) / xs.length,
   };
 }
 
@@ -112,16 +109,6 @@ export default function NatalDiamondChart({ planets }) {
     }
   }
 
-  // Индивидуальные вертикальные сдвиги знаков для проблемных домов (визуальное выравнивание)
-  const customSignYShift = {
-    2: 3,   // 3 дом (Во)
-    3: 3, 
-    4: 3,   // 4 дом (Ры)
-    8: 3,   // 9 дом (Ле)
-    9: 3,   // 10 дом
-    10: 3,
-  };
-
   return (
     <div style={{
       display: "flex", flexDirection: "column", alignItems: "center", gap: 20, marginTop: 18
@@ -140,15 +127,7 @@ export default function NatalDiamondChart({ planets }) {
         {housePolygons.map((pts, i) => {
           const num = i + 1;
           const signIdx = (ascSignIndex + num - 1) % 12;
-          let housePlanets = houseMap[getHouseIndex(num)] || [];
-
-          // Убираем асцендент из первого дома (верхний ромб)
-          if (i === 0) {
-            housePlanets = housePlanets.filter(
-              p => p !== "asc" && p !== "ascendant" && p !== "Asc" && p !== "Ascendant"
-            );
-          }
-
+          const housePlanets = houseMap[getHouseIndex(num)] || [];
           const pointsAttr = pts.map(p => p.join(",")).join(" ");
           const pos = getHouseLabelPositionsSignOnly(pts, i);
 
@@ -163,85 +142,37 @@ export default function NatalDiamondChart({ planets }) {
               {/* Знак — выбранный угол */}
               <text
                 x={pos.sign.x}
-                y={pos.sign.y + (customSignYShift[i] || 0)}
+                y={pos.sign.y}
                 textAnchor="middle"
                 dominantBaseline="middle"
-                alignmentBaseline="middle"
                 fontWeight={700}
                 fontSize={10}
-                fontFamily="Arial, sans-serif"
                 fill="#8B0000"
-                style={{
-                  pointerEvents: "none",
-                  userSelect: "none",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
-                  maxWidth: 28,
-                }}
+                style={{ pointerEvents: "none" }}
               >
-                <tspan
-                  style={{
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap",
-                    maxWidth: 28,
-                    display: "inline-block"
-                  }}
-                >
-                  {SIGN_SHORT[signIdx]}
-                </tspan>
+                {SIGN_SHORT[signIdx]}
               </text>
+              {/* Планеты — по центру */}
               {housePlanets.length > 0 && (
-                (housePlanets.length > 2 && [2, 4, 8, 10].includes(i)) ? (
-                  // 3,5,9,11 дом — столбик
-                  <text
-                    x={pos.center.x}
-                    y={pos.center.y - ((housePlanets.length - 1) * 10) / 2 + 3}
-                    textAnchor="middle"
-                    dominantBaseline="middle"
-                    alignmentBaseline="middle"
-                    fontWeight={700}
-                    fontSize={10}
-                    fontFamily="Arial, sans-serif"
-                    fill="#333"
-                    stroke="#fff"
-                    strokeWidth={1.5}
-                    paintOrder="stroke"
-                    strokeLinejoin="round"
-                    style={{ pointerEvents: "none", userSelect: "none" }}
-                  >
-                    {housePlanets.map((p, idx) => (
-                      <tspan
-                        x={pos.center.x}
-                        dy={idx === 0 ? 0 : 14}
-                        key={p}
-                      >
-                        {PLANET_LABELS_DIAMOND[p] + (planets[p]?.retro ? "(р)" : "")}
-                      </tspan>
-                    ))}
-                  </text>
-                ) : (
-                  // остальные дома — в строку
-                  <text
-                    x={pos.center.x}
-                    y={pos.center.y}
-                    textAnchor="middle"
-                    dominantBaseline="middle"
-                    alignmentBaseline="middle"
-                    fontWeight={700}
-                    fontSize={housePlanets.length > 2 ? 10 : 12}
-                    fontFamily="Arial, sans-serif"
-                    fill="#333"
-                    stroke="#fff"
-                    strokeWidth={1.5}
-                    paintOrder="stroke"
-                    strokeLinejoin="round"
-                    style={{ pointerEvents: "none", userSelect: "none" }}
-                  >
-                    {housePlanets.map(p => PLANET_LABELS_DIAMOND[p] + (planets[p]?.retro ? "(р)" : "")).join(" ")}
-                  </text>
-                )
+                <text
+                  x={pos.center.x}
+                  y={pos.center.y - ((housePlanets.length - 1) * 10) / 2}
+                  textAnchor="middle"
+                  fontWeight={700}
+                  fontSize={housePlanets.length > 2 ? 10 : 12}
+                  fill="#333"
+                  style={{ pointerEvents: "none" }}
+                >
+                  {housePlanets.map((p, idx) => (
+                    <tspan
+                      x={pos.center.x}
+                      dy={idx === 0 ? 0 : 14}
+                      key={p}
+                    >
+                      {PLANET_LABELS_DIAMOND[p]}
+                    </tspan>
+                  ))}
+                </text>
               )}
             </g>
           );
@@ -266,8 +197,8 @@ export default function NatalDiamondChart({ planets }) {
         }}>
           <thead>
             <tr style={{ color: "#8B0000", fontWeight: 700 }}>
-              <th style={{ textAlign: "left", padding: "2px 2px", width: "10%" }}>Пл</th>
-              <th style={{ textAlign: "left", padding: "2px 2px", width: "15%" }}>Град</th>
+              <th style={{ textAlign: "left", padding: "2px 2px", width: "17%" }}>Планета</th>
+              <th style={{ textAlign: "left", padding: "2px 2px", width: "25%" }}>Градусы</th>
               <th style={{ textAlign: "left", padding: "2px 2px", width: "17%" }}>Знак</th>
               <th style={{ textAlign: "left", padding: "2px 2px", width: "33%" }}>Накшатра</th>
               <th style={{ textAlign: "left", padding: "2px 2px", width: "15%" }}>Пада</th>
@@ -280,39 +211,15 @@ export default function NatalDiamondChart({ planets }) {
               if (!p) return null;
               return (
                 <tr key={planetKey} style={{ borderBottom: "1px solid #f1b6c1" }}>
-                  <td
-                    style={{
-                      padding: "1px 2px",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
-                      maxWidth: 20,
-                    }}
-                  >
-                    {PLANET_LABELS_DIAMOND[planetKey] + (p?.retro ? "(р)" : "")}
-                  </td>
-                  <td
-                    style={{
-                      padding: "1px 2px",
-                      whiteSpace: "nowrap",
-                      maxWidth: 36,
-                      overflow: "hidden",
-                      textOverflow: "ellipsis"
-                    }}
-                  >
+                  <td style={{ padding: "1px 2px", whiteSpace: "nowrap" }}>{PLANET_LABELS_DIAMOND[planetKey]}</td>
+                  <td style={{ padding: "1px 2px", whiteSpace: "nowrap" }}>
                     {p.deg_in_sign_str || ""}
+                    {/* Показываем (R) если ретроградна */}
+                    {typeof p.retrograde === "boolean" && p.retrograde && (
+                      <span style={{ color: "#d2691e", marginLeft: 4 }} title="Ретроградна"> (R)</span>
+                    )}
                   </td>
-                  <td
-                    style={{
-                      padding: "1px 2px",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
-                      maxWidth: 38
-                    }}
-                  >
-                    {p.sign || ""}
-                  </td>
+                  <td style={{ padding: "1px 2px", whiteSpace: "nowrap" }}>{p.sign || ""}</td>
                   <td
                     style={{
                       padding: "1px 2px",
