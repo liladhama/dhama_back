@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { SIGNS, SIGN_SHORT, PLANET_LABELS_DIAMOND, calcNakshatraPada, getPlanetHouseMap } from "./astroUtils";
 
 // Размер SVG и отступы
@@ -93,6 +93,16 @@ function getPolygonCenter(points) {
 }
 
 export default function NatalDiamondChart({ planets }) {
+  // Логи planets для отладки
+  useEffect(() => {
+    console.log("PLANETS OBJECT:", planets);
+    if (planets) {
+      Object.keys(planets).forEach(key => {
+        console.log(`planets['${key}']:`, planets[key]);
+      });
+    }
+  }, [planets]);
+
   if (!planets) return null;
   const ascSign = planets.ascendant?.sign || SIGNS[0];
   const ascSignIndex = SIGNS.indexOf(ascSign);
