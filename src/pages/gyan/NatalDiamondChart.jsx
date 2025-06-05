@@ -217,7 +217,10 @@ export default function NatalDiamondChart({ planets }) {
                         dy={idx === 0 ? 0 : 14}
                         key={p}
                       >
-                        {PLANET_LABELS_DIAMOND[p] + (planets[p]?.retro ? "(р)" : "")}
+                        {PLANET_LABELS_DIAMOND[p]}
+                        {planets[p]?.retrograde === true && (
+                          <tspan style={{ fontSize: "10px", fill: "#d2691e" }}> (R)</tspan>
+                        )}
                       </tspan>
                     ))}
                   </text>
@@ -239,7 +242,15 @@ export default function NatalDiamondChart({ planets }) {
                     strokeLinejoin="round"
                     style={{ pointerEvents: "none", userSelect: "none" }}
                   >
-                    {housePlanets.map(p => PLANET_LABELS_DIAMOND[p] + (planets[p]?.retro ? "(р)" : "")).join(" ")}
+                    {housePlanets.map((p, idx) => (
+                      <tspan key={p}>
+                        {PLANET_LABELS_DIAMOND[p]}
+                        {planets[p]?.retrograde === true && (
+                          <tspan style={{ fontSize: "10px", fill: "#d2691e" }}> (R)</tspan>
+                        )}
+                        {idx < housePlanets.length - 1 ? " " : ""}
+                      </tspan>
+                    ))}
                   </text>
                 )
               )}
@@ -289,7 +300,10 @@ export default function NatalDiamondChart({ planets }) {
                       maxWidth: 20,
                     }}
                   >
-                    {PLANET_LABELS_DIAMOND[planetKey] + (p?.retro ? "(р)" : "")}
+                    {PLANET_LABELS_DIAMOND[planetKey]}
+                    {p?.retrograde === true && (
+                      <span style={{ color: "#d2691e" }}> (R)</span>
+                    )}
                   </td>
                   <td
                     style={{
