@@ -112,8 +112,13 @@ export default function NatalDiamondChart({ planets }) {
     }
   }
 
-  // Индексы домов, где подпись (знак) идёт по горизонтали от угла к центру (и требует сдвига вниз)
-  const horizontallyShiftedHouses = [1, 4, 7, 10];
+  // Индивидуальные вертикальные сдвиги знаков для проблемных домов (визуальное выравнивание)
+  const customSignYShift = {
+    2: 6,   // 3 дом (Во)
+    3: 6,   // 4 дом (Ры)
+    8: 6,   // 9 дом (Ле)
+    9: 6,   // 10 дом
+  };
 
   return (
     <div style={{
@@ -145,7 +150,6 @@ export default function NatalDiamondChart({ planets }) {
           const pointsAttr = pts.map(p => p.join(",")).join(" ");
           const pos = getHouseLabelPositionsSignOnly(pts, i);
 
-          // Планеты: 3,5,9,11 дом — столбик если >2, остальные — всегда в строчку
           return (
             <g key={i}>
               <polygon
@@ -157,7 +161,7 @@ export default function NatalDiamondChart({ planets }) {
               {/* Знак — выбранный угол */}
               <text
                 x={pos.sign.x}
-                y={pos.sign.y}
+                y={pos.sign.y + (customSignYShift[i] || 0)}
                 textAnchor="middle"
                 dominantBaseline="middle"
                 alignmentBaseline="middle"
@@ -175,7 +179,6 @@ export default function NatalDiamondChart({ planets }) {
                 }}
               >
                 <tspan
-                  dy={horizontallyShiftedHouses.includes(i) ? "3" : "0"}
                   style={{
                     overflow: "hidden",
                     textOverflow: "ellipsis",
