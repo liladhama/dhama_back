@@ -76,13 +76,27 @@ export default function NatalCardForm({
       });
 
       const planetsObj = {};
-      for (const p of ["sun", "moon", "mercury", "venus", "mars", "jupiter", "saturn", "rahu", "ketu", "ascendant"]) {
+
+      // Для планет, у которых данные — объект с longitude
+      for (const p of ["sun", "moon", "mercury", "venus", "mars", "jupiter", "saturn"]) {
+        const lon = planetsData[p]?.longitude;
         planetsObj[p] = {
-          sign: getSign(planetsData[p]),
-          deg_in_sign: planetsData[p] % 30,
-          deg_in_sign_str: `${Math.floor(planetsData[p] % 30)}°${Math.round(((planetsData[p] % 30) % 1) * 60)}'`,
+          sign: getSign(lon),
+          deg_in_sign: lon % 30,
+          deg_in_sign_str: `${Math.floor(lon % 30)}°${Math.round(((lon % 30) % 1) * 60)}'`,
+          retrograde: planetsData[p]?.retrograde
         };
       }
+      // Для раху, кету, асцендента — просто число
+      for (const p of ["rahu", "ketu", "ascendant"]) {
+        const lon = planetsData[p];
+        planetsObj[p] = {
+          sign: getSign(lon),
+          deg_in_sign: lon % 30,
+          deg_in_sign_str: `${Math.floor(lon % 30)}°${Math.round(((lon % 30) % 1) * 60)}'`
+        };
+      }
+
       setPlanets(planetsObj);
       setAyanamsha(null);
     } catch (err) {
