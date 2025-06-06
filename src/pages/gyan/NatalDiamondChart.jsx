@@ -95,24 +95,17 @@ function getPolygonCenter(points) {
 // Получить знак и градус в знаке по долготе (для любого объекта с longitude)
 function getSignAndDegInSign(obj) {
   if (!obj || typeof obj.longitude !== "number" || isNaN(obj.longitude)) {
-    return { sign: "", deg_in_sign: null };
+    return { sign: "—", deg_in_sign: null };
   }
-  const signIdx = Math.floor(obj.longitude / 30);
+  const signIdx = Math.floor(obj.longitude / 30) % 12;
   const deg_in_sign = obj.longitude % 30;
   return { sign: SIGNS[signIdx], deg_in_sign };
 }
 
 // Безопасное форматирование градусов для таблицы
 function formatDegInSign(obj) {
-  // сначала пробуем p.deg_in_sign, если нет — вычисляем по longitude
-  let deg_in_sign = obj?.deg_in_sign;
-  if (typeof deg_in_sign !== "number" || isNaN(deg_in_sign)) {
-    if (typeof obj?.longitude === "number" && !isNaN(obj.longitude)) {
-      deg_in_sign = obj.longitude % 30;
-    } else {
-      return "—";
-    }
-  }
+  const { deg_in_sign } = getSignAndDegInSign(obj);
+  if (typeof deg_in_sign !== "number" || isNaN(deg_in_sign)) return "—";
   const deg = Math.floor(deg_in_sign);
   const min = Math.round((deg_in_sign - deg) * 60);
   return `${deg}°${min < 10 ? "0" : ""}${min}'`;
@@ -120,12 +113,7 @@ function formatDegInSign(obj) {
 
 // Безопасно получить знак: если нет p.sign — вычисляем по longitude
 function getPlanetSign(obj) {
-  if (typeof obj?.sign === "string" && obj.sign) return obj.sign;
-  if (typeof obj?.longitude === "number" && !isNaN(obj.longitude)) {
-    const signIdx = Math.floor(obj.longitude / 30);
-    return SIGNS[signIdx];
-  }
-  return "—";
+  return getSignAndDegInSign(obj).sign;
 }
 
 export default function NatalDiamondChart({ planets }) {
@@ -133,8 +121,8 @@ export default function NatalDiamondChart({ planets }) {
   useEffect(() => {
     console.log("PLANETS OBJECT:", planets);
     if (planets) {
-      Object.keys(planets).forEach(key => {
-        console.log(`planets['${key}']:`, planets[key]);
+      Object.entries(planets).forEach(([key, obj]) => {
+        console.log(`${key}:`, obj);
       });
     }
   }, [planets]);
@@ -161,7 +149,7 @@ export default function NatalDiamondChart({ planets }) {
   for (const [planet, pObj] of Object.entries(planets)) {
     let longitude = pObj?.longitude;
     if (typeof longitude !== "number" || isNaN(longitude)) continue;
-    const signIdx = Math.floor(longitude / 30);
+    const signIdx = Math.floor(longitude / 30) % 12;
     const totalDeg = signIdx * 30 + (longitude % 30);
     planetNakshMap[planet] = calcNakshatraPada(totalDeg);
   }
