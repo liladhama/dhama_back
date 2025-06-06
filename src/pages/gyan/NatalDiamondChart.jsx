@@ -226,13 +226,16 @@ export default function NatalDiamondChart({ planets }) {
                       >
                         {PLANET_LABELS_DIAMOND[p]}
                         {planets[p]?.retrograde === true && (
-                          <span style={{
-                            color: "#d2691e",
-                            fontWeight: 800,
-                            fontSize: "13px",
-                            marginLeft: 2,
-                            letterSpacing: 1
-                          }}>Р</span>
+                          <tspan
+                            style={{
+                              fontSize: "10px",
+                              fill: "#d2691e",
+                              fontWeight: 800,
+                              letterSpacing: 1
+                            }}
+                          >
+                            {" "}Р
+                          </tspan>
                         )}
                       </tspan>
                     ))}
@@ -259,13 +262,16 @@ export default function NatalDiamondChart({ planets }) {
                       <tspan key={p}>
                         {PLANET_LABELS_DIAMOND[p]}
                         {planets[p]?.retrograde === true && (
-                          <span style={{
-                            color: "#d2691e",
-                            fontWeight: 800,
-                            fontSize: "13px",
-                            marginLeft: 2,
-                            letterSpacing: 1
-                          }}>Р</span>
+                          <tspan
+                            style={{
+                              fontSize: "10px",
+                              fill: "#d2691e",
+                              fontWeight: 800,
+                              letterSpacing: 1
+                            }}
+                          >
+                            {" "}Р
+                          </tspan>
                         )}
                         {idx < housePlanets.length - 1 ? " " : ""}
                       </tspan>
