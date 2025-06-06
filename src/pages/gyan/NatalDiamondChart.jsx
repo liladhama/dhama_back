@@ -92,7 +92,7 @@ function getPolygonCenter(points) {
   };
 }
 
-// Исправлено! Не используем sign/deg_in_sign в объекте — только longitude
+// Вычисление знака и градусов по longitude для всех планет (включая раху и кету)
 function getSignAndDegInSign(p) {
   if (typeof p?.longitude === "number" && !isNaN(p.longitude)) {
     const signIdx = Math.floor(p.longitude / 30) % 12;
@@ -141,7 +141,7 @@ export default function NatalDiamondChart({ planets }) {
   const planetNakshMap = {};
   for (const [planet, pObj] of Object.entries(planets)) {
     let totalDeg;
-    if (typeof pObj.longitude === "number" && !isNaN(pObj.longitude)) {
+    if (typeof pObj === "object" && typeof pObj.longitude === "number" && !isNaN(pObj.longitude)) {
       totalDeg = pObj.longitude;
     }
     if (typeof totalDeg === "number" && !isNaN(totalDeg)) {
@@ -325,7 +325,8 @@ export default function NatalDiamondChart({ planets }) {
             {Object.keys(PLANET_LABELS_DIAMOND).map((planetKey) => {
               const p = planets[planetKey];
               const n = planetNakshMap[planetKey] || {};
-              if (!p) return null;
+              // Показываем только если это объект с longitude (не ascendant)
+              if (!p || typeof p !== "object" || typeof p.longitude !== "number" || isNaN(p.longitude)) return null;
               return (
                 <tr key={planetKey} style={{ borderBottom: "1px solid #f1b6c1" }}>
                   <td
