@@ -234,7 +234,7 @@ export default function NatalDiamondChart({ planets }) {
                               letterSpacing: 1
                             }}
                           >
-                            {" "}Р
+                            {""}Р
                           </tspan>
                         )}
                       </tspan>
