@@ -36,7 +36,7 @@ export function calcNakshatraPada(totalDeg) {
   };
 }
 
-// ВАЖНО: Исправленная функция распределения планет по домам — всегда по longitude!
+// Исправленная функция распределения планет по домам — всегда по longitude!
 export function getPlanetHouseMap(planets, ascSignIndex) {
   const houseMap = Array(12).fill().map(() => []);
   for (const [planet, pos] of Object.entries(planets)) {
@@ -46,6 +46,24 @@ export function getPlanetHouseMap(planets, ascSignIndex) {
     houseMap[houseIdx].push(planet);
   }
   return houseMap;
+}
+
+// Универсальная функция для вычисления знака и градусов по долготе (используй для любой планеты, включая раху/кету)
+export function getSignAndDegInSignByLongitude(longitude) {
+  if (typeof longitude !== "number" || isNaN(longitude)) return { sign: "", deg_in_sign: null };
+  const signIdx = Math.floor(longitude / 30) % 12;
+  return {
+    sign: SIGNS[signIdx],
+    deg_in_sign: longitude % 30,
+  };
+}
+
+// Форматирование градусов в знаке, например "14°47'"
+export function formatDegInSignObj(obj) {
+  if (typeof obj.deg_in_sign !== "number" || isNaN(obj.deg_in_sign)) return "";
+  const deg = Math.floor(obj.deg_in_sign);
+  const min = Math.round((obj.deg_in_sign - deg) * 60);
+  return `${deg}°${min < 10 ? "0" : ""}${min}'`;
 }
 
 export async function fetchCoordinates(city) {
