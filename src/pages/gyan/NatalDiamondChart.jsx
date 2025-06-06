@@ -92,8 +92,11 @@ function getPolygonCenter(points) {
   };
 }
 
-// Вычисление знака и градусов по longitude для всех планет (включая раху и кету)
+// Универсально вычисляет знак и градусы (для любой планеты, включая раху и кету)
 function getSignAndDegInSign(p) {
+  if (typeof p?.sign === "string" && typeof p?.deg_in_sign === "number" && !isNaN(p.deg_in_sign)) {
+    return { sign: p.sign, deg_in_sign: p.deg_in_sign };
+  }
   if (typeof p?.longitude === "number" && !isNaN(p.longitude)) {
     const signIdx = Math.floor(p.longitude / 30) % 12;
     return {
@@ -118,13 +121,15 @@ function getSignStr(p) {
 
 export default function NatalDiamondChart({ planets }) {
   useEffect(() => {
+    console.log("PLANETS OBJECT:", planets);
     if (planets) {
-      console.log('planets keys:', Object.keys(planets));
-      console.log('PLANET_LABELS_DIAMOND keys:', Object.keys(PLANET_LABELS_DIAMOND));
-      console.log('planets.rahu:', planets['rahu']);
-      console.log('planets.ketu:', planets['ketu']);
-      console.log('planets["rahu"].longitude:', planets['rahu']?.longitude);
-      console.log('planets["ketu"].longitude:', planets['ketu']?.longitude);
+      Object.keys(planets).forEach(key => {
+        console.log(`planets['${key}']:`, planets[key]);
+        if (key === "rahu" || key === "ketu") {
+          // Показываем longitude отдельно для дебага
+          console.log(`planets['${key}'].longitude:`, planets[key]?.longitude);
+        }
+      });
     }
   }, [planets]);
 
@@ -140,8 +145,12 @@ export default function NatalDiamondChart({ planets }) {
   // Планеты для таблицы
   const planetNakshMap = {};
   for (const [planet, pObj] of Object.entries(planets)) {
-    let totalDeg;
-    if (typeof pObj === "object" && typeof pObj.longitude === "number" && !isNaN(pObj.longitude)) {
+    let signIdx, totalDeg;
+    if (typeof pObj.deg_in_sign === "number" && typeof pObj.sign === "string" && !isNaN(pObj.deg_in_sign)) {
+      signIdx = SIGNS.indexOf(pObj.sign);
+      totalDeg = signIdx * 30 + pObj.deg_in_sign;
+    } else if (typeof pObj.longitude === "number" && !isNaN(pObj.longitude)) {
+      signIdx = Math.floor(pObj.longitude / 30) % 12;
       totalDeg = pObj.longitude;
     }
     if (typeof totalDeg === "number" && !isNaN(totalDeg)) {
@@ -325,8 +334,7 @@ export default function NatalDiamondChart({ planets }) {
             {Object.keys(PLANET_LABELS_DIAMOND).map((planetKey) => {
               const p = planets[planetKey];
               const n = planetNakshMap[planetKey] || {};
-              // Показываем только если это объект с longitude (не ascendant)
-              if (!p || typeof p !== "object" || typeof p.longitude !== "number" || isNaN(p.longitude)) return null;
+              if (!p) return null;
               return (
                 <tr key={planetKey} style={{ borderBottom: "1px solid #f1b6c1" }}>
                   <td
