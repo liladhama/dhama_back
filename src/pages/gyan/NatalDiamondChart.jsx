@@ -88,7 +88,7 @@ function getPolygonCenter(points) {
   const ys = points.map(([, y]) => y);
   return {
     cx: xs.reduce((a, b) => a + b) / xs.length,
-    cy: ys.reduce((a, b) => a + b) / ys.length,
+    cy: ys.reduce((a, b) => a + b) / xs.length,
   };
 }
 
@@ -106,9 +106,16 @@ export default function NatalDiamondChart({ planets }) {
   // Планеты для таблицы
   const planetNakshMap = {};
   for (const [planet, pObj] of Object.entries(planets)) {
-    if (typeof pObj.deg_in_sign === "number" && typeof pObj.sign === "string") {
+    let totalDeg = undefined;
+    if ((planet === "rahu" || planet === "ketu") && typeof pObj.longitude === "number") {
+      totalDeg = pObj.longitude;
+    } else if (typeof pObj.deg_in_sign === "number" && typeof pObj.sign === "string") {
       const signIdx = SIGNS.indexOf(pObj.sign);
-      const totalDeg = signIdx * 30 + pObj.deg_in_sign;
+      if (signIdx !== -1) {
+        totalDeg = signIdx * 30 + pObj.deg_in_sign;
+      }
+    }
+    if (typeof totalDeg === "number" && totalDeg >= 0) {
       planetNakshMap[planet] = calcNakshatraPada(totalDeg);
     }
   }
