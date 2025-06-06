@@ -233,9 +233,7 @@ export default function NatalDiamondChart({ planets }) {
                               fontWeight: 800,
                               letterSpacing: 1
                             }}
-                          >
-                            {""}Р
-                          </tspan>
+                          >Р</tspan>
                         )}
                       </tspan>
                     ))}
@@ -269,9 +267,7 @@ export default function NatalDiamondChart({ planets }) {
                               fontWeight: 800,
                               letterSpacing: 1
                             }}
-                          >
-                            {" "}Р
-                          </tspan>
+                          >Р</tspan>
                         )}
                         {idx < housePlanets.length - 1 ? " " : ""}
                       </tspan>
