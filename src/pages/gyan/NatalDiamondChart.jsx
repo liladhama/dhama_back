@@ -92,12 +92,6 @@ function getPolygonCenter(points) {
   };
 }
 
-// --- ДОБАВЛЕНО: функция для ретроградности раху/кету ---
-function isRetrograde(planetKey, p) {
-  if (planetKey === "rahu" || planetKey === "ketu") return true;
-  return p?.retrograde === true;
-}
-
 export default function NatalDiamondChart({ planets }) {
   if (!planets) return null;
   const ascSign = planets.ascendant?.sign || SIGNS[0];
@@ -224,7 +218,7 @@ export default function NatalDiamondChart({ planets }) {
                         key={p}
                       >
                         {PLANET_LABELS_DIAMOND[p]}
-                        {isRetrograde(p, planets[p]) && (
+                        {planets[p]?.retrograde === true && (
                           <tspan style={{ fontSize: "10px", fill: "#d2691e" }}> (R)</tspan>
                         )}
                       </tspan>
@@ -251,7 +245,7 @@ export default function NatalDiamondChart({ planets }) {
                     {housePlanets.map((p, idx) => (
                       <tspan key={p}>
                         {PLANET_LABELS_DIAMOND[p]}
-                        {isRetrograde(p, planets[p]) && (
+                        {planets[p]?.retrograde === true && (
                           <tspan style={{ fontSize: "10px", fill: "#d2691e" }}> (R)</tspan>
                         )}
                         {idx < housePlanets.length - 1 ? " " : ""}
@@ -307,7 +301,7 @@ export default function NatalDiamondChart({ planets }) {
                     }}
                   >
                     {PLANET_LABELS_DIAMOND[planetKey]}
-                    {isRetrograde(planetKey, p) && (
+                    {p?.retrograde === true && (
                       <span style={{ color: "#d2691e" }}> (R)</span>
                     )}
                   </td>
