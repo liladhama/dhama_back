@@ -89,13 +89,15 @@ export default function NatalCardForm({
       }
       // Для раху, кету, асцендента — просто число
       for (const p of ["rahu", "ketu", "ascendant"]) {
-        const lon = planetsData[p];
-        planetsObj[p] = {
-          sign: getSign(lon),
-          deg_in_sign: lon % 30,
-          deg_in_sign_str: `${Math.floor(lon % 30)}°${Math.round(((lon % 30) % 1) * 60)}'`
-        };
-      }
+  const obj = planetsData[p];
+  planetsObj[p] = {
+    sign: obj?.sign,
+    deg_in_sign: obj?.deg_in_sign,
+    deg_in_sign_str: obj?.deg_in_sign_str,
+    retrograde: obj?.retrograde,
+    longitude: obj?.longitude
+  };
+}
 
       setPlanets(planetsObj);
       setAyanamsha(null);
