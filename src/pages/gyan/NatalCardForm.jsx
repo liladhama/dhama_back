@@ -77,7 +77,7 @@ export default function NatalCardForm({
 
       const planetsObj = {};
 
-      // Для планет, у которых данные — объект с longitude
+      // Обычные планеты (как было)
       for (const p of ["sun", "moon", "mercury", "venus", "mars", "jupiter", "saturn"]) {
         const lon = planetsData[p]?.longitude;
         planetsObj[p] = {
@@ -87,17 +87,26 @@ export default function NatalCardForm({
           retrograde: planetsData[p]?.retrograde
         };
       }
-      // Для раху, кету, асцендента — просто число
-      for (const p of ["rahu", "ketu", "ascendant"]) {
-  const obj = planetsData[p];
-  planetsObj[p] = {
-    sign: obj?.sign,
-    deg_in_sign: obj?.deg_in_sign,
-    deg_in_sign_str: obj?.deg_in_sign_str,
-    retrograde: obj?.retrograde,
-    longitude: obj?.longitude
-  };
-}
+
+      // Раху и Кету — берём поля напрямую из объекта
+      for (const p of ["rahu", "ketu"]) {
+        const obj = planetsData[p];
+        planetsObj[p] = {
+          sign: obj?.sign,
+          deg_in_sign: obj?.deg_in_sign,
+          deg_in_sign_str: obj?.deg_in_sign_str,
+          retrograde: obj?.retrograde,
+          longitude: obj?.longitude
+        };
+      }
+
+      // Асцендент — не трогаем, как было раньше
+      const lonAsc = planetsData["ascendant"];
+      planetsObj["ascendant"] = {
+        sign: getSign(lonAsc),
+        deg_in_sign: lonAsc % 30,
+        deg_in_sign_str: `${Math.floor(lonAsc % 30)}°${Math.round(((lonAsc % 30) % 1) * 60)}'`
+      };
 
       setPlanets(planetsObj);
       setAyanamsha(null);
