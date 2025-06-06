@@ -1,8 +1,5 @@
 import React, { useEffect } from "react";
-import {
-  SIGNS, SIGN_SHORT, PLANET_LABELS_DIAMOND, calcNakshatraPada, getPlanetHouseMap,
-  getSignAndDegInSignByLongitude, formatDegInSignObj
-} from "./astroUtils";
+import { SIGNS, SIGN_SHORT, PLANET_LABELS_DIAMOND, calcNakshatraPada, getPlanetHouseMap } from "./astroUtils";
 
 // Размер SVG и отступы
 const SIZE = 320;
@@ -135,6 +132,12 @@ export default function NatalDiamondChart({ planets }) {
     10: 3,
   };
 
+  // Для раху и кету всегда показываем ретроградность
+  function isRetrograde(planetKey, p) {
+    if (planetKey === "rahu" || planetKey === "ketu") return true;
+    return p?.retrograde === true;
+  }
+
   return (
     <div style={{
       display: "flex", flexDirection: "column", alignItems: "center", gap: 20, marginTop: 18
@@ -231,7 +234,7 @@ export default function NatalDiamondChart({ planets }) {
                         key={p}
                       >
                         {PLANET_LABELS_DIAMOND[p]}
-                        {planets[p]?.retrograde === true && (
+                        {isRetrograde(p, planets[p]) && (
                           <tspan style={{ fontSize: "10px", fill: "#d2691e" }}> (R)</tspan>
                         )}
                       </tspan>
@@ -258,7 +261,7 @@ export default function NatalDiamondChart({ planets }) {
                     {housePlanets.map((p, idx) => (
                       <tspan key={p}>
                         {PLANET_LABELS_DIAMOND[p]}
-                        {planets[p]?.retrograde === true && (
+                        {isRetrograde(p, planets[p]) && (
                           <tspan style={{ fontSize: "10px", fill: "#d2691e" }}> (R)</tspan>
                         )}
                         {idx < housePlanets.length - 1 ? " " : ""}
@@ -302,65 +305,6 @@ export default function NatalDiamondChart({ planets }) {
               const p = planets[planetKey];
               const n = planetNakshMap[planetKey] || {};
               if (!p) return null;
-              // --- Добавлено: для раху и кету используем astroUtils ---
-              if (planetKey === "rahu" || planetKey === "ketu") {
-                const signObj = getSignAndDegInSignByLongitude(p.longitude);
-                return (
-                  <tr key={planetKey} style={{ borderBottom: "1px solid #f1b6c1" }}>
-                    <td
-                      style={{
-                        padding: "1px 2px",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
-                        maxWidth: 20,
-                      }}
-                    >
-                      {PLANET_LABELS_DIAMOND[planetKey]}
-                      {p?.retrograde === true && (
-                        <span style={{ color: "#d2691e" }}> (R)</span>
-                      )}
-                    </td>
-                    <td
-                      style={{
-                        padding: "1px 2px",
-                        whiteSpace: "nowrap",
-                        maxWidth: 36,
-                        overflow: "hidden",
-                        textOverflow: "ellipsis"
-                      }}
-                    >
-                      {formatDegInSignObj(signObj)}
-                    </td>
-                    <td
-                      style={{
-                        padding: "1px 2px",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
-                        maxWidth: 38
-                      }}
-                    >
-                      {signObj.sign}
-                    </td>
-                    <td
-                      style={{
-                        padding: "1px 2px",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
-                        maxWidth: 90,
-                        cursor: n.nakshatra && n.nakshatra.length > 8 ? "pointer" : "default"
-                      }}
-                      title={n.nakshatra}
-                    >
-                      {n.nakshatra || ""}
-                    </td>
-                    <td style={{ padding: "1px 2px", whiteSpace: "nowrap" }}>{n.pada || ""}</td>
-                  </tr>
-                );
-              }
-              // --- Остальные планеты по-старому ---
               return (
                 <tr key={planetKey} style={{ borderBottom: "1px solid #f1b6c1" }}>
                   <td
@@ -373,7 +317,7 @@ export default function NatalDiamondChart({ planets }) {
                     }}
                   >
                     {PLANET_LABELS_DIAMOND[planetKey]}
-                    {p?.retrograde === true && (
+                    {isRetrograde(planetKey, p) && (
                       <span style={{ color: "#d2691e" }}> (R)</span>
                     )}
                   </td>
