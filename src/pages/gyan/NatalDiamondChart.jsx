@@ -333,7 +333,10 @@ export default function NatalDiamondChart({ planets }) {
                       maxWidth: 38
                     }}
                   >
-                    {p.sign || ""}
+                    {p.sign ||
+                      ((planetKey === "rahu" || planetKey === "ketu") && typeof p.longitude === "number"
+                        ? SIGNS[Math.floor(p.longitude / 30) % 12]
+                        : "")}
                   </td>
                   <td
                     style={{
