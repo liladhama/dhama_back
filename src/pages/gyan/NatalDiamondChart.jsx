@@ -92,11 +92,8 @@ function getPolygonCenter(points) {
   };
 }
 
-// Универсально вычисляет знак и градусы (для любой планеты, включая раху и кету)
+// Универсальная функция вычисления знака и градусов для любой планеты (включая раху и кету)
 function getSignAndDegInSign(p) {
-  if (typeof p?.sign === "string" && typeof p?.deg_in_sign === "number" && !isNaN(p.deg_in_sign)) {
-    return { sign: p.sign, deg_in_sign: p.deg_in_sign };
-  }
   if (typeof p?.longitude === "number" && !isNaN(p.longitude)) {
     const signIdx = Math.floor(p.longitude / 30) % 12;
     return {
@@ -106,7 +103,6 @@ function getSignAndDegInSign(p) {
   }
   return { sign: "", deg_in_sign: null };
 }
-
 function formatDegInSign(p) {
   const { deg_in_sign } = getSignAndDegInSign(p);
   if (typeof deg_in_sign !== "number" || isNaN(deg_in_sign)) return "";
@@ -114,22 +110,20 @@ function formatDegInSign(p) {
   const min = Math.round((deg_in_sign - deg) * 60);
   return `${deg}°${min < 10 ? "0" : ""}${min}'`;
 }
-
 function getSignStr(p) {
   return getSignAndDegInSign(p).sign || "";
 }
 
 export default function NatalDiamondChart({ planets }) {
+  // Логи для дебага — чтобы видеть реальные ключи и значения
   useEffect(() => {
-    console.log("PLANETS OBJECT:", planets);
     if (planets) {
-      Object.keys(planets).forEach(key => {
-        console.log(`planets['${key}']:`, planets[key]);
-        if (key === "rahu" || key === "ketu") {
-          // Показываем longitude отдельно для дебага
-          console.log(`planets['${key}'].longitude:`, planets[key]?.longitude);
-        }
-      });
+      console.log('planets keys:', Object.keys(planets));
+      console.log('PLANET_LABELS_DIAMOND keys:', Object.keys(PLANET_LABELS_DIAMOND));
+      console.log('planets.rahu:', planets['rahu']);
+      console.log('planets.ketu:', planets['ketu']);
+      console.log('planets["rahu"].longitude:', planets['rahu']?.longitude);
+      console.log('planets["ketu"].longitude:', planets['ketu']?.longitude);
     }
   }, [planets]);
 
@@ -146,10 +140,7 @@ export default function NatalDiamondChart({ planets }) {
   const planetNakshMap = {};
   for (const [planet, pObj] of Object.entries(planets)) {
     let signIdx, totalDeg;
-    if (typeof pObj.deg_in_sign === "number" && typeof pObj.sign === "string" && !isNaN(pObj.deg_in_sign)) {
-      signIdx = SIGNS.indexOf(pObj.sign);
-      totalDeg = signIdx * 30 + pObj.deg_in_sign;
-    } else if (typeof pObj.longitude === "number" && !isNaN(pObj.longitude)) {
+    if (typeof pObj.longitude === "number" && !isNaN(pObj.longitude)) {
       signIdx = Math.floor(pObj.longitude / 30) % 12;
       totalDeg = pObj.longitude;
     }
