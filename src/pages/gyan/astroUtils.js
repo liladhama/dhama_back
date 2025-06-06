@@ -54,6 +54,10 @@ export function getPlanetHouseMap(planets, ascSignIndex) {
   const houseMap = Array(12).fill().map(() => []);
   for (const [planet, pos] of Object.entries(planets)) {
     let signIdx = SIGNS.indexOf(pos.sign);
+    // Для раху и кету — если sign не найден, но есть longitude, вычисляем знак вручную
+    if (signIdx === -1 && typeof pos.longitude === "number") {
+      signIdx = Math.floor(pos.longitude / 30) % 12;
+    }
     if (signIdx === -1) continue;
     let houseIdx = (12 + signIdx - ascSignIndex) % 12;
     houseMap[houseIdx].push(planet);
