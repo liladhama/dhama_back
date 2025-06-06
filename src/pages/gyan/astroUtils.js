@@ -25,16 +25,28 @@ export const NAKSHATRAS = [
   "Уттара Ашадха","Шравана","Дхаништха","Шатабхиша","Пурва Бхадрапада",
   "Уттара Бхадрапада","Ревати"
 ];
+
+// Защита от некорректных значений totalDeg — не будет pada = -3!
 export function calcNakshatraPada(totalDeg) {
-  const nakLen = 13 + 1/3;
+  const nakLen = 13 + 1 / 3;
   const padaLen = nakLen / 4;
+  if (typeof totalDeg !== "number" || isNaN(totalDeg) || totalDeg < 0) {
+    return { nakshatra: undefined, pada: undefined };
+  }
   const nakNum = Math.floor(totalDeg / nakLen);
+  if (nakNum < 0 || nakNum >= NAKSHATRAS.length) {
+    return { nakshatra: undefined, pada: undefined };
+  }
   const pada = Math.floor((totalDeg % nakLen) / padaLen) + 1;
+  if (pada < 1 || pada > 4) {
+    return { nakshatra: NAKSHATRAS[nakNum], pada: undefined };
+  }
   return {
     nakshatra: NAKSHATRAS[nakNum],
     pada
   };
 }
+
 export function getPlanetHouseMap(planets, ascSignIndex) {
   const houseMap = Array(12).fill().map(() => []);
   for (const [planet, pos] of Object.entries(planets)) {
@@ -45,6 +57,7 @@ export function getPlanetHouseMap(planets, ascSignIndex) {
   }
   return houseMap;
 }
+
 export async function fetchCoordinates(city) {
   const apiKey = "b89b0e6fc3b949ebba403db8c42c0d09";
   const url = `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(city)}&limit=1&format=json&apiKey=${apiKey}`;
@@ -59,6 +72,7 @@ export async function fetchCoordinates(city) {
   }
   return null;
 }
+
 export async function fetchTimezone(lat, lon, date) {
   const username = "pastoohkorov";
   const url = `https://secure.geonames.org/timezoneJSON?lat=${lat}&lng=${lon}&date=${date}&username=${username}`;
@@ -72,6 +86,7 @@ export async function fetchTimezone(lat, lon, date) {
   }
   return null;
 }
+
 export async function fetchPlanetsFromServer({ date, time, lat, lon, tzOffset }) {
   const [year, month, day] = date.split("-").map(Number);
   const [hour, minute] = time.split(":").map(Number);
@@ -100,9 +115,12 @@ export async function fetchPlanetsFromServer({ date, time, lat, lon, tzOffset })
   }
   return await res.json();
 }
+
 export function getSign(deg) {
+  if (typeof deg !== "number" || isNaN(deg)) return undefined;
   return SIGNS[Math.floor(deg / 30) % 12];
 }
+
 export const defaultFormValues = {
   name: "",
   date: "",
