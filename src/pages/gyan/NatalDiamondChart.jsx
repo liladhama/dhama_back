@@ -92,21 +92,7 @@ function getPolygonCenter(points) {
   };
 }
 
-// --- Новый хелпер для вывода знака/градусов планеты, использующий astroUtils для раху и кету ---
-function getPlanetSignStr(p, planetKey) {
-  if (planetKey === "rahu" || planetKey === "ketu") {
-    const info = getSignAndDegInSignByLongitude(p?.longitude);
-    return info.sign || "";
-  }
-  return typeof p?.sign === "string" ? p.sign : "";
-}
-function getPlanetDegStr(p, planetKey) {
-  if (planetKey === "rahu" || planetKey === "ketu") {
-    return formatDegInSignObj(getSignAndDegInSignByLongitude(p?.longitude));
-  }
-  return typeof p?.deg_in_sign === "number" ? formatDegInSignObj(p) : "";
-}
-
+// Универсально вычисляет знак и градусы (для любой планеты, включая раху и кету)
 function getSignAndDegInSign(p) {
   if (typeof p?.sign === "string" && typeof p?.deg_in_sign === "number" && !isNaN(p.deg_in_sign)) {
     return { sign: p.sign, deg_in_sign: p.deg_in_sign };
@@ -156,6 +142,7 @@ export default function NatalDiamondChart({ planets }) {
     return (num - 1 + 12) % 12;
   }
 
+  // Планеты для таблицы
   const planetNakshMap = {};
   for (const [planet, pObj] of Object.entries(planets)) {
     let signIdx, totalDeg;
@@ -171,8 +158,14 @@ export default function NatalDiamondChart({ planets }) {
     }
   }
 
+  // Индивидуальные вертикальные сдвиги знаков для проблемных домов (визуальное выравнивание)
   const customSignYShift = {
-    2: 3, 3: 3, 4: 3, 8: 3, 9: 3, 10: 3,
+    2: 3,   // 3 дом (Во)
+    3: 3, 
+    4: 3,   // 4 дом (Ры)
+    8: 3,   // 9 дом (Ле)
+    9: 3,   // 10 дом
+    10: 3,
   };
 
   return (
@@ -342,6 +335,14 @@ export default function NatalDiamondChart({ planets }) {
               const p = planets[planetKey];
               const n = planetNakshMap[planetKey] || {};
               if (!p) return null;
+              // --- Вот тут изменено! ---
+              const isRahuKetu = planetKey === "rahu" || planetKey === "ketu";
+              const signStr = isRahuKetu
+                ? getSignAndDegInSignByLongitude(p.longitude).sign
+                : getSignStr(p);
+              const degStr = isRahuKetu
+                ? formatDegInSignObj(getSignAndDegInSignByLongitude(p.longitude))
+                : formatDegInSign(p);
               return (
                 <tr key={planetKey} style={{ borderBottom: "1px solid #f1b6c1" }}>
                   <td
@@ -367,7 +368,7 @@ export default function NatalDiamondChart({ planets }) {
                       textOverflow: "ellipsis"
                     }}
                   >
-                    {getPlanetDegStr(p, planetKey)}
+                    {degStr}
                   </td>
                   <td
                     style={{
@@ -378,7 +379,7 @@ export default function NatalDiamondChart({ planets }) {
                       maxWidth: 38
                     }}
                   >
-                    {getPlanetSignStr(p, planetKey)}
+                    {signStr}
                   </td>
                   <td
                     style={{
