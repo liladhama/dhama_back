@@ -94,6 +94,7 @@ function getPolygonCenter(points) {
 
 export default function NatalDiamondChart({ planets }) {
   if (!planets) return null;
+  console.log("PLANETS IN CHART", planets); //
   const ascSign = planets.ascendant?.sign || SIGNS[0];
   const ascSignIndex = SIGNS.indexOf(ascSign);
   const houseMap = getPlanetHouseMap(planets, ascSignIndex);
