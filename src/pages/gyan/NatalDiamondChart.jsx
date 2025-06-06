@@ -94,7 +94,6 @@ function getPolygonCenter(points) {
 
 export default function NatalDiamondChart({ planets }) {
   if (!planets) return null;
-  console.log("PLANETS IN CHART", planets); //
   const ascSign = planets.ascendant?.sign || SIGNS[0];
   const ascSignIndex = SIGNS.indexOf(ascSign);
   const houseMap = getPlanetHouseMap(planets, ascSignIndex);
@@ -227,7 +226,13 @@ export default function NatalDiamondChart({ planets }) {
                       >
                         {PLANET_LABELS_DIAMOND[p]}
                         {planets[p]?.retrograde === true && (
-                          <tspan style={{ fontSize: "10px", fill: "#d2691e" }}> (R)</tspan>
+                          <span style={{
+                            color: "#d2691e",
+                            fontWeight: 800,
+                            fontSize: "13px",
+                            marginLeft: 2,
+                            letterSpacing: 1
+                          }}>Р</span>
                         )}
                       </tspan>
                     ))}
@@ -254,7 +259,13 @@ export default function NatalDiamondChart({ planets }) {
                       <tspan key={p}>
                         {PLANET_LABELS_DIAMOND[p]}
                         {planets[p]?.retrograde === true && (
-                          <tspan style={{ fontSize: "10px", fill: "#d2691e" }}> (R)</tspan>
+                          <span style={{
+                            color: "#d2691e",
+                            fontWeight: 800,
+                            fontSize: "13px",
+                            marginLeft: 2,
+                            letterSpacing: 1
+                          }}>Р</span>
                         )}
                         {idx < housePlanets.length - 1 ? " " : ""}
                       </tspan>
@@ -285,11 +296,11 @@ export default function NatalDiamondChart({ planets }) {
         }}>
           <thead>
             <tr style={{ color: "#8B0000", fontWeight: 700 }}>
-              <th style={{ textAlign: "left", padding: "2px 2px", width: "10%" }}>Пл</th>
+              <th style={{ textAlign: "left", padding: "2px 2px", width: "18%" }}>Пл</th>
               <th style={{ textAlign: "left", padding: "2px 2px", width: "15%" }}>Град</th>
               <th style={{ textAlign: "left", padding: "2px 2px", width: "17%" }}>Знак</th>
               <th style={{ textAlign: "left", padding: "2px 2px", width: "33%" }}>Накшатра</th>
-              <th style={{ textAlign: "left", padding: "2px 2px", width: "15%" }}>Пада</th>
+              <th style={{ textAlign: "left", padding: "2px 2px", width: "8%" }}>ПД</th>
             </tr>
           </thead>
           <tbody>
@@ -305,12 +316,19 @@ export default function NatalDiamondChart({ planets }) {
                       overflow: "hidden",
                       textOverflow: "ellipsis",
                       whiteSpace: "nowrap",
-                      maxWidth: 20,
+                      maxWidth: 32,
+                      fontWeight: 700
                     }}
                   >
                     {PLANET_LABELS_DIAMOND[planetKey]}
                     {p?.retrograde === true && (
-                      <span style={{ color: "#d2691e" }}> (R)</span>
+                      <span style={{
+                        color: "#d2691e",
+                        fontWeight: 800,
+                        fontSize: "13px",
+                        marginLeft: 2,
+                        letterSpacing: 1
+                      }}>Р</span>
                     )}
                   </td>
                   <td
@@ -351,7 +369,12 @@ export default function NatalDiamondChart({ planets }) {
                   >
                     {n.nakshatra || ""}
                   </td>
-                  <td style={{ padding: "1px 2px", whiteSpace: "nowrap" }}>{n.pada || ""}</td>
+                  <td style={{
+                    padding: "1px 2px",
+                    whiteSpace: "nowrap",
+                    width: 8,
+                    textAlign: "center"
+                  }}>{n.pada || ""}</td>
                 </tr>
               );
             })}
