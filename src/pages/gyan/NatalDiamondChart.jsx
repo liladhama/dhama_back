@@ -296,7 +296,7 @@ export default function NatalDiamondChart({ planets }) {
         }}>
           <thead>
             <tr style={{ color: "#8B0000", fontWeight: 700 }}>
-              <th style={{ textAlign: "left", padding: "2px 2px", width: "12%" }}>Пл</th>
+              <th style={{ textAlign: "left", padding: "2px 2px", width: "10%" }}>Пл</th>
               <th style={{ textAlign: "left", padding: "2px 2px", width: "15%" }}>Град</th>
               <th style={{ textAlign: "left", padding: "2px 2px", width: "17%" }}>Знак</th>
               <th style={{ textAlign: "left", padding: "2px 2px", width: "33%" }}>Накшатра</th>
