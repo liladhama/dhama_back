@@ -92,51 +92,45 @@ function getPolygonCenter(points) {
   };
 }
 
-// Получить знак и градус в знаке по долготе (для любого объекта с longitude)
-function getSignAndDegInSign(obj) {
-  if (!obj || typeof obj.longitude !== "number" || isNaN(obj.longitude)) {
-    return { sign: "—", deg_in_sign: null };
+// Универсально вычисляет знак и градусы (для любой планеты, включая раху и кету)
+function getSignAndDegInSign(p) {
+  if (typeof p?.sign === "string" && typeof p?.deg_in_sign === "number") {
+    return { sign: p.sign, deg_in_sign: p.deg_in_sign };
   }
-  const signIdx = Math.floor(obj.longitude / 30) % 12;
-  const deg_in_sign = obj.longitude % 30;
-  return { sign: SIGNS[signIdx], deg_in_sign };
+  if (typeof p?.longitude === "number" && !isNaN(p.longitude)) {
+    const signIdx = Math.floor(p.longitude / 30) % 12;
+    return {
+      sign: SIGNS[signIdx],
+      deg_in_sign: p.longitude % 30,
+    };
+  }
+  return { sign: "", deg_in_sign: null };
 }
 
-// Безопасное форматирование градусов для таблицы
-function formatDegInSign(obj) {
-  const { deg_in_sign } = getSignAndDegInSign(obj);
-  if (typeof deg_in_sign !== "number" || isNaN(deg_in_sign)) return "—";
+function formatDegInSign(p) {
+  const { deg_in_sign } = getSignAndDegInSign(p);
+  if (typeof deg_in_sign !== "number" || isNaN(deg_in_sign)) return "";
   const deg = Math.floor(deg_in_sign);
   const min = Math.round((deg_in_sign - deg) * 60);
   return `${deg}°${min < 10 ? "0" : ""}${min}'`;
 }
 
-// Безопасно получить знак: если нет p.sign — вычисляем по longitude
-function getPlanetSign(obj) {
-  return getSignAndDegInSign(obj).sign;
+function getSignStr(p) {
+  return getSignAndDegInSign(p).sign || "";
 }
 
 export default function NatalDiamondChart({ planets }) {
-  // Логи planets для отладки
   useEffect(() => {
     console.log("PLANETS OBJECT:", planets);
     if (planets) {
-      Object.entries(planets).forEach(([key, obj]) => {
-        console.log(`${key}:`, obj);
+      Object.keys(planets).forEach(key => {
+        console.log(`planets['${key}']:`, planets[key]);
       });
     }
   }, [planets]);
 
   if (!planets) return null;
-  // Если ascendant как число, вычислим знак
-  let ascSign;
-  if (planets.ascendant && typeof planets.ascendant === "object" && typeof planets.ascendant.sign === "string") {
-    ascSign = planets.ascendant.sign;
-  } else if (typeof planets.ascendant === "number") {
-    ascSign = SIGNS[Math.floor(planets.ascendant / 30)];
-  } else {
-    ascSign = SIGNS[0];
-  }
+  const ascSign = planets.ascendant?.sign || SIGNS[0];
   const ascSignIndex = SIGNS.indexOf(ascSign);
   const houseMap = getPlanetHouseMap(planets, ascSignIndex);
 
@@ -147,11 +141,17 @@ export default function NatalDiamondChart({ planets }) {
   // Планеты для таблицы
   const planetNakshMap = {};
   for (const [planet, pObj] of Object.entries(planets)) {
-    let longitude = pObj?.longitude;
-    if (typeof longitude !== "number" || isNaN(longitude)) continue;
-    const signIdx = Math.floor(longitude / 30) % 12;
-    const totalDeg = signIdx * 30 + (longitude % 30);
-    planetNakshMap[planet] = calcNakshatraPada(totalDeg);
+    let signIdx, totalDeg;
+    if (typeof pObj.deg_in_sign === "number" && typeof pObj.sign === "string") {
+      signIdx = SIGNS.indexOf(pObj.sign);
+      totalDeg = signIdx * 30 + pObj.deg_in_sign;
+    } else if (typeof pObj.longitude === "number" && !isNaN(pObj.longitude)) {
+      signIdx = Math.floor(pObj.longitude / 30) % 12;
+      totalDeg = pObj.longitude;
+    }
+    if (typeof totalDeg === "number") {
+      planetNakshMap[planet] = calcNakshatraPada(totalDeg);
+    }
   }
 
   // Индивидуальные вертикальные сдвиги знаков для проблемных домов (визуальное выравнивание)
@@ -367,7 +367,7 @@ export default function NatalDiamondChart({ planets }) {
                       maxWidth: 38
                     }}
                   >
-                    {getPlanetSign(p)}
+                    {getSignStr(p)}
                   </td>
                   <td
                     style={{
