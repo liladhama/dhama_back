@@ -35,16 +35,19 @@ export function calcNakshatraPada(totalDeg) {
     pada
   };
 }
+
+// ВАЖНО: Исправленная функция распределения планет по домам — всегда по longitude!
 export function getPlanetHouseMap(planets, ascSignIndex) {
   const houseMap = Array(12).fill().map(() => []);
   for (const [planet, pos] of Object.entries(planets)) {
-    let signIdx = SIGNS.indexOf(pos.sign);
-    if (signIdx === -1) continue;
+    if (typeof pos !== "object" || typeof pos.longitude !== "number" || isNaN(pos.longitude)) continue;
+    let signIdx = Math.floor(pos.longitude / 30) % 12;
     let houseIdx = (12 + signIdx - ascSignIndex) % 12;
     houseMap[houseIdx].push(planet);
   }
   return houseMap;
 }
+
 export async function fetchCoordinates(city) {
   const apiKey = "b89b0e6fc3b949ebba403db8c42c0d09";
   const url = `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(city)}&limit=1&format=json&apiKey=${apiKey}`;
