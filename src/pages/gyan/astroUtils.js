@@ -7,7 +7,7 @@ export const SIGN_SHORT = [
   "Ве", "Ск", "Ст", "Ко", "Во", "Ры"
 ];
 export const PLANET_LABELS_DIAMOND = {
-  sun: "Су",
+  sun: "Со",
   moon: "Лу",
   mercury: "Ме",
   venus: "Ве",
