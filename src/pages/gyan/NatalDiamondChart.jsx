@@ -1,5 +1,8 @@
 import React, { useEffect } from "react";
-import { SIGNS, SIGN_SHORT, PLANET_LABELS_DIAMOND, calcNakshatraPada, getPlanetHouseMap } from "./astroUtils";
+import {
+  SIGNS, SIGN_SHORT, PLANET_LABELS_DIAMOND, calcNakshatraPada, getPlanetHouseMap,
+  getSignAndDegInSignByLongitude, formatDegInSignObj
+} from "./astroUtils";
 
 // Размер SVG и отступы
 const SIZE = 320;
@@ -60,7 +63,6 @@ const houseLabelVertexMap = [
   { sign: 2, signOffset: 0.25 }, // 12 (треуг)
 ];
 
-// Функция для расчета положения знака по одному смещению
 function getHouseLabelPositionsSignOnly(points, houseIdx) {
   const vertices = points.map(([x, y]) => ({ x, y }));
   const { cx, cy } = getPolygonCenter(points);
@@ -69,7 +71,6 @@ function getHouseLabelPositionsSignOnly(points, houseIdx) {
   const signOffset = houseLabelVertexMap[houseIdx]?.signOffset ?? 0.22;
 
   let vxSign = vertices[signVertexIdx];
-  // Safety check for invalid index
   if (!vxSign) {
     vxSign = vertices[0];
   }
@@ -82,7 +83,6 @@ function getHouseLabelPositionsSignOnly(points, houseIdx) {
   };
 }
 
-// Центр полигона
 function getPolygonCenter(points) {
   const xs = points.map(([x]) => x);
   const ys = points.map(([, y]) => y);
@@ -92,7 +92,21 @@ function getPolygonCenter(points) {
   };
 }
 
-// Универсально вычисляет знак и градусы (для любой планеты, включая раху и кету)
+// --- Новый хелпер для вывода знака/градусов планеты, использующий astroUtils для раху и кету ---
+function getPlanetSignStr(p, planetKey) {
+  if (planetKey === "rahu" || planetKey === "ketu") {
+    const info = getSignAndDegInSignByLongitude(p?.longitude);
+    return info.sign || "";
+  }
+  return typeof p?.sign === "string" ? p.sign : "";
+}
+function getPlanetDegStr(p, planetKey) {
+  if (planetKey === "rahu" || planetKey === "ketu") {
+    return formatDegInSignObj(getSignAndDegInSignByLongitude(p?.longitude));
+  }
+  return typeof p?.deg_in_sign === "number" ? formatDegInSignObj(p) : "";
+}
+
 function getSignAndDegInSign(p) {
   if (typeof p?.sign === "string" && typeof p?.deg_in_sign === "number" && !isNaN(p.deg_in_sign)) {
     return { sign: p.sign, deg_in_sign: p.deg_in_sign };
@@ -142,7 +156,6 @@ export default function NatalDiamondChart({ planets }) {
     return (num - 1 + 12) % 12;
   }
 
-  // Планеты для таблицы
   const planetNakshMap = {};
   for (const [planet, pObj] of Object.entries(planets)) {
     let signIdx, totalDeg;
@@ -158,14 +171,8 @@ export default function NatalDiamondChart({ planets }) {
     }
   }
 
-  // Индивидуальные вертикальные сдвиги знаков для проблемных домов (визуальное выравнивание)
   const customSignYShift = {
-    2: 3,   // 3 дом (Во)
-    3: 3, 
-    4: 3,   // 4 дом (Ры)
-    8: 3,   // 9 дом (Ле)
-    9: 3,   // 10 дом
-    10: 3,
+    2: 3, 3: 3, 4: 3, 8: 3, 9: 3, 10: 3,
   };
 
   return (
@@ -360,7 +367,7 @@ export default function NatalDiamondChart({ planets }) {
                       textOverflow: "ellipsis"
                     }}
                   >
-                    {formatDegInSign(p)}
+                    {getPlanetDegStr(p, planetKey)}
                   </td>
                   <td
                     style={{
@@ -371,7 +378,7 @@ export default function NatalDiamondChart({ planets }) {
                       maxWidth: 38
                     }}
                   >
-                    {getSignStr(p)}
+                    {getPlanetSignStr(p, planetKey)}
                   </td>
                   <td
                     style={{
