@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { SIGNS, SIGN_SHORT, PLANET_LABELS_DIAMOND, calcNakshatraPada, getPlanetHouseMap } from "./astroUtils";
 
 // Размер SVG и отступы
@@ -92,17 +92,13 @@ function getPolygonCenter(points) {
   };
 }
 
-export default function NatalDiamondChart({ planets }) {
-  // Логи planets для отладки
-  useEffect(() => {
-    console.log("PLANETS OBJECT:", planets);
-    if (planets) {
-      Object.keys(planets).forEach(key => {
-        console.log(`planets['${key}']:`, planets[key]);
-      });
-    }
-  }, [planets]);
+// --- ДОБАВЛЕНО: функция для ретроградности раху/кету ---
+function isRetrograde(planetKey, p) {
+  if (planetKey === "rahu" || planetKey === "ketu") return true;
+  return p?.retrograde === true;
+}
 
+export default function NatalDiamondChart({ planets }) {
   if (!planets) return null;
   const ascSign = planets.ascendant?.sign || SIGNS[0];
   const ascSignIndex = SIGNS.indexOf(ascSign);
@@ -131,12 +127,6 @@ export default function NatalDiamondChart({ planets }) {
     9: 3,   // 10 дом
     10: 3,
   };
-
-  // Для раху и кету всегда показываем ретроградность
-  function isRetrograde(planetKey, p) {
-    if (planetKey === "rahu" || planetKey === "ketu") return true;
-    return p?.retrograde === true;
-  }
 
   return (
     <div style={{
