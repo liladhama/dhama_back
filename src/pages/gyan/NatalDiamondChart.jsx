@@ -63,6 +63,7 @@ const houseLabelVertexMap = [
   { sign: 2, signOffset: 0.25 }, // 12 (треуг)
 ];
 
+// Функция для расчета положения знака по одному смещению
 function getHouseLabelPositionsSignOnly(points, houseIdx) {
   const vertices = points.map(([x, y]) => ({ x, y }));
   const { cx, cy } = getPolygonCenter(points);
@@ -71,6 +72,7 @@ function getHouseLabelPositionsSignOnly(points, houseIdx) {
   const signOffset = houseLabelVertexMap[houseIdx]?.signOffset ?? 0.22;
 
   let vxSign = vertices[signVertexIdx];
+  // Safety check for invalid index
   if (!vxSign) {
     vxSign = vertices[0];
   }
@@ -83,6 +85,7 @@ function getHouseLabelPositionsSignOnly(points, houseIdx) {
   };
 }
 
+// Центр полигона
 function getPolygonCenter(points) {
   const xs = points.map(([x]) => x);
   const ys = points.map(([, y]) => y);
@@ -92,43 +95,13 @@ function getPolygonCenter(points) {
   };
 }
 
-// Универсально вычисляет знак и градусы (для любой планеты, включая раху и кету)
-function getSignAndDegInSign(p) {
-  if (typeof p?.sign === "string" && typeof p?.deg_in_sign === "number" && !isNaN(p.deg_in_sign)) {
-    return { sign: p.sign, deg_in_sign: p.deg_in_sign };
-  }
-  if (typeof p?.longitude === "number" && !isNaN(p.longitude)) {
-    const signIdx = Math.floor(p.longitude / 30) % 12;
-    return {
-      sign: SIGNS[signIdx],
-      deg_in_sign: p.longitude % 30,
-    };
-  }
-  return { sign: "", deg_in_sign: null };
-}
-
-function formatDegInSign(p) {
-  const { deg_in_sign } = getSignAndDegInSign(p);
-  if (typeof deg_in_sign !== "number" || isNaN(deg_in_sign)) return "";
-  const deg = Math.floor(deg_in_sign);
-  const min = Math.round((deg_in_sign - deg) * 60);
-  return `${deg}°${min < 10 ? "0" : ""}${min}'`;
-}
-
-function getSignStr(p) {
-  return getSignAndDegInSign(p).sign || "";
-}
-
 export default function NatalDiamondChart({ planets }) {
+  // Логи planets для отладки
   useEffect(() => {
     console.log("PLANETS OBJECT:", planets);
     if (planets) {
       Object.keys(planets).forEach(key => {
         console.log(`planets['${key}']:`, planets[key]);
-        if (key === "rahu" || key === "ketu") {
-          // Показываем longitude отдельно для дебага
-          console.log(`planets['${key}'].longitude:`, planets[key]?.longitude);
-        }
       });
     }
   }, [planets]);
@@ -145,15 +118,9 @@ export default function NatalDiamondChart({ planets }) {
   // Планеты для таблицы
   const planetNakshMap = {};
   for (const [planet, pObj] of Object.entries(planets)) {
-    let signIdx, totalDeg;
-    if (typeof pObj.deg_in_sign === "number" && typeof pObj.sign === "string" && !isNaN(pObj.deg_in_sign)) {
-      signIdx = SIGNS.indexOf(pObj.sign);
-      totalDeg = signIdx * 30 + pObj.deg_in_sign;
-    } else if (typeof pObj.longitude === "number" && !isNaN(pObj.longitude)) {
-      signIdx = Math.floor(pObj.longitude / 30) % 12;
-      totalDeg = pObj.longitude;
-    }
-    if (typeof totalDeg === "number" && !isNaN(totalDeg)) {
+    if (typeof pObj.deg_in_sign === "number" && typeof pObj.sign === "string") {
+      const signIdx = SIGNS.indexOf(pObj.sign);
+      const totalDeg = signIdx * 30 + pObj.deg_in_sign;
       planetNakshMap[planet] = calcNakshatraPada(totalDeg);
     }
   }
@@ -335,14 +302,65 @@ export default function NatalDiamondChart({ planets }) {
               const p = planets[planetKey];
               const n = planetNakshMap[planetKey] || {};
               if (!p) return null;
-              // --- Вот тут изменено! ---
-              const isRahuKetu = planetKey === "rahu" || planetKey === "ketu";
-              const signStr = isRahuKetu
-                ? getSignAndDegInSignByLongitude(p.longitude).sign
-                : getSignStr(p);
-              const degStr = isRahuKetu
-                ? formatDegInSignObj(getSignAndDegInSignByLongitude(p.longitude))
-                : formatDegInSign(p);
+              // --- Добавлено: для раху и кету используем astroUtils ---
+              if (planetKey === "rahu" || planetKey === "ketu") {
+                const signObj = getSignAndDegInSignByLongitude(p.longitude);
+                return (
+                  <tr key={planetKey} style={{ borderBottom: "1px solid #f1b6c1" }}>
+                    <td
+                      style={{
+                        padding: "1px 2px",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                        maxWidth: 20,
+                      }}
+                    >
+                      {PLANET_LABELS_DIAMOND[planetKey]}
+                      {p?.retrograde === true && (
+                        <span style={{ color: "#d2691e" }}> (R)</span>
+                      )}
+                    </td>
+                    <td
+                      style={{
+                        padding: "1px 2px",
+                        whiteSpace: "nowrap",
+                        maxWidth: 36,
+                        overflow: "hidden",
+                        textOverflow: "ellipsis"
+                      }}
+                    >
+                      {formatDegInSignObj(signObj)}
+                    </td>
+                    <td
+                      style={{
+                        padding: "1px 2px",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                        maxWidth: 38
+                      }}
+                    >
+                      {signObj.sign}
+                    </td>
+                    <td
+                      style={{
+                        padding: "1px 2px",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                        maxWidth: 90,
+                        cursor: n.nakshatra && n.nakshatra.length > 8 ? "pointer" : "default"
+                      }}
+                      title={n.nakshatra}
+                    >
+                      {n.nakshatra || ""}
+                    </td>
+                    <td style={{ padding: "1px 2px", whiteSpace: "nowrap" }}>{n.pada || ""}</td>
+                  </tr>
+                );
+              }
+              // --- Остальные планеты по-старому ---
               return (
                 <tr key={planetKey} style={{ borderBottom: "1px solid #f1b6c1" }}>
                   <td
@@ -368,7 +386,7 @@ export default function NatalDiamondChart({ planets }) {
                       textOverflow: "ellipsis"
                     }}
                   >
-                    {degStr}
+                    {p.deg_in_sign_str || ""}
                   </td>
                   <td
                     style={{
@@ -379,7 +397,7 @@ export default function NatalDiamondChart({ planets }) {
                       maxWidth: 38
                     }}
                   >
-                    {signStr}
+                    {p.sign || ""}
                   </td>
                   <td
                     style={{
