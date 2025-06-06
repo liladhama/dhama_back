@@ -27,6 +27,8 @@ export const NAKSHATRAS = [
 ];
 
 // Защита от некорректных значений totalDeg — не будет pada = -3!
+// Для rahu и ketu totalDeg = longitude (реальная долгота в градусах)
+// Для остальных totalDeg = signIdx * 30 + deg_in_sign
 export function calcNakshatraPada(totalDeg) {
   const nakLen = 13 + 1 / 3;
   const padaLen = nakLen / 4;
@@ -47,6 +49,7 @@ export function calcNakshatraPada(totalDeg) {
   };
 }
 
+// Получить дом для каждой планеты относительно асцендента
 export function getPlanetHouseMap(planets, ascSignIndex) {
   const houseMap = Array(12).fill().map(() => []);
   for (const [planet, pos] of Object.entries(planets)) {
