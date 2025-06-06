@@ -92,6 +92,14 @@ function getPolygonCenter(points) {
   };
 }
 
+// УЛУЧШЕННАЯ ФУНКЦИЯ: Безопасное форматирование градусов для таблицы
+function formatDegInSign(deg_in_sign) {
+  if (typeof deg_in_sign !== "number" || isNaN(deg_in_sign)) return "";
+  const deg = Math.floor(deg_in_sign);
+  const min = Math.round((deg_in_sign - deg) * 60);
+  return `${deg}°${min < 10 ? "0" : ""}${min}'`;
+}
+
 export default function NatalDiamondChart({ planets }) {
   // Логи planets для отладки
   useEffect(() => {
@@ -299,6 +307,7 @@ export default function NatalDiamondChart({ planets }) {
               const p = planets[planetKey];
               const n = planetNakshMap[planetKey] || {};
               if (!p) return null;
+              // БЕЗОПАСНО: если градус не число — вывод пусто
               return (
                 <tr key={planetKey} style={{ borderBottom: "1px solid #f1b6c1" }}>
                   <td
@@ -324,7 +333,7 @@ export default function NatalDiamondChart({ planets }) {
                       textOverflow: "ellipsis"
                     }}
                   >
-                    {p.deg_in_sign_str || ""}
+                    {formatDegInSign(p.deg_in_sign)}
                   </td>
                   <td
                     style={{
@@ -335,7 +344,7 @@ export default function NatalDiamondChart({ planets }) {
                       maxWidth: 38
                     }}
                   >
-                    {p.sign || ""}
+                    {typeof p.sign === "string" ? p.sign : ""}
                   </td>
                   <td
                     style={{
