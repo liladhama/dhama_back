@@ -86,16 +86,16 @@ export async function fetchTimezone(lat, lon, date) {
   const url = `https://secure.geonames.org/timezoneJSON?lat=${lat}&lng=${lon}&date=${date}&username=${username}`;
   const res = await fetch(url);
   const data = await res.json();
-  console.log('GeoNames timezone response:', data); // <-- для вашей проверки
+  console.log('GeoNames timezone response:', data);
 
   if (data.status && data.status.message) {
     throw new Error(`GeoNames: ${data.status.message}`);
   }
-  if (data && data.timezoneId) {
+  if (data && data.timezoneId && typeof data.gmtOffset !== "undefined") {
     // gmtOffset — итоговое смещение UTC на дату (с учетом DST, если оно есть)
     return {
       timezoneId: data.timezoneId,
-      tzOffset: Number(data.gmtOffset), // <-- использовать только это!
+      tzOffset: Number(data.gmtOffset),
       rawOffset: Number(data.rawOffset),
       dstOffset: Number(data.dstOffset),
       isDST: Number(data.dstOffset) !== 0
