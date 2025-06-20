@@ -15,6 +15,7 @@ export default function NatalCardForm({
   const latInput = useRef();
   const lonInput = useRef();
 
+  // Изменено: правильно учитываем летнее/зимнее время!
   async function autoFillGeo() {
     setGeoError("");
     if (!values.place || !values.date) {
@@ -34,10 +35,11 @@ export default function NatalCardForm({
 
       const tz = await fetchTimezone(coord.latitude, coord.longitude, values.date);
       if (!tz) throw new Error("Не удалось определить временную зону");
+      // Используем корректное смещение с учетом DST!
       setValues((prev) => ({
         ...prev,
         timezone: tz.timezoneId,
-        tzOffset: tz.dstOffset,
+        tzOffset: tz.totalOffset, // Теперь totalOffset уже с учетом DST
       }));
     } catch (e) {
       setGeoError("Ошибка: " + e.message);
@@ -72,7 +74,7 @@ export default function NatalCardForm({
         time: values.time,
         lat: values.latitude ? Number(values.latitude) : 55.75,
         lon: values.longitude ? Number(values.longitude) : 37.6167,
-        tzOffset: values.tzOffset !== "" ? Number(values.tzOffset) : 3,
+        tzOffset: values.tzOffset !== "" ? Number(values.tzOffset) : 3, // tzOffset уже с учетом DST
       });
 
       const planetsObj = {};
