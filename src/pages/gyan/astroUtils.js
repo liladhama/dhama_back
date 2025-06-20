@@ -80,6 +80,7 @@ export async function fetchCoordinates(city) {
   return null;
 }
 
+// Новый вариант с правильным учетом DST
 export async function fetchTimezone(lat, lon, date) {
   const username = "pastoohkorov";
   const url = `https://secure.geonames.org/timezoneJSON?lat=${lat}&lng=${lon}&date=${date}&username=${username}`;
@@ -89,7 +90,18 @@ export async function fetchTimezone(lat, lon, date) {
     throw new Error(`GeoNames: ${data.status.message}`);
   }
   if (data && data.timezoneId) {
-    return data;
+    // rawOffset и dstOffset приходят в секундах!
+    // totalOffset = rawOffset + dstOffset (если dstOffset>0, значит действует DST)
+    const rawOffset = Number(data.rawOffset) || 0; // в часах
+    const dstOffset = Number(data.dstOffset) || 0; // в часах
+    const totalOffset = rawOffset + dstOffset;
+    return {
+      timezoneId: data.timezoneId,
+      totalOffset,
+      rawOffset,
+      dstOffset,
+      isDST: dstOffset > 0
+    };
   }
   return null;
 }
