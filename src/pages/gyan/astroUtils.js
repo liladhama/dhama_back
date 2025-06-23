@@ -104,25 +104,15 @@ export async function fetchTimezone(lat, lon, date) {
   return null;
 }
 
-export async function fetchPlanetsFromServer({ date, time, lat, lon, tzOffset }) {
-  const [year, month, day] = date.split("-").map(Number);
-  const [hour, minute] = time.split(":").map(Number);
-  const localMinutes = (hour || 0) * 60 + (minute || 0);
-  const utcMinutes = localMinutes - Math.round((tzOffset || 0) * 60);
-  const utcDateObj = new Date(Date.UTC(year, month - 1, day, 0, 0));
-  utcDateObj.setUTCMinutes(utcMinutes);
-
-  const yyyy = utcDateObj.getUTCFullYear();
-  const mm = String(utcDateObj.getUTCMonth() + 1).padStart(2, "0");
-  const dd = String(utcDateObj.getUTCDate()).padStart(2, "0");
-  const hh = String(utcDateObj.getUTCHours()).padStart(2, "0");
-  const min = String(utcDateObj.getUTCMinutes()).padStart(2, "0");
-  const apiDate = `${yyyy}-${mm}-${dd}T${hh}:${min}`;
-
+export async function fetchPlanetsFromServer({ date, time, lat, lon, timezone }) {
+  // Теперь НЕ преобразуем дату/время в UTC и не используем tzOffset!
+  // Просто отправляем как есть + timezone
   const params = new URLSearchParams({
-    date: apiDate,
-    lat: lat,
-    lon: lon,
+    date,
+    time,
+    lat,
+    lon,
+    timezone,
   });
   const url = `https://astrogyan.duckdns.org/api/planets?${params.toString()}`;
 
