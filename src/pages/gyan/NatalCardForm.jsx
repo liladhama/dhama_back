@@ -44,11 +44,11 @@ export default function NatalCardForm({
 
       const tz = await fetchTimezone(coord.latitude, coord.longitude, values.date);
       if (!tz) throw new Error("Не удалось определить временную зону");
-      // Используем корректное смещение с учетом DST!
+      // Теперь сохраняем только timezoneId, offset не используем!
       setValues((prev) => ({
         ...prev,
         timezone: tz.timezoneId,
-        tzOffset: tz.tzOffset, // Теперь tzOffset уже с учетом DST
+        tzOffset: "", // очищаем поле, offset считается только на сервере
       }));
     } catch (e) {
       setGeoError("Ошибка: " + e.message);
