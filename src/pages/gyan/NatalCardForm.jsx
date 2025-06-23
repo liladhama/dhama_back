@@ -39,7 +39,7 @@ export default function NatalCardForm({
       setValues((prev) => ({
         ...prev,
         timezone: tz.timezoneId,
-        tzOffset: tz.totalOffset, // Теперь totalOffset уже с учетом DST
+        tzOffset: tz.tzOffset, // Теперь tzOffset уже с учетом DST
       }));
     } catch (e) {
       setGeoError("Ошибка: " + e.message);
