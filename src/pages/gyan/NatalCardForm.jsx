@@ -110,6 +110,14 @@ export default function NatalCardForm({
         deg_in_sign_str: `${Math.floor(lonAsc % 30)}°${Math.round(((lonAsc % 30) % 1) * 60)}'`
       };
 
+      // Сохраняем offset, если сервер его вернул
+      if (typeof planetsData.offset !== "undefined") {
+        setValues(prev => ({
+          ...prev,
+          tzOffset: planetsData.offset
+        }));
+      }
+
       setPlanets(planetsObj);
       setAyanamsha(null);
     } catch (err) {
