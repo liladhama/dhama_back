@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef } from "react";
 import { fetchCoordinates, fetchTimezone, fetchPlanetsFromServer, getSign, defaultFormValues, MAIN_COLOR, BG_COLOR } from "./astroUtils";
 
 export default function NatalCardForm({
@@ -14,15 +14,6 @@ export default function NatalCardForm({
 }) {
   const latInput = useRef();
   const lonInput = useRef();
-
-  // Тестовый useEffect для проверки fetchTimezone (Москва, 12.07.1995)
-  useEffect(() => {
-    async function testTimezone() {
-      const tz = await fetchTimezone(55.75, 37.6167, "1995-07-12");
-      console.log("Test fetchTimezone (Москва, 12.07.1995):", tz);
-    }
-    testTimezone();
-  }, []);
 
   // Изменено: правильно учитываем летнее/зимнее время!
   async function autoFillGeo() {
