@@ -111,6 +111,8 @@ export default function NatalCardForm({
       };
 
       // Сохраняем offset, если сервер его вернул
+      console.log('planetsData:', planetsData);
+      console.log('planetsData.offset:', planetsData.offset);
       if (typeof planetsData.offset !== "undefined") {
         setValues(prev => ({
           ...prev,
