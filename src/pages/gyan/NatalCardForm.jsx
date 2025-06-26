@@ -35,11 +35,26 @@ export default function NatalCardForm({
 
       const tz = await fetchTimezone(coord.latitude, coord.longitude, values.date);
       if (!tz) throw new Error("Не удалось определить временную зону");
-      // Теперь сохраняем только timezoneId, offset не используем!
+      // Получаем offset с сервера (точно так же, как при расчёте планет)
+      let offset = '';
+      try {
+        // Используем полдень по умолчанию, если времени нет
+        const time = values.time || '12:00';
+        const resp = await fetchPlanetsFromServer({
+          date: values.date,
+          time,
+          lat: coord.latitude,
+          lon: coord.longitude,
+          timezone: tz.timezoneId,
+        });
+        offset = resp.offset;
+      } catch (e) {
+        offset = '';
+      }
       setValues((prev) => ({
         ...prev,
         timezone: tz.timezoneId,
-        tzOffset: tz.tzOffset, // сохраняем offset сразу после автоопределения
+        tzOffset: offset,
       }));
     } catch (e) {
       setGeoError("Ошибка: " + e.message);
