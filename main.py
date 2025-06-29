@@ -92,7 +92,7 @@ def get_sign_deg(longitude: float):
     deg_in_sign_str = f"{deg}°{minute:02d}'"
     return sign, deg_in_sign, deg_in_sign_str
 
-@app.get("/api/planets")
+@app.get("/")
 def read_root():
     return {"message": "Приложение работает!"}
 
