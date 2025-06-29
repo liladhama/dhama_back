@@ -93,6 +93,9 @@ def get_sign_deg(longitude: float):
     return sign, deg_in_sign, deg_in_sign_str
 
 @app.get("/api/planets")
+def read_root():
+    return {"message": "Приложение работает!"}
+
 def get_planet_positions(
     date: str = Query(..., description="Дата в формате YYYY-MM-DD"),
     time: str = Query(..., description="Время в формате HH:MM"),
