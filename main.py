@@ -95,26 +95,98 @@ def get_sign_deg(longitude: float):
 # --- Вспомогательная функция для расчёта дробной карты D9 (Навамша) ---
 def calc_navamsa(planets):
     d9 = {}
+    asc_navamsa_sign_idx = None
+    rahu_navamsa_sign_idx = None
+    rahu_navamsa_num = None
+    # Сначала вычисляем навамша-лагну (ascendant)
     for key, p in planets.items():
-        # Для ascendant p — это просто число (градус), для планет — dict
         if key == "ascendant":
             lon = p if isinstance(p, (int, float)) else p.get("longitude")
-        elif not isinstance(p, dict) or "longitude" not in p:
+            sign_idx = int(lon // 30) % 12
+            deg_in_sign = lon % 30
+            navamsa_num = int(deg_in_sign // (30/9))  # 0..8
+            navamsa_sign_idx = (sign_idx * 9 + navamsa_num) % 12
+            navamsa_sign = SIGNS[navamsa_sign_idx]
+            d9[key] = {
+                "longitude": lon,
+                "navamsa_sign": navamsa_sign,
+                "navamsa_num": navamsa_num + 1,
+                "navamsa_deg": deg_in_sign,
+                "navamsa_sign_idx": navamsa_sign_idx
+            }
+            asc_navamsa_sign_idx = navamsa_sign_idx
+            break
+    # Сначала вычисляем Раху по обычной формуле, сохраняем индекс
+    for key, p in planets.items():
+        if key != "rahu":
             continue
-        else:
-            lon = p["longitude"]
+        if not isinstance(p, dict) or "longitude" not in p:
+            continue
+        lon = p["longitude"]
         sign_idx = int(lon // 30) % 12
         deg_in_sign = lon % 30
         navamsa_num = int(deg_in_sign // (30/9))  # 0..8
         navamsa_sign_idx = (sign_idx * 9 + navamsa_num) % 12
         navamsa_sign = SIGNS[navamsa_sign_idx]
+        if asc_navamsa_sign_idx is not None:
+            navamsa_house = (navamsa_sign_idx - asc_navamsa_sign_idx) % 12 + 1
+        else:
+            navamsa_house = None
         d9[key] = {
             "longitude": lon,
             "navamsa_sign": navamsa_sign,
             "navamsa_num": navamsa_num + 1,
             "navamsa_deg": deg_in_sign,
-            "navamsa_sign_idx": navamsa_sign_idx
+            "navamsa_sign_idx": navamsa_sign_idx,
+            "navamsa_house": navamsa_house
         }
+        rahu_navamsa_sign_idx = navamsa_sign_idx
+        rahu_navamsa_num = navamsa_num
+    # Теперь Кету: строго напротив Раху
+    if rahu_navamsa_sign_idx is not None:
+        ketu_navamsa_sign_idx = (rahu_navamsa_sign_idx + 6) % 12
+        ketu_navamsa_sign = SIGNS[ketu_navamsa_sign_idx]
+        if asc_navamsa_sign_idx is not None:
+            ketu_navamsa_house = (ketu_navamsa_sign_idx - asc_navamsa_sign_idx) % 12 + 1
+        else:
+            ketu_navamsa_house = None
+        d9["ketu"] = {
+            "longitude": planets["ketu"]["longitude"] if isinstance(planets["ketu"], dict) else planets["ketu"],
+            "navamsa_sign": ketu_navamsa_sign,
+            "navamsa_num": (rahu_navamsa_num + 1) if rahu_navamsa_num is not None else None,
+            "navamsa_deg": d9["rahu"]["navamsa_deg"] if "rahu" in d9 else None,
+            "navamsa_sign_idx": ketu_navamsa_sign_idx,
+            "navamsa_house": ketu_navamsa_house
+        }
+    # Остальные планеты
+    for key, p in planets.items():
+        if key in ("ascendant", "rahu", "ketu"):
+            continue
+        if not isinstance(p, dict) or "longitude" not in p:
+            continue
+        lon = p["longitude"]
+        sign_idx = int(lon // 30) % 12
+        deg_in_sign = lon % 30
+        navamsa_num = int(deg_in_sign // (30/9))  # 0..8
+        navamsa_sign_idx = (sign_idx * 9 + navamsa_num) % 12
+        navamsa_sign = SIGNS[navamsa_sign_idx]
+        if asc_navamsa_sign_idx is not None:
+            navamsa_house = (navamsa_sign_idx - asc_navamsa_sign_idx) % 12 + 1
+        else:
+            navamsa_house = None
+        d9[key] = {
+            "longitude": lon,
+            "navamsa_sign": navamsa_sign,
+            "navamsa_num": navamsa_num + 1,
+            "navamsa_deg": deg_in_sign,
+            "navamsa_sign_idx": navamsa_sign_idx,
+            "navamsa_house": navamsa_house
+        }
+    # Для диагностики: печать распределения планет по знакам и домам D9
+    print("[D9] Navamsa Ascendant:", d9.get("ascendant"))
+    for k, v in d9.items():
+        if k != "ascendant":
+            print(f"[D9] {k}: sign={v['navamsa_sign']} house={v['navamsa_house']} num={v['navamsa_num']}")
     return d9
 
 @app.get("/api/planets")
