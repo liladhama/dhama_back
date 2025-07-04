@@ -92,6 +92,28 @@ def get_sign_deg(longitude: float):
     deg_in_sign_str = f"{deg}°{minute:02d}'"
     return sign, deg_in_sign, deg_in_sign_str
 
+# --- Вспомогательная функция для расчёта дробной карты D9 (Навамша) ---
+def calc_navamsa(planets):
+    # Для каждого планеты: определить навамшу (D9) по её сидерическому градусу
+    # Алгоритм: знак = int(longitude // 30), градус в знаке = longitude % 30
+    # Навамша = int(deg_in_sign // 3.333...) + 1 (от 1 до 9)
+    # Первый навамша в знаке — всегда Овен, далее по порядку знаков
+    d9 = {}
+    for key, p in planets.items():
+        if not isinstance(p, dict) or "longitude" not in p:
+            continue
+        lon = p["longitude"]
+        sign_idx = int(lon // 30) % 12
+        deg_in_sign = lon % 30
+        navamsa_num = int(deg_in_sign // (30/9))  # 0..8
+        navamsa_sign = (sign_idx * 9 + navamsa_num) % 12
+        d9[key] = {
+            "longitude": lon,
+            "navamsa_sign": SIGNS[navamsa_sign],
+            "navamsa_num": navamsa_num + 1
+        }
+    return d9
+
 @app.get("/api/planets")
 def get_planet_positions(
     date: str = Query(..., description="Дата в формате YYYY-MM-DD"),
@@ -140,7 +162,8 @@ def get_planet_positions(
     ayanamsa = swe.get_ayanamsa(jd)
     ascendant = (float(asc_mc[0]) - ayanamsa) % 360
 
-    return {
+    # --- Формируем основной ответ ---
+    result = {
         "sun": dict(longitude=sun, retrograde=None, sign=sun_sign, deg_in_sign=sun_deg, deg_in_sign_str=sun_deg_str),
         "moon": dict(longitude=moon, retrograde=None, sign=moon_sign, deg_in_sign=moon_deg, deg_in_sign_str=moon_deg_str),
         "mars": dict(longitude=mars_lon, retrograde=mars_retro, sign=mars_sign, deg_in_sign=mars_deg, deg_in_sign_str=mars_deg_str),
@@ -153,3 +176,6 @@ def get_planet_positions(
         "ascendant": ascendant,
         "offset": offset
     }
+    # --- Добавляем расчёт дробной карты D9 (Навамша) ---
+    result["d9"] = calc_navamsa(result)
+    return result
