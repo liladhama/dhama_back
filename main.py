@@ -189,6 +189,53 @@ def calc_navamsa(planets):
             print(f"[D9] {k}: sign={v['navamsa_sign']} house={v['navamsa_house']} num={v['navamsa_num']}")
     return d9
 
+# --- Вспомогательная функция для расчёта панчанги ---
+def calc_panchanga(jd, lat, lon):
+    # Вара (день недели)
+    weekday = ["Воскресенье", "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота"]
+    swe_day = int(swe.revjul(jd)[3]) % 7
+    vara = weekday[swe_day]
+    # Титха
+    sun_long = swe.calc_ut(jd, swe.SUN)[0][0]
+    moon_long = swe.calc_ut(jd, swe.MOON)[0][0]
+    tithi_num = int(((moon_long - sun_long) % 360) / 12) + 1
+    tithi_names = [
+        "Пратхама", "Двития", "Трития", "Чатуртхи", "Панчами", "Шаштхи", "Саптами", "Аштами", "Навами", "Дашами",
+        "Экадаши", "Двадаши", "Трайодащи", "Чатурдаши", "Пурнима/Амавасья"
+    ]
+    tithi = tithi_names[tithi_num - 1] if 1 <= tithi_num <= 15 else ""
+    # Карана
+    karana_names = [
+        "Бава", "Балува", "Каулала", "Тайтила", "Гара", "Ваниж", "Вишти", "Шакуни", "Чатушпада", "Нага", "Кинстугна"
+    ]
+    karana_num = int((((moon_long - sun_long) % 360) / 6)) % 11
+    karana = karana_names[karana_num]
+    # Накшатра
+    nak_num = int((moon_long % 360) / (360/27))
+    nak_names = [
+        "Ашвини","Бхарани","Криттика","Рохини","Мригашира","Ардра","Пунарвасу","Пушья","Ашлеша","Мага",
+        "Пурва Пхалгуни","Уттара Пхалгуни","Хаста","Читра","Свати","Вишакха","Анурадха","Джйештха","Мула",
+        "Пурва Ашадха","Уттара Ашадха","Шравана","Дхаништха","Шатабхиша","Пурва Бхадрапада","Уттара Бхадрапада","Ревати"
+    ]
+    nakshatra = nak_names[nak_num]
+    # Пада накшатры
+    pada = int(((moon_long % (360/27)) / ((360/27)/4))) + 1
+    # Йога
+    yoga_num = int(((sun_long + moon_long) % 360) / (360/27))
+    yoga_names = [
+        "Вишкумбха","Преити","Айюшман","Саубхагья","Шобхана","Атригха","Сукарма","Дхрити","Шула","Ганда",
+        "Вриддхи","Дхрува","Вьягхата","Харшана","Ваджра","Сиддхи","Вьятипата","Вариан","Параигха","Шива",
+        "Сиддха","Садхия","Шубха","Шукла","Брахма","Индра","Вайдхрити"
+    ]
+    yoga = yoga_names[yoga_num]
+    return {
+        "вара": vara,
+        "титха": tithi,
+        "карана": karana,
+        "накшатра": nakshatra + f" (пада {pada})",
+        "йога": yoga
+    }
+
 @app.get("/api/planets")
 def get_planet_positions(
     date: str = Query(..., description="Дата в формате YYYY-MM-DD"),
@@ -254,4 +301,6 @@ def get_planet_positions(
     }
     # --- Добавляем расчёт дробной карты D9 (Навамша) ---
     result["d9"] = calc_navamsa(result)
+    # --- Добавляем панчангу ---
+    result["panchanga"] = calc_panchanga(jd, lat, lon)
     return result
