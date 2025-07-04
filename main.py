@@ -227,7 +227,8 @@ def get_planet_positions(
     venus_sign, venus_deg, venus_deg_str = get_sign_deg(venus_lon)
     saturn_lon, saturn_retro = get_longitude_and_retrograde(swe.calc_ut(jd, swe.SATURN, sidereal_flag))
     saturn_sign, saturn_deg, saturn_deg_str = get_sign_deg(saturn_lon)
-    rahu_lon, _ = get_longitude_and_retrograde(swe.calc_ut(jd, swe.MEAN_NODE, sidereal_flag))
+    # Заменяем MEAN_NODE на TRUE_NODE для истинных узлов
+    rahu_lon, _ = get_longitude_and_retrograde(swe.calc_ut(jd, swe.TRUE_NODE, sidereal_flag))
     rahu_sign, rahu_deg, rahu_deg_str = get_sign_deg(rahu_lon)
     rahu_retro = True
     ketu_lon = (rahu_lon + 180.0) % 360
