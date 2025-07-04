@@ -94,22 +94,20 @@ def get_sign_deg(longitude: float):
 
 # --- Вспомогательная функция для расчёта дробной карты D9 (Навамша) ---
 def calc_navamsa(planets):
-    # Для каждого планеты: определить навамшу (D9) по её сидерическому градусу
-    # Алгоритм: знак = int(longitude // 30), градус в знаке = longitude % 30
-    # Навамша = int(deg_in_sign // 3.333...) + 1 (от 1 до 9)
-    # Первый навамша в знаке — всегда Овен, далее по порядку знаков
     d9 = {}
     for key, p in planets.items():
-        if not isinstance(p, dict) or "longitude" not in p:
+        # Для ascendant p — это просто число (градус), для планет — dict
+        if key == "ascendant":
+            lon = p if isinstance(p, (int, float)) else p.get("longitude")
+        elif not isinstance(p, dict) or "longitude" not in p:
             continue
-        lon = p["longitude"]
+        else:
+            lon = p["longitude"]
         sign_idx = int(lon // 30) % 12
         deg_in_sign = lon % 30
         navamsa_num = int(deg_in_sign // (30/9))  # 0..8
         navamsa_sign_idx = (sign_idx * 9 + navamsa_num) % 12
         navamsa_sign = SIGNS[navamsa_sign_idx]
-        # Для отладки: выводим в консоль все параметры
-        print(f"[D9] {key}: lon={lon:.4f}, sign_idx={sign_idx}, deg_in_sign={deg_in_sign:.4f}, navamsa_num={navamsa_num+1}, navamsa_sign={navamsa_sign}")
         d9[key] = {
             "longitude": lon,
             "navamsa_sign": navamsa_sign,
