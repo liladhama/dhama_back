@@ -106,11 +106,16 @@ def calc_navamsa(planets):
         sign_idx = int(lon // 30) % 12
         deg_in_sign = lon % 30
         navamsa_num = int(deg_in_sign // (30/9))  # 0..8
-        navamsa_sign = (sign_idx * 9 + navamsa_num) % 12
+        navamsa_sign_idx = (sign_idx * 9 + navamsa_num) % 12
+        navamsa_sign = SIGNS[navamsa_sign_idx]
+        # Для отладки: выводим в консоль все параметры
+        print(f"[D9] {key}: lon={lon:.4f}, sign_idx={sign_idx}, deg_in_sign={deg_in_sign:.4f}, navamsa_num={navamsa_num+1}, navamsa_sign={navamsa_sign}")
         d9[key] = {
             "longitude": lon,
-            "navamsa_sign": SIGNS[navamsa_sign],
-            "navamsa_num": navamsa_num + 1
+            "navamsa_sign": navamsa_sign,
+            "navamsa_num": navamsa_num + 1,
+            "navamsa_deg": deg_in_sign,
+            "navamsa_sign_idx": navamsa_sign_idx
         }
     return d9
 
