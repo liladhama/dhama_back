@@ -295,7 +295,7 @@ def calc_panchanga(jd, sun_lon, moon_lon):
     yoga_index = int(yoga_deg / (360/27))  # 27 йог на 360 градусов
     if yoga_index >= len(YOGAS):
         yoga_index = len(YOGAS) - 1
-    panchanga["yoga"] = YOGAS[yoga_index]
+    panchanga["nitya_yoga"] = YOGAS[yoga_index]
     panchanga["yoga_progress"] = (yoga_deg % (360/27)) / (360/27) * 100
     
     # 5. НАКШАТРА (лунная стоянка) - позиция Луны в сидерическом зодиаке
