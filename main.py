@@ -244,22 +244,53 @@ def calc_panchanga(jd, sun_lon, moon_lon):
     panchanga["vara"] = VARAS[vara_index]
     
     # 2. ТИТХИ (лунный день) - разность долгот Луны и Солнца
-    tithi_deg = (moon_lon - sun_lon) % 360
-    tithi_index = int(tithi_deg / 12)  # каждые 12 градусов = 1 титхи
-    if tithi_index >= len(TITHIS):
-        tithi_index = 29  # максимальный индекс для Кришна Чатурдаши
-    panchanga["tithi"] = TITHIS[tithi_index]
-    panchanga["tithi_progress"] = (tithi_deg % 12) / 12 * 100  # процент завершения титхи
+    # Используем тропические долготы для расчёта титхи (как в предыдущей версии)
+    sun_long_tropical = swe.calc_ut(jd, swe.SUN)[0][0]
+    moon_long_tropical = swe.calc_ut(jd, swe.MOON)[0][0]
+    tithi_angle = (moon_long_tropical - sun_long_tropical) % 360
+    tithi_index = int(tithi_angle // 12)
+    
+    # Определяем фазу
+    paksha = "Шукла" if tithi_angle < 180 else "Кришна"
+    
+    # Названия титхи без фазы
+    basic_tithi_names = [
+        "Пратипада", "Двитья", "Тритья", "Чатуртхи", "Панчами", "Шашти", "Саптами", "Аштами", "Навами", "Дашами",
+        "Экадаши", "Двадаши", "Трайодаши", "Чатурдаши", "Полнолуние"
+    ]
+    
+    # Для второй половины лунного месяца используем те же названия
+    if tithi_index >= 15:
+        tithi_name_index = tithi_index - 15
+        if tithi_name_index >= len(basic_tithi_names):
+            tithi_name_index = len(basic_tithi_names) - 1
+    else:
+        tithi_name_index = tithi_index
+        
+    if tithi_name_index >= len(basic_tithi_names):
+        tithi_name_index = len(basic_tithi_names) - 1
+        
+    tithi_name = basic_tithi_names[tithi_name_index]
+    
+    # Для новолуния и полнолуния не добавляем фазу
+    if tithi_index == 0:
+        panchanga["tithi"] = "Новолуние"
+    elif tithi_index == 15:
+        panchanga["tithi"] = "Полнолуние"
+    else:
+        panchanga["tithi"] = f"{paksha} {tithi_name}"
+    
+    panchanga["tithi_progress"] = (tithi_angle % 12) / 12 * 100  # процент завершения титхи
     
     # 3. КАРАНА (половина титхи) - каждые 6 градусов разности
-    karana_deg = tithi_deg % 6
-    karana_index = int(tithi_deg / 6)
+    karana_deg = tithi_angle % 6
+    karana_index = int(tithi_angle / 6)
     if karana_index >= len(KARANAS):
         karana_index = len(KARANAS) - 1
     panchanga["karana"] = KARANAS[karana_index]
     panchanga["karana_progress"] = karana_deg / 6 * 100
     
-    # 4. ЙОГА (нитья-йога) - сумма долгот Солнца и Луны
+    # 4. ЙОГА (нитья-йога) - сумма сидерических долгот Солнца и Луны
     yoga_deg = (sun_lon + moon_lon) % 360
     yoga_index = int(yoga_deg / (360/27))  # 27 йог на 360 градусов
     if yoga_index >= len(YOGAS):
@@ -267,7 +298,7 @@ def calc_panchanga(jd, sun_lon, moon_lon):
     panchanga["yoga"] = YOGAS[yoga_index]
     panchanga["yoga_progress"] = (yoga_deg % (360/27)) / (360/27) * 100
     
-    # 5. НАКШАТРА (лунная стоянка) - позиция Луны
+    # 5. НАКШАТРА (лунная стоянка) - позиция Луны в сидерическом зодиаке
     nakshatra_deg = moon_lon % 360
     nakshatra_index = int(nakshatra_deg / (360/27))  # 27 накшатр на 360 градусов
     if nakshatra_index >= len(NAKSHATRAS):
