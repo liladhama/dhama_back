@@ -356,6 +356,8 @@ def calc_sunrise(date: str, lat: float, lon: float, tz_name: str):
         dt_sunrise_utc = pytz.utc.localize(dt_sunrise_utc)
         dt_sunrise_local = dt_sunrise_utc.astimezone(tz)
         
+        print(f"Время восхода солнца (локальное): {dt_sunrise_local}, (UTC): {dt_sunrise_utc}")
+        
         return dt_sunrise_local, dt_sunrise_utc
     except Exception as e:
         print(f"Ошибка расчета восхода: {e}")
