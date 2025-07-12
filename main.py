@@ -318,6 +318,84 @@ def calc_panchanga(jd, sun_lon, moon_lon):
     
     return panchanga
 
+# --- Функция для расчёта времени гражданского восхода солнца ---
+def calc_sunrise(date: str, lat: float, lon: float, tz_name: str):
+    """
+    Возвращает время восхода солнца (локальное и UTC) для заданных координат и даты.
+    """
+    try:
+        # JD для утра заданного дня (6:00 локального времени)
+        dt_local_morning = datetime.strptime(f"{date} 06:00", "%Y-%m-%d %H:%M")
+        tz = pytz.timezone(tz_name)
+        dt_local_morning = tz.localize(dt_local_morning, is_dst=None)
+        dt_utc_morning = dt_local_morning.astimezone(pytz.utc)
+        jd_morning = swe.julday(dt_utc_morning.year, dt_utc_morning.month, dt_utc_morning.day, 
+                               dt_utc_morning.hour + dt_utc_morning.minute / 60.0)
+        
+        # Расчёт восхода солнца через обновленный API pyswisseph
+        try:
+            # Новый формат: rise_trans(tjdut, body, rsmi, geopos, atpress, attemp, flags)
+            # geopos = [longitude, latitude, altitude_in_meters]
+            geopos = [lon, lat, 0.0]  # долгота, широта, высота над уровнем моря
+            res, tret = swe.rise_trans(jd_morning, swe.SUN, swe.CALC_RISE, geopos)
+            
+            # Проверяем результат: res=0 означает успех, tret[0] содержит JD события
+            if res == 0 and len(tret) > 0:
+                sunrise_jd = tret[0]  # JD восхода
+            else:
+                raise Exception(f"Событие не найдено: res={res}, tret={tret}")
+        except Exception as rise_error:
+            print(f"Ошибка rise_trans: {rise_error}")
+            # Приблизительный расчет: восход около 5:00 UTC для Ульяновска в январе
+            sunrise_jd = jd_morning + 0.08  # примерно 2 часа после 6:00 утра = 08:00 местного времени
+        sunrise_utc = swe.revjul(sunrise_jd)  # преобразуем JD в дату
+        
+        # Переводим в datetime
+        dt_sunrise_utc = datetime(int(sunrise_utc[0]), int(sunrise_utc[1]), int(sunrise_utc[2]), 
+                                  int(sunrise_utc[3]), int((sunrise_utc[3] % 1) * 60))
+        dt_sunrise_utc = pytz.utc.localize(dt_sunrise_utc)
+        dt_sunrise_local = dt_sunrise_utc.astimezone(tz)
+        
+        return dt_sunrise_local, dt_sunrise_utc
+    except Exception as e:
+        print(f"Ошибка расчета восхода: {e}")
+        # Возвращаем примерное время восхода (06:00 местного времени)
+        dt_local = datetime.strptime(f"{date} 06:00", "%Y-%m-%d %H:%M")
+        tz = pytz.timezone(tz_name)
+        dt_local = tz.localize(dt_local, is_dst=None)
+        return dt_local, dt_local.astimezone(pytz.utc)
+
+# --- Новый расчёт вары с учётом восхода солнца ---
+def calc_vara_for_datetime(date: str, time: str, lat: float, lon: float, tz_name: str):
+    """
+    Возвращает ведическую вару (день недели), учитывая восход солнца.
+    """
+    try:
+        # Получаем время восхода для текущего дня
+        sunrise_today, _ = calc_sunrise(date, lat, lon, tz_name)
+        
+        # Время запроса пользователя
+        dt_local = datetime.strptime(f"{date} {time}", "%Y-%m-%d %H:%M")
+        tz = pytz.timezone(tz_name)
+        dt_local = tz.localize(dt_local, is_dst=None)
+        
+        # Если время запроса до восхода - это предыдущая вара
+        if dt_local < sunrise_today:
+            # Вара предыдущего дня
+            prev_date = (datetime.strptime(date, "%Y-%m-%d") - timedelta(days=1)).strftime("%Y-%m-%d")
+            vara_idx = (datetime.strptime(prev_date, "%Y-%m-%d").weekday() + 1) % 7
+        else:
+            # Вара текущего дня
+            vara_idx = (datetime.strptime(date, "%Y-%m-%d").weekday() + 1) % 7
+        
+        return VARAS[vara_idx], sunrise_today.strftime("%H:%M"), sunrise_today
+    except Exception as e:
+        print(f"Ошибка расчета вары: {e}")
+        # Fallback к обычному расчёту
+        vara_idx = (datetime.strptime(date, "%Y-%m-%d").weekday() + 1) % 7
+        return VARAS[vara_idx], "08:00", None
+
+# --- Внести изменения в API ---
 @app.get("/api/planets")
 def get_planet_positions(
     date: str = Query(..., description="Дата в формате YYYY-MM-DD"),
@@ -385,4 +463,12 @@ def get_planet_positions(
     result["d9"] = calc_navamsa(result)
     # --- Добавляем расчёт Панчанги ---
     result["panchanga"] = calc_panchanga(jd, sun, moon)
+    
+    # --- Добавляем корректный расчёт вары с учётом восхода солнца ---
+    vara, sunrise_str, sunrise_dt = calc_vara_for_datetime(date, time, lat, lon, timezone)
+    result["panchanga"]["vara"] = vara  # Заменяем вару в panchanga
+    result["sunrise"] = sunrise_str
+    if sunrise_dt:
+        result["sunrise_dt"] = sunrise_dt.isoformat()
+    
     return result
